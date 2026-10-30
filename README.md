@@ -206,7 +206,6 @@ figures quoted below, so a seed or calibration change fails loudly instead of dr
 cd api
 pip install -r requirements-dev.txt
 python -m pytest tests -q       # engines, contract, cold start, HTTP
-python smoke_test.py            # plain-python fallback: AUC, ranking, one simulation
 ```
 
 ---
@@ -293,7 +292,7 @@ Non-obvious constraints that are easy to break when changing this repo:
 - **Documented figures are duplicated.** The headline table appears in this README and in the
   companion methodology and submission write-ups; regenerating the data layer with a different
   seed or calibration means updating all of them plus `EXPECTED` in
-  `api/tests/test_analytics.py` and the expected row in `api/smoke_test.py`.
+  `api/tests/test_analytics.py`.
 - **GeoJSON winding is load-bearing.** Boundary files re-downloaded from geoBoundaries must be
   rewound to the right-hand-rule convention, or d3-geo renders each district as "the whole
   sphere minus this polygon". Symptom: `d3.geoArea` ≈ 4π instead of < 2π.
@@ -323,7 +322,6 @@ imbere-data/
 │   │   ├── analytics.py      # targeting rules, shock simulator
 │   │   └── main.py           # FastAPI routes
 │   ├── tests/                # pytest: engines, model card, HTTP contract
-│   ├── smoke_test.py         # cold-start and headline figures, no pytest needed
 │   ├── requirements.txt
 │   └── requirements-dev.txt
 ├── web/

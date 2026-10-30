@@ -20,6 +20,10 @@ out/
 scratch/
 *.log
 
+# Local-only verification script. api/tests/ is the committed suite; smoke_test.py prints the
+# headline figures without pytest and is referenced by the local docs only.
+api/smoke_test.py
+
 # Raw NISR source downloads stay local; the transcribed CSVs in data/raw are what get committed.
 data/raw/*.pdf
 data/raw/*.xlsx
