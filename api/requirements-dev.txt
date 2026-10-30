@@ -1,0 +1,5 @@
+# Development-only dependencies. The runtime requirements stay in requirements.txt so the
+# deployed image does not carry a test framework.
+#   pip install -r requirements-dev.txt
+pytest>=7.4,<9.0
+httpx>=0.27,<1.0
