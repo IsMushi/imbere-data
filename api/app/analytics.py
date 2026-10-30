@@ -47,6 +47,16 @@ RULES = [
 
 ASSET_COLS = datastore.ASSET_COLS
 
+# Each rule draws from its own stream, derived from the seed and the rule's fixed position in
+# RULES. A single shared generator drawn in sequence made the figures depend on rule order and
+# on which subset the caller asked for; /api/targeting once used a set() and the headline moved
+# between server runs. With per-rule streams, reordering or subsetting changes nothing.
+_RULE_OFFSET = {r["id"]: i for i, r in enumerate(RULES)}
+
+
+def _rule_rng(seed: int, rid: str) -> np.random.Generator:
+    return np.random.default_rng([seed, _RULE_OFFSET[rid]])
+
 
 def _scores(rule: str, hh: pd.DataFrame, risk: np.ndarray, rng: np.random.Generator) -> np.ndarray:
     if rule == "universal":
@@ -70,11 +80,11 @@ def evaluate_targeting(
     transfer_per_beneficiary: float,
     rule_ids: list[str] | None = None,
     seed: int = 7,
+    bootstrap: int = 200,
 ) -> dict:
     st = datastore.get()
     hh = st["households"]
     risk = st["hh_risk"]
-    rng = np.random.default_rng(seed)
 
     n = len(hh)
     poor = hh["poor"].to_numpy().astype(bool)
@@ -83,10 +93,14 @@ def evaluate_targeting(
     requested = rule_ids or [r["id"] for r in RULES]
     n_ben = int(min(max(budget_total / transfer_per_beneficiary, 0), n))
 
+    # One score vector per rule, reused by the headline, the curve and the bootstrap, so all
+    # three describe the same allocation.
+    scores = {rid: _scores(rid, hh, risk, _rule_rng(seed, rid)) for rid in requested}
+
     results = []
     for rid in requested:
         rule = next(r for r in RULES if r["id"] == rid)
-        score = _scores(rid, hh, risk, rng)
+        score = scores[rid]
         chosen = np.argsort(-score)[:n_ben] if n_ben > 0 else np.array([], dtype=int)
         hit = poor[chosen]
         poor_reached = int(hit.sum())
@@ -106,6 +120,7 @@ def evaluate_targeting(
                 "exclusion_error": round(100 * (1 - poor_reached / total_poor), 1) if total_poor else 0.0,
                 "spend_rwf": round(spend),
                 "cost_per_poor_reached": round(spend / poor_reached) if poor_reached else None,
+                "ci95": _bootstrap_interval(score, poor, n_ben, spend, seed, bootstrap),
             }
         )
 
@@ -116,8 +131,7 @@ def evaluate_targeting(
         k = int(round(n * pct / 100))
         row = {"caseload_pct": pct}
         for rid in requested:
-            score = _scores(rid, hh, risk, np.random.default_rng(seed))
-            chosen = np.argsort(-score)[:k]
+            chosen = np.argsort(-scores[rid])[:k]
             row[rid] = round(100 * poor[chosen].sum() / total_poor, 1)
         curve.append(row)
 
@@ -128,30 +142,93 @@ def evaluate_targeting(
         "total_poor_in_sample": total_poor,
         "results": results,
         "coverage_curve": curve,
+        "bootstrap_reps": bootstrap,
         "microdata_kind": st["meta"]["microdata"]["kind"],
     }
+
+
+def _bootstrap_interval(
+    score: np.ndarray, poor: np.ndarray, n_ben: int, spend: float, seed: int, reps: int
+) -> dict[str, list[float]]:
+    """Resample the household sample and re-rank it, 200 times.
+
+    This measures how much each figure depends on which households happened to land in the
+    synthetic sample. It is not the EICV7 sampling design and says nothing about non-sampling
+    error; the UI and METHODOLOGY say so where the interval is shown.
+    """
+    if reps <= 0 or n_ben <= 0:
+        return {}
+    n = len(score)
+    rng = np.random.default_rng(42)
+    cov = np.empty(reps)
+    leak = np.empty(reps)
+    cost = np.empty(reps)
+    for b in range(reps):
+        idx = rng.integers(0, n, size=n)
+        chosen = np.argsort(-score[idx])[:n_ben]
+        hit = int(poor[idx][chosen].sum())
+        cov[b] = 100 * hit / max(int(poor[idx].sum()), 1)
+        leak[b] = 100 * (n_ben - hit) / n_ben
+        cost[b] = spend / hit if hit else np.nan
+    out = {}
+    for key, arr in (("coverage_of_poor", cov), ("leakage_rate", leak), ("cost_per_poor_reached", cost)):
+        lo, hi = np.nanpercentile(arr, [2.5, 97.5])
+        out[key] = [round(float(lo), 1), round(float(hi), 1)]
+    return out
 
 
 # ---------------------------------------------------------------------------------------
 # Shock simulation
 # ---------------------------------------------------------------------------------------
-# Exposure = share of households in the district whose income or consumption is hit.
+# Exposure = share of households in the district hit when this shock occurs.
 # Loss    = share of consumption lost by an exposed household at severity 100.
-# These are stated assumptions, not EICV7 estimates. The anchor from the data is the share of
-# households reporting a severe shock (37.1%) and the coping profile in Tables 6.10 / 6.11.
+#
+# Neither is estimated from EICV7, but they are not free parameters either. The base exposures
+# below fix the *relative* burden of the seven shocks; a single scalar is then solved so that,
+# at the baseline severity (50), the probability a household is hit by at least one of the seven
+# equals the published 37.1% severe-shock incidence (Table 6.10). Without that calibration the
+# union of the base values is 92.6% — a figure no Rwandan survey supports.
+TARGET_SHOCK_INCIDENCE = 0.371
+_BASE_EXPOSURE = {
+    "drought": 0.35,
+    "flood": 0.30,
+    "storm": 0.20,
+    "pest": 0.25,
+    "health": 0.15,
+    "food_price": 0.60,
+    "income_loss": 0.20,
+}
+
+
+def _solve_exposure_scale(target: float) -> float:
+    """Scale every base exposure so 1 - prod(1 - s * base) == target. Independence is assumed."""
+    lo, hi = 0.0, 1.0 / max(_BASE_EXPOSURE.values())
+    for _ in range(200):
+        mid = (lo + hi) / 2.0
+        union = 1.0 - np.prod([1.0 - mid * v for v in _BASE_EXPOSURE.values()])
+        if union < target:
+            lo = mid
+        else:
+            hi = mid
+    return (lo + hi) / 2.0
+
+
+_EXPOSURE_SCALE = _solve_exposure_scale(TARGET_SHOCK_INCIDENCE)
+
 SHOCK_ASSUMPTIONS = {
-    "drought": {"label": "Drought", "exposure": 0.35, "loss": 0.28},
-    "flood": {"label": "Flood / heavy downpour", "exposure": 0.30, "loss": 0.35},
-    "storm": {"label": "Storm / landslide", "exposure": 0.20, "loss": 0.18},
-    "pest": {"label": "Crop pest / disease outbreak", "exposure": 0.25, "loss": 0.22},
-    "health": {"label": "Health shock (illness or death)", "exposure": 0.15, "loss": 0.30},
-    "food_price": {"label": "Food price spike", "exposure": 0.60, "loss": 0.12},
-    "income_loss": {"label": "Job / income loss", "exposure": 0.20, "loss": 0.25},
+    "drought": {"label": "Drought", "exposure": _BASE_EXPOSURE["drought"] * _EXPOSURE_SCALE, "loss": 0.28},
+    "flood": {"label": "Flood / heavy downpour", "exposure": _BASE_EXPOSURE["flood"] * _EXPOSURE_SCALE, "loss": 0.35},
+    "storm": {"label": "Storm / landslide", "exposure": _BASE_EXPOSURE["storm"] * _EXPOSURE_SCALE, "loss": 0.18},
+    "pest": {"label": "Crop pest / disease outbreak", "exposure": _BASE_EXPOSURE["pest"] * _EXPOSURE_SCALE, "loss": 0.22},
+    "health": {"label": "Health shock (illness or death)", "exposure": _BASE_EXPOSURE["health"] * _EXPOSURE_SCALE, "loss": 0.30},
+    "food_price": {"label": "Food price spike", "exposure": _BASE_EXPOSURE["food_price"] * _EXPOSURE_SCALE, "loss": 0.12},
+    "income_loss": {"label": "Job / income loss", "exposure": _BASE_EXPOSURE["income_loss"] * _EXPOSURE_SCALE, "loss": 0.25},
 }
 
 SEVERITY_NOTE = (
     "Severity scales both exposure and loss. At severity 50 the shock behaves like the "
-    "assumed baseline; at 100 the impact is 1.8 times the baseline."
+    "assumed baseline; at 100 the impact is 1.8 times the baseline. Exposures are scaled so "
+    "the seven shocks together reproduce the published 37.1% severe-shock incidence."
 )
 
 
@@ -250,9 +327,12 @@ def simulate(district: str, shock_type: str, severity: float = 50.0) -> dict:
         "result": main,
         "compare": compare,
         "assumptions": {
-            k: {"label": v["label"], "exposure": v["exposure"], "loss": v["loss"]}
+            k: {"label": v["label"], "exposure": round(v["exposure"], 4), "loss": v["loss"]}
             for k, v in SHOCK_ASSUMPTIONS.items()
         },
+        "implied_shock_incidence": round(
+            100 * (1 - np.prod([1 - v["exposure"] for v in SHOCK_ASSUMPTIONS.values()])), 1
+        ),
         "severity_note": SEVERITY_NOTE,
         "microdata_kind": st["meta"]["microdata"]["kind"],
     }

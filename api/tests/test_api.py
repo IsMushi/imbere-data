@@ -32,10 +32,10 @@ def test_targeting_defaults_match_the_documented_table() -> None:
     body = client.post("/api/targeting", json={}).json()
     rows = {r["id"]: r for r in body["results"]}
     assert list(rows) == [r["id"] for r in analytics.RULES]
-    assert rows["pmt"]["targeting_accuracy"] == 71.0
-    assert rows["pmt"]["coverage_of_poor"] == 34.4
-    assert rows["pmt"]["leakage_rate"] == 29.0
-    assert rows["pmt"]["cost_per_poor_reached"] == 211268
+    assert rows["pmt"]["targeting_accuracy"] == 78.2
+    assert rows["pmt"]["coverage_of_poor"] == 37.8
+    assert rows["pmt"]["leakage_rate"] == 21.9
+    assert rows["pmt"]["cost_per_poor_reached"] == 191939
     assert body["budget_total"] == 300_000_000
     assert body["transfer_per_beneficiary"] == 150_000
 
