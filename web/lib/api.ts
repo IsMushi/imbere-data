@@ -117,6 +117,11 @@ export type TargetingResult = {
   exclusion_error: number;
   spend_rwf: number;
   cost_per_poor_reached: number | null;
+  ci95: {
+    coverage_of_poor?: [number, number];
+    leakage_rate?: [number, number];
+    cost_per_poor_reached?: [number, number];
+  };
 };
 
 export type TargetingResponse = {
@@ -126,6 +131,7 @@ export type TargetingResponse = {
   total_poor_in_sample: number;
   results: TargetingResult[];
   coverage_curve: Record<string, number>[];
+  bootstrap_reps: number;
   microdata_kind: string;
 };
 
@@ -152,6 +158,7 @@ export type SimulationResponse = {
   };
   compare: { id: string; label: string; newly_poor_households: number; cash_need_rwf: number }[];
   assumptions: Record<string, { label: string; exposure: number; loss: number }>;
+  implied_shock_incidence: number;
   severity_note: string;
   microdata_kind: string;
 };

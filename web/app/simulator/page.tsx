@@ -354,10 +354,15 @@ export default function SimulatorPage() {
                 </Table>
                 <p className="mt-3 max-w-[70ch] text-[14px] leading-relaxed text-ink-soft">
                   Resilience absorbs part of the loss: households with savings, mobile money and
-                  insurance keep more of their consumption. The anchors from the survey are the
-                  37.1% severe-shock incidence and the coping profile in EICV7 Tables 6.10–6.11.
-                  These parameters are <strong className="font-semibold text-ink">not</strong>{" "}
-                  estimated from EICV7 and should be calibrated once microdata access is granted.
+                  insurance keep more of their consumption. The base exposures are scaled so that
+                  the seven shocks together imply{" "}
+                  <strong className="font-semibold text-ink">
+                    {pct(result?.implied_shock_incidence ?? 37.1, 1)}
+                  </strong>{" "}
+                  of households hit by at least one severe shock — the published EICV7 incidence
+                  (Tables 6.10–6.11). The split between shocks and the loss rates are{" "}
+                  <strong className="font-semibold text-ink">not</strong> estimated from EICV7 and
+                  should be calibrated once microdata access is granted.
                 </p>
               </section>
 

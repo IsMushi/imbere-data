@@ -381,6 +381,14 @@ export default function TargetingPage() {
                           <dd className="tnum font-medium">{rwf(r.cost_per_poor_reached)}</dd>
                         </div>
                       </dl>
+                      {r.ci95?.coverage_of_poor ? (
+                        <p className="mt-2 text-[12.5px] leading-snug text-ink-soft">
+                          95% interval — coverage {pct(r.ci95.coverage_of_poor[0], 1)}–
+                          {pct(r.ci95.coverage_of_poor[1], 1)}, leakage{" "}
+                          {pct(r.ci95.leakage_rate?.[0] ?? 0, 1)}–
+                          {pct(r.ci95.leakage_rate?.[1] ?? 0, 1)}
+                        </p>
+                      ) : null}
                     </li>
                   );
                 })}
@@ -434,6 +442,11 @@ export default function TargetingPage() {
                           </TableCell>
                           <TableCell className="py-3 text-right align-top">
                             <span className="tnum">{pct(r.coverage_of_poor, 1)}</span>
+                            {r.ci95?.coverage_of_poor ? (
+                              <span className="block text-[12px] text-ink-soft">
+                                {pct(r.ci95.coverage_of_poor[0], 1)}–{pct(r.ci95.coverage_of_poor[1], 1)}
+                              </span>
+                            ) : null}
                             <span
                               className="ml-auto mt-1.5 block h-[4px] w-16 overflow-hidden rounded-full bg-line/70"
                               aria-hidden
@@ -464,7 +477,9 @@ export default function TargetingPage() {
             <SourceNote kind="modelled">
               Each rule selects the same number of beneficiaries from the same synthetic sample;
               only the ordering differs. Poor reached: {data ? num(data.total_poor_in_sample) : "—"}{" "}
-              poor households in sample.
+              poor households in sample. Ranges are 95% bootstrap intervals from{" "}
+              {data?.bootstrap_reps ?? 200} resamples of those households — sampling variability
+              only, not the EICV7 design.
             </SourceNote>
           </section>
 
