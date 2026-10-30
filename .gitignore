@@ -24,6 +24,16 @@ scratch/
 data/raw/*.pdf
 data/raw/*.xlsx
 
+# Microdata extracts stay local too. NISR/AFR release row-level data for analysis, not
+# redistribution, so an EICV7 or FinScope .dta/.sav never belongs in the repo. The committed
+# household layer is data/processed/households.csv, which is synthetic and calibrated.
+# `**/` also covers an extracted archive folder, e.g. data/raw/EICV7_CS/*.dta.
+data/raw/**/*.dta
+data/raw/**/*.sav
+data/raw/**/*.por
+data/raw/**/*.zip
+data/raw/**/*.7z
+
 # AI agent instructions — local-only working docs.
 AGENTS.md
 

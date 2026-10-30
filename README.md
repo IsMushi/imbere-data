@@ -193,6 +193,13 @@ wakes the service (30–60 s); subsequent requests are immediate.
 Poverty lines: **RWF 560,127** per adult equivalent per year (total), **RWF 356,432** (extreme),
 January 2024 prices.
 
+Household microdata comes from the [NISR microdata portal](https://microdata.statistics.gov.rw/index.php/catalog):
+register, open the EICV7 cross-sectional ([catalog 119](https://microdata.statistics.gov.rw/index.php/catalog/119))
+or VUP ([catalog 121](https://microdata.statistics.gov.rw/index.php/catalog/121)) study, click
+**Get Microdata** and submit the request form. The sign-up confirmation email can be ignored — log in
+with the credentials you set — and public-use studies are normally released as soon as the form is
+submitted.
+
 ### Method
 
 Real inputs and modelled outputs are kept strictly separate in code and in the UI.
