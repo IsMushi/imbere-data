@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="IMBERE DATA">
+  <title>IMBERE DATA</title>
+  <!-- Three ascending columns on one baseline: access, savings, resilience, and a nod
+       to "imbere" (forward). See scripts/make_icons.py for the geometry rationale. -->
+  <rect width="64" height="64" rx="14" fill="#004077"/>
+  <g fill="#ffffff">
+    <path d="M4 56V44a4 4 0 0 1 4 -4h4a4 4 0 0 1 4 4V56Z" opacity="0.7"/>
+    <path d="M24 56V32a4 4 0 0 1 4 -4h4a4 4 0 0 1 4 4V56Z" opacity="0.85"/>
+    <path d="M44 56V20a4 4 0 0 1 4 -4h4a4 4 0 0 1 4 4V56Z" opacity="1"/>
+  </g>
+</svg>

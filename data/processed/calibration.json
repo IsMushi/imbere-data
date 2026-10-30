@@ -1,0 +1,17 @@
+{
+  "poverty_rate": 27.4,
+  "extreme_poverty_rate": 5.7,
+  "shock_incidence": 37.2,
+  "shock_incidence_poor": 40.7,
+  "momo_ownership": 86.7,
+  "momo_poor": 77.8,
+  "savings_ownership": 68.5,
+  "health_insurance": 85.5,
+  "modern_floor": 37.7,
+  "financial_health": {
+    "healthy": 9.9,
+    "coping": 56.4,
+    "vulnerable": 30.7,
+    "extremely_vulnerable": 3.0
+  }
+}

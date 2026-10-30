@@ -1,0 +1,44 @@
+{
+  "note": "Shock prevalence and household coping responses transcribed from EICV7 Tables 6.10 and 6.11. EICV7 Table 6.10 reports the main shock category for households reporting at least one severe shock; categories are shares of households reporting a shock.",
+  "source": "eicv7_tables",
+  "shock_incidence": {
+    "all": 37.1,
+    "poor": 41.0,
+    "non_poor": 35.6
+  },
+  "shock_types": [
+    { "id": "environmental", "label": "Environmental (flood, downpour, drought, landslide)", "all": 30.6, "poor": 30.6, "non_poor": 30.6 },
+    { "id": "farm", "label": "Farm-related (input cost, livestock loss, crop failure)", "all": 4.2, "poor": 3.8, "non_poor": 4.4 },
+    { "id": "food_price", "label": "High food price", "all": 21.5, "poor": 20.5, "non_poor": 22.0 },
+    { "id": "income_loss", "label": "Loss / reduced income from employment", "all": 8.5, "poor": 8.6, "non_poor": 8.4 },
+    { "id": "health", "label": "Health problem (including death)", "all": 27.0, "poor": 27.5, "non_poor": 26.7 },
+    { "id": "other", "label": "Other", "all": 8.2, "poor": 9.0, "non_poor": 7.8 }
+  ],
+  "coping_responses": [
+    { "id": "less_food", "label": "Bought less food", "all": 22.3, "poor": 24.4, "non_poor": 21.4 },
+    { "id": "savings_borrowing", "label": "Used savings and/or borrowed", "all": 20.9, "poor": 16.3, "non_poor": 23.0 },
+    { "id": "sell_assets", "label": "Sold assets", "all": 13.6, "poor": 11.5, "non_poor": 14.5 },
+    { "id": "more_work", "label": "Worked longer / more hours", "all": 29.1, "poor": 31.4, "non_poor": 28.0 },
+    { "id": "received_help", "label": "Received help", "all": 8.3, "poor": 9.5, "non_poor": 7.8 },
+    { "id": "other", "label": "Other", "all": 5.8, "poor": 6.9, "non_poor": 5.3 }
+  ],
+  "finscope_climate": {
+    "exposed": 69,
+    "flood": 56,
+    "drought": 25,
+    "storm": 21,
+    "pest": 27,
+    "repeated_shock": 53,
+    "took_mitigation": 30,
+    "source": "finscope2024"
+  },
+  "vup_components": [
+    "Direct Support (DS)",
+    "Nutrition-Sensitive Direct Support (NSDS)",
+    "Classic Public Works (cPW)",
+    "Expanded Public Works (ePW)",
+    "Asset Transfers",
+    "Financial Services (FS)",
+    "Skills Development"
+  ]
+}

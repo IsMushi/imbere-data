@@ -1,0 +1,25 @@
+# Render Blueprint for the FastAPI analytical engine.
+#
+# The Next.js interface is deployed separately (Vercel/Netlify) and pointed back at this
+# service with NEXT_PUBLIC_API_BASE at build time.
+#
+# Note there is deliberately no `rootDir`. api/app/datastore.py resolves the data directory
+# as `Path(__file__).parents[2] / "data" / "processed"`, i.e. the repository root, and Render
+# makes nothing outside a service's root directory available at build or run time. Starting
+# uvicorn from api/ with the root directory left at the repository root keeps data/ in reach.
+services:
+  - type: web
+    name: imbere-api
+    runtime: python
+    plan: free
+    region: frankfurt # closest Render region to Rwanda
+    buildCommand: pip install -r api/requirements.txt
+    startCommand: cd api && python -m uvicorn app.main:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /api/health
+    autoDeploy: true
+    envVars:
+      # Render's default became 3.14.8 for services created after 2026-10-12. 3.13 is the
+      # newest interpreter the analytical stack (pandas/numpy/scikit-learn) is verified on
+      # here, so pin it rather than inheriting the default.
+      - key: PYTHON_VERSION
+        value: "3.13.5"

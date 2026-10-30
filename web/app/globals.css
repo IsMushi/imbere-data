@@ -1,0 +1,198 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+
+/* Palette sourced from NISR (statistics.gov.rw) brand CSS variables:
+   brand blue #005cab, deep #004077, mid #196cb3, pale #a5c5e1, ink #0d2343,
+   body #37404d, light background #e6e9eb, warning/orange #c95100, success teal #008482. */
+@theme {
+  --color-paper: #eef1f5;
+  --color-surface: #ffffff;
+  --color-ink: #0d2343;
+  --color-ink-soft: #37404d;
+  --color-line: #dfe4ea;
+  --color-primary: #005cab;
+  --color-primary-deep: #004077;
+  --color-primary-soft: #e6f0f9;
+  --color-accent: #c95100;
+  --color-teal: #008482;
+
+  /* Semantic aliases read by the primitives in components/ui. The brand tokens above stay the
+     source of truth; these exist so copy-in shadcn components read naturally. shadcn's "accent"
+     means a neutral hover surface, which collides with our orange accent, so hover is "hover"
+     here instead. */
+  --color-background: var(--color-paper);
+  --color-foreground: var(--color-ink);
+  --color-card: var(--color-surface);
+  --color-card-foreground: var(--color-ink);
+  --color-popover: var(--color-surface);
+  --color-popover-foreground: var(--color-ink);
+  --color-primary-foreground: #ffffff;
+  --color-secondary: var(--color-primary-soft);
+  --color-secondary-foreground: var(--color-primary-deep);
+  --color-muted: #e6e9eb;
+  --color-muted-foreground: var(--color-ink-soft);
+  --color-hover: var(--color-primary-soft);
+  --color-hover-foreground: var(--color-primary-deep);
+  --color-destructive: #ce3936;
+  --color-border: var(--color-line);
+  --color-input: var(--color-line);
+  --color-ring: var(--color-primary);
+
+  --font-sans: "Comfortaa", ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, Arial,
+    sans-serif;
+  /* Single family: Comfortaa for display and body (Google Sans removed per redesign decision). */
+  --font-display: var(--font-sans);
+}
+
+@layer base {
+  html {
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+  }
+
+  body {
+    background-color: var(--color-paper);
+    color: var(--color-ink);
+    font-family: var(--font-sans);
+  }
+
+  ::selection {
+    background: var(--color-primary);
+    color: #ffffff;
+  }
+
+  /* Keyboard affordance on every interactive element. */
+  :where(a, button, select, input, summary, [tabindex]):focus-visible {
+    outline: 2px solid var(--color-primary);
+    outline-offset: 2px;
+    border-radius: 2px;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.001ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.001ms !important;
+    }
+  }
+
+  /* Anchor jumps should read as movement, not a teleport — unless the OS says otherwise. */
+  @media (prefers-reduced-motion: no-preference) {
+    html {
+      scroll-behavior: smooth;
+    }
+  }
+}
+
+@utility tnum {
+  font-variant-numeric: tabular-nums;
+}
+
+/* Display scale: Comfortaa for page titles, Google Sans for section titles. Comfortaa is a
+   wide, rounded face, so its tracking is looser than a neutral grotesk would take; the small
+   heading keeps the UI face, where rounded terminals would read as decoration. */
+@utility display {
+  font-family: var(--font-display);
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  /* Keeps a two-line hero from leaving one orphaned word on the second line. */
+  text-wrap: balance;
+}
+
+@utility display-sm {
+  font-family: var(--font-sans);
+  font-weight: 600;
+  letter-spacing: -0.025em;
+}
+
+/* Small caps label. One size, one tracking, used for every field label on every page. */
+@utility label {
+  font-size: 12.5px;
+  font-weight: 500;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--color-ink-soft);
+}
+
+/* Page shell: one width for header, main and footer so the three never drift apart.
+   1320px leaves the four-column ledger and the widest table room at 1440+, while prose
+   still caps itself at 62-75ch. */
+@utility shell {
+  width: 100%;
+  max-width: 1320px;
+  margin-inline: auto;
+  padding-inline: 1.25rem;
+}
+
+/* Recharts (and other SVG charts) should not show a default black focus ring. */
+.recharts-wrapper,
+.recharts-surface,
+.recharts-wrapper svg,
+.recharts-wrapper *:focus,
+.recharts-wrapper *:focus-visible {
+  outline: none;
+}
+
+/* Soft paper grain so large flat areas do not look like a generic dashboard. */
+.paper-grain {
+  background-image: radial-gradient(rgba(13, 35, 67, 0.04) 1px, transparent 1px);
+  background-size: 22px 22px;
+}
+
+/* Print: the methodology page is the one people hand to a judge, so it has to survive a
+   PDF. Drop the chrome, keep the provenance chips (their colour is the page's argument,
+   so the palette is forced rather than left to the printer's ink-saving default), and let
+   long links break instead of running off the page. */
+@media print {
+  * {
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+
+  header,
+  footer,
+  nav {
+    display: none !important;
+  }
+
+  body,
+  .paper-grain {
+    background: #fff !important;
+    background-image: none !important;
+  }
+
+  .shell {
+    max-width: none;
+    padding-inline: 0;
+  }
+
+  main {
+    padding-bottom: 0;
+  }
+
+  h1,
+  h2,
+  h3 {
+    break-after: avoid;
+  }
+
+  li,
+  tr,
+  figure,
+  table {
+    break-inside: avoid;
+  }
+
+  a[href^="http"]::after {
+    content: " (" attr(href) ")";
+    font-size: 0.82em;
+    color: #555;
+    word-break: break-all;
+  }
+
+  @page {
+    margin: 16mm 14mm;
+  }
+}

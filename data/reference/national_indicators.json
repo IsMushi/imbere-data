@@ -1,0 +1,103 @@
+{
+  "dataset": "IMBERE DATA national evidence base",
+  "generated_note": "All figures in this file are transcribed from published NISR / FinScope sources listed under `sources`. None are modelled. Values marked provisional=false are point estimates as published.",
+  "poverty_lines": {
+    "total_poverty_line_rwf_per_adult_equiv_year": 560127,
+    "extreme_poverty_line_rwf_per_adult_equiv_year": 356432,
+    "price_base": "January 2024 prices",
+    "source": "eicv7_poverty_profile",
+    "note": "Cost-of-basic-needs poverty line: food poverty line RWF 356,432 grossed up by the median food share (63.6%) of households near the line. The food poverty line doubles as the extreme poverty line."
+  },
+  "sources": [
+    {
+      "id": "eicv7_poverty_profile",
+      "title": "EICV7 - Poverty Profile Report 2023/24",
+      "publisher": "National Institute of Statistics of Rwanda (NISR)",
+      "year": 2025,
+      "url": "https://statistics.gov.rw/data-sources/surveys/EICV/integrated-household-living-conditions-survey-7-eicv-7/eicv7-poverty-profile-report-202324",
+      "license": "CC BY 4.0"
+    },
+    {
+      "id": "eicv7_tables",
+      "title": "EICV7 Tables - Poverty Analysis (Excel)",
+      "publisher": "National Institute of Statistics of Rwanda (NISR)",
+      "year": 2025,
+      "url": "https://statistics.gov.rw/sites/default/files/documents/2025-05/EICV7_Tables_Rwanda_Poverty_Profile.xlsx",
+      "license": "CC BY 4.0"
+    },
+    {
+      "id": "finscope2024",
+      "title": "FinScope 2024 - Financial Inclusion in Rwanda",
+      "publisher": "Access to Finance Rwanda / NISR",
+      "year": 2024,
+      "url": "https://microdata.statistics.gov.rw/index.php/catalog/120",
+      "license": "NISR microdata release policy"
+    },
+    {
+      "id": "census2022",
+      "title": "Rwanda Population and Housing Census 2022",
+      "publisher": "National Institute of Statistics of Rwanda (NISR)",
+      "year": 2022,
+      "url": "https://www.statistics.gov.rw/statistical-publications/subjects",
+      "license": "CC BY 4.0"
+    }
+  ],
+  "indicators": [
+    { "id": "poverty_headcount", "label": "Poverty rate", "value": 27.4, "unit": "%", "year": 2024, "source": "eicv7_poverty_profile", "group": "poverty" },
+    { "id": "poverty_headcount_2017", "label": "Poverty rate (2017, modelled)", "value": 39.8, "unit": "%", "year": 2017, "source": "eicv7_poverty_profile", "group": "poverty" },
+    { "id": "extreme_poverty_headcount", "label": "Extreme poverty rate", "value": 5.4, "unit": "%", "year": 2024, "source": "eicv7_poverty_profile", "group": "poverty" },
+    { "id": "extreme_poverty_headcount_2017", "label": "Extreme poverty rate (2017, modelled)", "value": 11.3, "unit": "%", "year": 2017, "source": "eicv7_poverty_profile", "group": "poverty" },
+    { "id": "poverty_gap", "label": "Poverty gap index", "value": 6.1, "unit": "%", "year": 2024, "source": "eicv7_poverty_profile", "group": "poverty" },
+    { "id": "people_lifted", "label": "People lifted out of poverty since 2017", "value": 1500000, "unit": "people", "year": 2024, "source": "eicv7_poverty_profile", "group": "poverty" },
+
+    { "id": "financial_inclusion", "label": "Financially included adults", "value": 96, "unit": "%", "year": 2024, "source": "finscope2024", "group": "inclusion" },
+    { "id": "informal_only", "label": "Using only informal mechanisms", "value": 4, "unit": "%", "year": 2024, "source": "finscope2024", "group": "inclusion" },
+    { "id": "transactional_account", "label": "Adults with a transactional account", "value": 77, "unit": "%", "year": 2024, "source": "finscope2024", "group": "inclusion" },
+    { "id": "mobile_wallet", "label": "Adults with a registered mobile wallet", "value": 77, "unit": "%", "year": 2024, "source": "finscope2024", "group": "inclusion" },
+    { "id": "bank_account", "label": "Adults with a bank account", "value": 22, "unit": "%", "year": 2024, "source": "finscope2024", "group": "inclusion" },
+    { "id": "sacco", "label": "Adults with a SACCO account", "value": 28, "unit": "%", "year": 2024, "source": "finscope2024", "group": "inclusion" },
+    { "id": "insurance", "label": "Adults with insurance", "value": 27, "unit": "%", "year": 2024, "source": "finscope2024", "group": "inclusion" },
+    { "id": "pension", "label": "Adults with pension", "value": 25, "unit": "%", "year": 2024, "source": "finscope2024", "group": "inclusion" },
+    { "id": "mfi", "label": "Adults with a microfinance institution account", "value": 7, "unit": "%", "year": 2024, "source": "finscope2024", "group": "inclusion" },
+    { "id": "formal_credit", "label": "Adults with formal credit", "value": 24, "unit": "%", "year": 2024, "source": "finscope2024", "group": "inclusion" },
+    { "id": "digital_finance_use", "label": "Adults using digital financial services", "value": 73, "unit": "%", "year": 2024, "source": "finscope2024", "group": "inclusion" },
+
+    { "id": "financially_healthy", "label": "Financially healthy", "value": 10, "unit": "%", "year": 2024, "source": "finscope2024", "group": "financial_health" },
+    { "id": "financially_coping", "label": "Financially coping", "value": 57, "unit": "%", "year": 2024, "source": "finscope2024", "group": "financial_health" },
+    { "id": "financially_vulnerable", "label": "Financially vulnerable", "value": 31, "unit": "%", "year": 2024, "source": "finscope2024", "group": "financial_health" },
+    { "id": "financially_extremely_vulnerable", "label": "Extremely financially vulnerable", "value": 3, "unit": "%", "year": 2024, "source": "finscope2024", "group": "financial_health" },
+
+    { "id": "climate_shock_exposure", "label": "Adults reporting a climate-related shock", "value": 69, "unit": "%", "year": 2024, "source": "finscope2024", "group": "shocks" },
+    { "id": "climate_shock_flood", "label": "Shock type: floods", "value": 56, "unit": "%", "year": 2024, "source": "finscope2024", "group": "shocks" },
+    { "id": "climate_shock_drought", "label": "Shock type: drought", "value": 25, "unit": "%", "year": 2024, "source": "finscope2024", "group": "shocks" },
+    { "id": "climate_shock_storm", "label": "Shock type: storms", "value": 21, "unit": "%", "year": 2024, "source": "finscope2024", "group": "shocks" },
+    { "id": "climate_shock_pest", "label": "Shock type: pest infestation", "value": 27, "unit": "%", "year": 2024, "source": "finscope2024", "group": "shocks" },
+    { "id": "shock_mitigation", "label": "Took financial mitigation measures (of those exposed)", "value": 30, "unit": "%", "year": 2024, "source": "finscope2024", "group": "shocks" },
+
+    { "id": "hh_shock_incidence", "label": "Households reporting at least one severe shock", "value": 37.1, "unit": "%", "year": 2024, "source": "eicv7_tables", "group": "shocks" },
+    { "id": "hh_shock_incidence_poor", "label": "Households reporting a severe shock - poor", "value": 41.0, "unit": "%", "year": 2024, "source": "eicv7_tables", "group": "shocks" },
+    { "id": "hh_shock_incidence_nonpoor", "label": "Households reporting a severe shock - non-poor", "value": 35.6, "unit": "%", "year": 2024, "source": "eicv7_tables", "group": "shocks" },
+
+    { "id": "hh_momo_account", "label": "Households with a mobile money account", "value": 86.6, "unit": "%", "year": 2024, "source": "eicv7_tables", "group": "inclusion" },
+    { "id": "hh_momo_account_poor", "label": "Households with a mobile money account - poor", "value": 77.8, "unit": "%", "year": 2024, "source": "eicv7_tables", "group": "inclusion" },
+    { "id": "hh_savings_account", "label": "Households with at least one savings account", "value": 68.0, "unit": "%", "year": 2024, "source": "eicv7_tables", "group": "inclusion" },
+    { "id": "hh_savings_account_poor", "label": "Households with a savings account - poor", "value": 53.2, "unit": "%", "year": 2024, "source": "eicv7_tables", "group": "inclusion" },
+
+    { "id": "health_insurance", "label": "Population covered by medical insurance", "value": 85.3, "unit": "%", "year": 2024, "source": "eicv7_tables", "group": "services" },
+    { "id": "electricity_access", "label": "Households with grid or solar electricity", "value": 72.0, "unit": "%", "year": 2024, "source": "eicv7_tables", "group": "services" },
+    { "id": "improved_sanitation", "label": "Households with improved sanitation", "value": 94.3, "unit": "%", "year": 2024, "source": "eicv7_tables", "group": "services" },
+    { "id": "modern_floor", "label": "Households with a modern floor", "value": 39.2, "unit": "%", "year": 2024, "source": "eicv7_tables", "group": "services" },
+    { "id": "literacy_15_24", "label": "Literacy rate, ages 15-24", "value": 87.7, "unit": "%", "year": 2024, "source": "eicv7_tables", "group": "services" }
+  ],
+  "province_poverty": [
+    { "province": "Kigali City", "poverty_2024": 9.1, "poverty_2017": 14.3, "extreme_poverty_2024": 1.1, "extreme_poverty_2017": 2.5 },
+    { "province": "South", "poverty_2024": 34.7, "poverty_2017": 47.6, "extreme_poverty_2024": 7.4, "extreme_poverty_2017": 15.3 },
+    { "province": "West", "poverty_2024": 37.4, "poverty_2017": 51.7, "extreme_poverty_2024": 9.0, "extreme_poverty_2017": 17.3 },
+    { "province": "North", "poverty_2024": 20.2, "poverty_2017": 33.0, "extreme_poverty_2024": 3.2, "extreme_poverty_2017": 8.1 },
+    { "province": "East", "poverty_2024": 26.8, "poverty_2017": 39.2, "extreme_poverty_2024": 4.5, "extreme_poverty_2017": 9.7 }
+  ],
+  "area_poverty": [
+    { "area": "Urban", "poverty_2024": 16.7, "poverty_2017": 18.9, "extreme_poverty_2024": 3.1, "extreme_poverty_2017": 6.0 },
+    { "area": "Rural", "poverty_2024": 31.6, "poverty_2017": 44.3, "extreme_poverty_2024": 6.4, "extreme_poverty_2017": 12.5 }
+  ]
+}

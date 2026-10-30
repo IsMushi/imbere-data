@@ -1,0 +1,9 @@
+# Version ranges rather than exact pins: the app is tested on Python 3.11-3.14 and the
+# analytical code has no version-sensitive behaviour. Exact pins here would break installs on
+# interpreters that lack a wheel for the pinned release.
+fastapi>=0.115,<1.0
+uvicorn[standard]>=0.30,<1.0
+pandas>=2.2,<4.0
+numpy>=2.0,<3.0
+scikit-learn>=1.5,<2.0
+pydantic>=2.9,<3.0

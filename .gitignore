@@ -1,0 +1,43 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+.venv*/
+venv/
+.pytest_cache/
+.ipynb_checkpoints/
+
+# Node / Next.js
+node_modules/
+.next/
+out/
+*.tsbuildinfo
+.eslintcache
+
+# Local previews and scratch
+.preview/
+scratch/
+*.log
+
+# Raw NISR source downloads stay local; the transcribed CSVs in data/raw are what get committed.
+data/raw/*.pdf
+data/raw/*.xlsx
+
+# AI agent instructions — local-only working docs.
+AGENTS.md
+
+# Local-only build tooling, working docs and video production assets.
+scripts/
+docs/
+
+# Environment
+.env
+.env.local
+.env.*.local
+
+# OS / editor
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
