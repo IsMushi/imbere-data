@@ -80,9 +80,12 @@ At a **RWF 300m** budget with **RWF 150,000** per beneficiary (2,000 households,
 | Financial-exclusion first | 58.9% | 28.5% | 41.1% | RWF 254,885 |
 | **Proxy-means test** | **71.0%** | **34.4%** | **29.0%** | **RWF 211,268** |
 
-**The proxy-means rule reaches 2.5× more poor people for the same money, and cuts leakage from
-71.5% to 29.0%.** Geographic targeting captures most of the gain at a fraction of the data cost —
-which matters where a full household survey is unavailable.
+**On the calibrated layer, the proxy-means rule reaches 2.5× more poor households than universal
+selection for the same money, and cuts leakage from 71.5% to 29.0%.** Read the ratio as a statement
+about the method rather than about Rwanda: the joint distribution underneath it was calibrated to
+published EICV7 marginals, so 2.5× is what a proxy-means test achieves *when* asset–consumption
+separation looks like the published gradients. Geographic targeting captures most of the gain at a
+fraction of the data cost — which matters where a full household survey is unavailable.
 
 > These figures come from calibrated synthetic household rows. The engines do not change when the
 > real EICV7 microdata is loaded — only the rows they read. See [Method](#method).

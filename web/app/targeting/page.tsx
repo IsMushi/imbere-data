@@ -360,7 +360,7 @@ export default function TargetingPage() {
                           <span className="tnum text-[13px] text-ink-soft">{i + 1}</span>
                           <h3 className="text-[16px] font-medium leading-snug text-ink">{r.label}</h3>
                         </div>
-                        {best ? <Tag tone="real">Best value</Tag> : null}
+                        {best ? <Tag tone="real">Lowest cost</Tag> : null}
                       </div>
                       <p className="mt-2 text-[13.5px] leading-snug text-ink-soft">{r.description}</p>
                       <dl className="mt-3 grid grid-cols-2 gap-x-3 gap-y-1.5 text-[13px]">
@@ -423,7 +423,7 @@ export default function TargetingPage() {
                           <th scope="row" className="py-3 pr-6 text-left font-normal align-top">
                             <div className="flex flex-wrap items-center gap-2">
                               <span className="text-[16px] font-medium text-ink">{r.label}</span>
-                              {best ? <Tag tone="real">Best value</Tag> : null}
+                              {best ? <Tag tone="real">Lowest cost</Tag> : null}
                             </div>
                             <p className="mt-1 max-w-[46ch] text-[14px] leading-snug text-ink-soft">
                               {r.description}
