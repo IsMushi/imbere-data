@@ -74,21 +74,57 @@ At a **RWF 300m** budget with **RWF 150,000** per beneficiary (2,000 households,
 
 | Rule | Accuracy | Poor reached | Leakage | Cost per poor reached |
 |---|---:|---:|---:|---:|
-| Universal | 28.6% | 13.8% | 71.5% | RWF 525,394 |
-| Geographic | 45.6% | 22.1% | 54.4% | RWF 328,587 |
-| Community-based | 56.8% | 27.5% | 43.2% | RWF 264,085 |
-| Financial-exclusion first | 58.9% | 28.5% | 41.1% | RWF 254,885 |
-| **Proxy-means test** | **71.0%** | **34.4%** | **29.0%** | **RWF 211,268** |
+| Universal | 28.8% | 13.9% | 71.2% | RWF 520,833 |
+| Geographic | 45.3% | 21.9% | 54.7% | RWF 331,126 |
+| Community-based | 57.6% | 27.9% | 42.4% | RWF 260,417 |
+| Financial-exclusion first | 61.0% | 29.5% | 39.0% | RWF 246,103 |
+| **Proxy-means test** | **78.2%** | **37.8%** | **21.9%** | **RWF 191,939** |
 
-**On the calibrated layer, the proxy-means rule reaches 2.5× more poor households than universal
-selection for the same money, and cuts leakage from 71.5% to 29.0%.** Read the ratio as a statement
+**On the calibrated layer, the proxy-means rule reaches 2.7× more poor households than universal
+selection for the same money, and cuts leakage from 71.2% to 21.9%.** Read the ratio as a statement
 about the method rather than about Rwanda: the joint distribution underneath it was calibrated to
-published EICV7 marginals, so 2.5× is what a proxy-means test achieves *when* asset–consumption
+published EICV7 marginals, so 2.7× is what a proxy-means test achieves *when* asset–consumption
 separation looks like the published gradients. Geographic targeting captures most of the gain at a
 fraction of the data cost — which matters where a full household survey is unavailable.
 
 > These figures come from calibrated synthetic household rows. The engines do not change when the
 > real EICV7 microdata is loaded — only the rows they read. See [Method](#method).
+
+---
+
+## Recommendations
+
+Five programme implications, read from the calibrated layer above. Each is a statement about the
+*method* — what a rule of this kind achieves **when** asset–consumption separation looks like the
+published EICV7 gradients — and each needs re-checking against the real microdata before it
+informs a budget.
+
+1. **Prefer a proxy-means test to a universal transfer wherever a recent survey exists.** For the
+   same RWF 300m it reaches 2.7× more poor households and cuts leakage from 71.2% to 21.9%. The
+   gain is large enough to pay for the household survey that supplies its features.
+
+2. **Keep geographic targeting as the operational fallback, not the ambition.** Ranking districts
+   by poverty rate reaches 21.9% of the poor — most of what community-based listing achieves
+   (27.9%) at a fraction of the data cost. It is the right rule between survey rounds, and the
+   only one that works where no survey exists at all.
+
+3. **Index disaster response to shock exposure, not only to poverty status.** 37.1% of households
+   reported a severe shock in the past year, and only 30% of those exposed took any financial
+   mitigation measure. A roster frozen at the last poverty line misses the households that cross
+   it *after* the shock — precisely the population a drought transfer is meant to reach.
+
+4. **Report intervals alongside point estimates.** Every headline figure now carries a bootstrap
+   95% interval over the household sample. Where an interval straddles the gap between two rules,
+   the data cannot choose between them and the write-up should say so.
+
+5. **Treat access as solved and resilience as not.** Mobile money reaches 86.9% of adults while
+   only 68.2% save. The binding constraint is no longer an account — it is a buffer. Cash paired
+   with a savings or insurance nudge does more per franc than either alone.
+
+> **These are prototype implications, not findings about Rwanda.** Household rows are calibrated
+> synthetic, and the rules measure selection performance, not programme impact. Load the EICV7
+> microdata, re-run `evaluate_targeting`, and treat any figure that moves by more than its own
+> interval as provisional.
 
 ---
 
@@ -221,8 +257,8 @@ Real inputs and modelled outputs are kept strictly separate in code and in the U
 - **District poverty, populations, national indicators, shock prevalence and coping responses**
   are transcribed from published NISR/FinScope sources. Never modelled.
 - **Household rows** are synthetic. Marginals are calibrated to published EICV7 figures:
-  poverty 27.4%, extreme poverty 5.7%, shock incidence 37.2%, mobile money 86.7%,
-  savings 68.5%, health insurance 85.5%, financial-health bands 9.9 / 56.4 / 30.7 / 3.0.
+  poverty 27.4%, extreme poverty 5.7%, shock incidence 37.1%, mobile money 86.9%,
+  savings 68.2%, health insurance 85.6%, financial-health bands 9.9 / 56.4 / 30.7 / 3.0.
   The joint distribution is not observed data.
 - **Shock exposure and loss parameters** are stated assumptions, surfaced in the UI and in
   `api/app/analytics.py`. They are not estimated from EICV7.
@@ -234,10 +270,10 @@ Real inputs and modelled outputs are kept strictly separate in code and in the U
 Proxy-means poverty risk model — `HistGradientBoostingClassifier`, consumption excluded from the
 feature set by design.
 
-- Hold-out AUC: **0.807** (logistic baseline 0.811)
+- Hold-out AUC: **0.857** (logistic baseline 0.861)
 - Features: district, province, head's education, income source, urban, household size,
   11 asset/housing indicators, district poverty rate
-- Top signals: district poverty rate, TV ownership, modern floor, head's education
+- Top signals: head's education, district poverty rate, TV ownership, income source, modern floor
 
 AUC is measured on synthetic rows and describes the prototype, not Rwanda. Re-run against the
 EICV7 file for publishable accuracy.
@@ -250,9 +286,10 @@ Non-obvious constraints that are easy to break when changing this repo:
 
 - **`data/processed/` is generated but committed on purpose.** Don't gitignore it; the API loads
   it at startup and needs no build step.
-- **The targeting rules share one RNG in sequence.** `/api/targeting` builds its list from
-  `analytics.RULES` in order; reordering or deduplicating it changes the universal/geographic
-  numbers quoted in the table above.
+- **Each targeting rule draws from its own RNG stream.** `_rule_rng` derives a generator from the
+  seed and the rule's fixed position in `analytics.RULES`, so reordering or subsetting the rule
+  list no longer moves the figures quoted above — and one score vector per rule is reused by the
+  headline, the coverage curve and the bootstrap, so all three describe the same allocation.
 - **Documented figures are duplicated.** The headline table appears in this README and in the
   companion methodology and submission write-ups; regenerating the data layer with a different
   seed or calibration means updating all of them plus `EXPECTED` in
