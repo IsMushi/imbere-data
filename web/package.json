@@ -2,6 +2,7 @@
   "name": "imbere-data",
   "version": "0.1.0",
   "private": true,
+  "author": "ISHIMWE KEZA Grace and Isaac MUSHIMIYIMANA",
   "scripts": {
     "dev": "node node_modules/next/dist/bin/next dev -p 3000",
     "build": "node node_modules/next/dist/bin/next build",

@@ -103,8 +103,9 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
                 </div>
               </div>
               <div className="mt-8 border-t border-line pt-4 text-[12.5px] text-ink-soft">
-                © NISR 2026 Big Data Hackathon · IMBERE DATA · Built with AI assistance; data
-                transcription, formulas and assumptions reviewed by the team.
+                © NISR 2026 Big Data Hackathon · IMBERE DATA · ISHIMWE KEZA Grace and Isaac
+                MUSHIMIYIMANA. Built with AI assistance; data transcription, formulas and
+                assumptions reviewed by the team.
               </div>
             </div>
           </footer>

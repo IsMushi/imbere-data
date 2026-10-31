@@ -5,6 +5,8 @@
 Built for the NISR 2026 Big Data Hackathon — Track 2: Financial Inclusion & Poverty Reduction.
 Aligned with **NST2** (Social Transformation) and **Vision 2050**.
 
+**Team:** ISHIMWE KEZA Grace and Isaac MUSHIMIYIMANA.
+
 > **Watch the pitch (2:46) →** [`media/imbere-pitch.mp4`](media/imbere-pitch.mp4) · captions in
 > [`media/imbere-pitch.srt`](media/imbere-pitch.srt). The video is a required part of the
 > submission, not an extra: it is the only place the argument runs end to end.

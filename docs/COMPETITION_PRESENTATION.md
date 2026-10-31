@@ -3,6 +3,7 @@
 NISR 2026 Big Data Hackathon, Track 2 — Financial Inclusion & Poverty Reduction.
 Live: <https://imberedata.vercel.app> · Code: this repository · Pitch: `media/imbere-pitch.mp4`
 (2:46, subtitles `media/imbere-pitch.srt`).
+**Team:** ISHIMWE KEZA Grace and Isaac MUSHIMIYIMANA.
 
 ## The argument in one paragraph
 

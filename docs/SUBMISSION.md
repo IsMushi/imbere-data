@@ -2,7 +2,7 @@
 
 **Track 2: Financial Inclusion & Poverty Reduction**
 **Project:** IMBERE DATA — Financial Resilience & Targeting Intelligence
-**Team:** _[names, universities]_ · **Submitted:** _[date]_
+**Team:** ISHIMWE KEZA Grace and Isaac MUSHIMIYIMANA · **Submitted:** October 2026
 
 ---
 
