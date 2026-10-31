@@ -411,6 +411,17 @@ imbere-data/
   inside noise and switching would move every pinned figure, so the comparison is reported rather
   than acted on.
 
+## Team
+
+IMBERE DATA is a two-person team:
+
+- **ISHIMWE KEZA Grace**
+- **Isaac MUSHIMIYIMANA**
+
+Problem framing, dataset selection, transcription from the NISR and FinScope sources, the
+calibration design, the targeting rules, the shock model and verification of every quoted figure
+are the team's own work. AI assistance is disclosed in `docs/SUBMISSION.md` §7.
+
 ## Licence and attribution
 
 NISR data is published under CC BY 4.0. Boundaries from geoBoundaries / NISR Open Data, CC BY 4.0.
