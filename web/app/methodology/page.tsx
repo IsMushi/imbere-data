@@ -22,6 +22,7 @@ const SECTIONS = [
   { href: "#model", label: "Proxy-means model" },
   { href: "#rules", label: "Allocation rules" },
   { href: "#shocks", label: "Shock assumptions" },
+  { href: "#alignment", label: "National alignment" },
   { href: "#sources", label: "Sources" },
   { href: "#limits", label: "Known limitations" },
 ];
@@ -34,6 +35,44 @@ const SECTIONS = [
  */
 const MICRODATA_FALLBACK =
   "Household-level rows are synthetic. Marginals are calibrated to published EICV7 figures (Tables 6.3, 6.6-6.11); the joint distribution is not observed data. Replace with the EICV7 microdata file via the loader in api/app/datastore.py.";
+
+/**
+ * National-priority mapping. A claim of alignment is unfalsifiable; a table that pins each
+ * instrument to the module serving it is not. Kept in the reference page rather than the
+ * dashboard so the overview stays a story about households.
+ */
+const ALIGNMENT = [
+  {
+    instrument: "NST2 · Social Transformation",
+    asks: "Reduce poverty and widen social-protection coverage.",
+    answers:
+      "Ranks all 30 districts on headcount poverty and flags the five where progress stalled, so transfers are aimed before the budget cycle rather than after it.",
+  },
+  {
+    instrument: "NST2 · Social protection (VUP)",
+    asks: "Target the poorest households without leaking to the non-poor.",
+    answers:
+      "Prices five allocation rules at the same budget and reports leakage, exclusion error and cost per poor household reached for each.",
+  },
+  {
+    instrument: "NST2 · Financial sector development",
+    asks: "Move from access to usage and resilience.",
+    answers:
+      "Separates 96% inclusion from 34% vulnerability and 10% financial health, then models what a shock does to each group.",
+  },
+  {
+    instrument: "Vision 2050",
+    asks: "A poverty-free, high-income Rwanda.",
+    answers:
+      "Costs the shocks that push households back under the line and the cash needed to catch them, district by district.",
+  },
+  {
+    instrument: "NISR statistical mandate",
+    asks: "Evidence that districts can act on.",
+    answers:
+      "Every figure carries its source and its status — published, modelled or assumed — with a one-file contract for swapping in real EICV7 microdata.",
+  },
+] as const;
 
 export default function MethodologyPage() {
   const [meta, setMeta] = useState<Meta | null>(null);
@@ -414,6 +453,70 @@ export default function MethodologyPage() {
               mobile money and insurance retain more consumption. Parameters are deliberately simple
               and visible so they can be challenged and replaced.
             </p>
+          </div>
+        </div>
+      </section>
+
+      {/* National alignment. Sits after the method and before the sources: by this point the
+          reader knows what is computed, so the only open question is whose decision it serves. */}
+      <section
+        id="alignment"
+        aria-label="National alignment"
+        className="mt-16 scroll-mt-[160px] sm:scroll-mt-[132px]"
+      >
+        <div className="border-t border-line pt-6">
+          <SectionHeading title="Where this sits in national policy">
+            Each row names a national instrument, what it asks for, and the part of IMBERE that
+            answers it.
+          </SectionHeading>
+          <div
+            role="region"
+            aria-label="National priority alignment table"
+            tabIndex={0}
+            className="overflow-x-auto"
+          >
+            <table className="w-full min-w-[680px] border-collapse text-[15.5px]">
+              <caption className="sr-only">
+                Mapping from NST2 and Vision 2050 priorities to the IMBERE module that addresses
+                each one.
+              </caption>
+              <thead>
+                <tr className="border-b border-line">
+                  <th
+                    scope="col"
+                    className="pb-2 pr-4 text-left text-[12.5px] font-medium text-ink-soft"
+                  >
+                    Instrument
+                  </th>
+                  <th
+                    scope="col"
+                    className="pb-2 pr-4 text-left text-[12.5px] font-medium text-ink-soft"
+                  >
+                    What it asks for
+                  </th>
+                  <th
+                    scope="col"
+                    className="pb-2 text-left text-[12.5px] font-medium text-ink-soft"
+                  >
+                    What IMBERE answers
+                  </th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-line">
+                {ALIGNMENT.map((row) => (
+                  <tr key={row.instrument}>
+                    <th
+                      scope="row"
+                      className="py-3 pr-4 text-left align-top font-semibold text-ink"
+                    >
+                      {row.instrument}
+                    </th>
+                    <td className="py-3 pr-4 align-top text-ink-soft">{row.asks}</td>
+                    <td className="py-3 align-top">{row.answers}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
           </div>
         </div>
       </section>

@@ -32,6 +32,29 @@ const HEALTH = [
   { key: "extremely_vulnerable", label: "Extremely vulnerable", color: "#c95100" },
 ] as const;
 
+/**
+ * Who acts on the figures, and on what. Three roles rather than three benefits: a reader
+ * should be able to tell within one screen whether this tool is aimed at them, and a
+ * judge should be able to tell who would deploy it.
+ */
+const USERS = [
+  {
+    who: "LODA",
+    role: "Sets the VUP caseload",
+    does: "Compare five targeting rules on the same budget before the next fiscal year, not after it.",
+  },
+  {
+    who: "MINALOC",
+    role: "Reviews social-protection eligibility",
+    does: "See what a rule leaks to the non-poor, and how much exclusion that leakage buys.",
+  },
+  {
+    who: "District officers",
+    role: "Size a shock reserve",
+    does: "Cost what a drought or a flood does to the poverty rate in their own district.",
+  },
+] as const;
+
 export default function OverviewPage() {
   const [meta, setMeta] = useState<Meta | null>(null);
   const [districts, setDistricts] = useState<District[]>([]);
@@ -194,6 +217,28 @@ export default function OverviewPage() {
               </>
             )}
           </Ledger>
+        </section>
+
+        {/* Roles, not features. The ledger states what is true nationally; this strip states
+            who changes a decision because of it. Kept to one band so it never competes with
+            the figures above it. */}
+        <section className="mt-10 border-t border-line pt-6" aria-label="Built for">
+          <div className="label text-primary">Built for</div>
+          <div className="mt-4 grid gap-6 sm:grid-cols-3 sm:gap-8">
+            {USERS.map((u) => (
+              <div key={u.who}>
+                <div className="text-[17.5px] font-semibold leading-tight text-ink">{u.who}</div>
+                <div className="mt-0.5 text-[14.5px] leading-snug text-ink-soft">{u.role}</div>
+                <p className="mt-2 text-[15.5px] leading-relaxed text-ink">{u.does}</p>
+              </div>
+            ))}
+          </div>
+          <p className="mt-5 max-w-[74ch] text-[15.5px] leading-relaxed text-ink-soft">
+            Aligned with <strong className="font-semibold text-ink">NST2</strong> (Social
+            Transformation) and <strong className="font-semibold text-ink">Vision 2050</strong>.
+            The question is not who holds an account, but which rule moves the most poor
+            households per franc — and what a shock does to the ones a rule misses.
+          </p>
         </section>
 
         {/* What the figures say. Prose, not more numbers: the ledger holds the totals, so this

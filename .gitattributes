@@ -4,4 +4,6 @@
 *.jpg binary
 *.pdf binary
 *.xlsx binary
+*.mp4 binary
+*.srt text eol=lf
 *.geojson text eol=lf

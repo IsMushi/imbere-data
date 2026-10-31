@@ -3,6 +3,11 @@
 **Financial resilience and social-protection targeting intelligence for Rwanda.**
 
 Built for the NISR 2026 Big Data Hackathon — Track 2: Financial Inclusion & Poverty Reduction.
+Aligned with **NST2** (Social Transformation) and **Vision 2050**.
+
+> **Watch the pitch (2:46) →** [`media/imbere-pitch.mp4`](media/imbere-pitch.mp4) · captions in
+> [`media/imbere-pitch.srt`](media/imbere-pitch.srt). The video is a required part of the
+> submission, not an extra: it is the only place the argument runs end to end.
 
 ---
 
@@ -130,16 +135,17 @@ informs a budget.
 
 ## Videos
 
-Two videos are part of the submission: a three-minute pitch, and a screen recording of the
-prototype running in a browser.
+Two videos are part of the submission and both are required: the pitch carries the argument, and
+the screen recording shows the prototype running.
 
-| Video | What it covers | Link |
-|---|---|---|
-| Screen-recorded demo (4:41) | The prototype captured in Chrome: overview, district detail, shock simulator, targeting lab, methodology | **[Watch on Google Drive](https://drive.google.com/file/d/1Ccac1gl9cttLDfYVWb3dwWqZ-audmsKX/view?usp=sharing)** |
-| Pitch (3 min) | Problem, the three modules, the headline result, measured vs modelled | _[link to be added]_ |
+| Video | What it covers | Length | Link |
+|---|---|---|---|
+| **Pitch** — required | Problem, the three modules, the headline result, measured vs modelled, and where it sits against NST2 and Vision 2050 | 2:46 | **[media/imbere-pitch.mp4](media/imbere-pitch.mp4)** · captions [imbere-pitch.srt](media/imbere-pitch.srt) |
+| Screen-recorded demo — required | The prototype captured in Chrome: overview, district detail, shock simulator, targeting lab, methodology | 4:41 | **[Watch on Google Drive](https://drive.google.com/file/d/1Ccac1gl9cttLDfYVWb3dwWqZ-audmsKX/view?usp=sharing)** |
 
-The demo shows results computed on the calibrated synthetic household rows — the same numbers as
-the table above, which are prototype figures rather than Rwanda's.
+Both videos show results computed on the calibrated synthetic household rows — the same numbers as
+the table above, which are prototype figures rather than Rwanda's. The pitch says so on screen and
+in the narration; the demo's figures carry the same `Modelled · illustrative` marking as the app.
 
 ---
 

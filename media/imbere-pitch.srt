@@ -1,0 +1,41 @@
+1
+00:00:00,400 --> 00:00:10,087
+Rwanda has 96 percent financial inclusion. It also has 34 percent of
+adults who are financially vulnerable. IMBERE Data is about the gap
+between those two numbers.
+
+2
+00:00:11,337 --> 00:00:36,922
+Rwanda's inclusion success is real. 96 percent of adults are financially
+included. But 34 percent remain vulnerable or extremely vulnerable, 27.4 percent live below the poverty line, and 37.1 percent of households reported a severe shock. Access outpaced resilience. A mobile wallet does not stop a drought. So the question for a budget cycle is not who has an account — it is who is one shock away from the line, and what is the cheapest way to reach them.
+
+3
+00:00:38,172 --> 00:00:50,490
+IMBERE answers three questions. Where is fragility concentrated? What does
+a shock cost? And which targeting rule reaches the poor most cheaply?
+Three modules, one dataset, one screen at a time.
+
+4
+00:00:51,740 --> 00:01:15,095
+Module one is the map. Thirty districts, drawn in the same legend bins as
+the official EICV7 Poverty Profile, so the prototype and the published map can be read side by side. Click a district and you get people below the line, share of the national poor, mobile-money and savings coverage, and shock incidence. And the change since 2017, not just the level — because five of thirty districts cut poverty by less than five points.
+
+5
+00:01:16,345 --> 00:01:36,795
+Module two prices a shock. Pick a district, pick a drought, flood or
+food-price shock, pick the severity. IMBERE applies that loss to the household distribution, lets savings, mobile money and insurance absorb part of it, and reports how many households cross the poverty line — and how much cash it takes to restore them. That is a number a district can budget against, not a vulnerability score.
+
+6
+00:01:38,045 --> 00:01:55,876
+Module three is the differentiator. Five allocation rules — universal,
+geographic, community-based, financial-exclusion first, and a proxy-means test — run on the same budget, the same households and the same scoring. Same money, five different answers. That is the choice a programme officer actually has to make.
+
+7
+00:01:57,126 --> 00:02:23,850
+At 300 million francs, covering 2,000 households, the proxy-means rule
+reaches 37.8 percent of the poor. Universal selection reaches 13.9. Same money: two point seven times more poor people reached, leakage down from 71.2 percent to 21.9, and cost per poor person reached down from 520,000 to 191,000. Geographic targeting still captures most of the gain without a household survey — that is the practical fallback.
+
+8
+00:02:25,100 --> 00:02:45,601
+Every number says whether it is measured or modelled. Published NISR and
+FinScope figures, a calibrated synthetic household layer that is labelled as such, and a one-file swap for the real EICV7 microdata. The engines do not change. That is IMBERE Data — built for LODA, MINALOC and district officers, and tied to the second National Strategy for Transformation and Vision 2050.
