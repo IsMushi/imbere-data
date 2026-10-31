@@ -505,11 +505,11 @@ export default function MethodologyPage() {
                 <Row label="Training rows" value={num(meta?.model_card?.n_train)} />
                 <Row label="Hold-out rows" value={num(meta?.model_card?.n_test)} />
                 <Row
-                  label="AUC (gradient boosting)"
+                  label="AUC (gradient boosting, hold-out)"
                   value={meta?.model_card?.auc_gradient_boosting?.toFixed(3) ?? "—"}
                 />
                 <Row
-                  label="AUC (logistic baseline)"
+                  label="AUC (logistic baseline, hold-out)"
                   value={meta?.model_card?.auc_logistic_baseline?.toFixed(3) ?? "—"}
                 />
               </dl>

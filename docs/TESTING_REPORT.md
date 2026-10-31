@@ -88,6 +88,22 @@ does not judge whether a chart is interpretable without colour, whether a screen
 sense, or whether focus order is logical. The charts carry text alternatives and the palette was
 verified for contrast, but no assistive-technology user has tested the site.
 
+## Deployed site
+
+Run against <https://imberedata.vercel.app> on the commit above, from a clean browser profile:
+
+| Check | Result |
+|---|---|
+| `/targeting` fairness table | renders `Districts reached`, `Share to 10 poorest`, `vs proportional`; proxy-means 28/30, 63.3%, 1.32 |
+| Pinned headline table on the deployed page | 78.2% / 37.8% / 21.9% and RWF 192k for proxy-means; 45.3% / 21.9% geographic; 28.8% / 13.9% universal |
+| CSV export from the deployed page | downloaded `imbere-targeting-300m-150k.csv`, 1,003 bytes, caveat first line, `fairness_ratio` present |
+| `/methodology` FGT block | 27.58% / 6.03% / 2.18% / Gini 0.218, formula and weighting caveat |
+| `/simulator` compound scenario | add second shock → contribution table and combined row render against the live API |
+| Console | no errors across the four routes |
+
+The deployed checks run through the same committed snapshot fallback, so they pass while the API
+cold-starts. The compound scenario needs the live API and was given a 120 s budget.
+
 ## What is not tested
 
 | Area | Status |

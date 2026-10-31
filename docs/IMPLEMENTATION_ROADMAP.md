@@ -57,9 +57,10 @@ implemented but only reviewed by eye; `[ ]` means open, with the blocker stated.
 
 ## Batch 6 — release
 
-- [ ] `pytest`, `npm run build`, `build_snapshot.py --check` on the final tree
-- [ ] Commit and push
-- [ ] Verify the Vercel deployment serves the new sections (not just that the build succeeded)
+- [x] `pytest`, `npm run build`, `build_snapshot.py --check` on the final tree
+- [x] Commit and push (`711a455`, `origin/main`)
+- [x] Verify the Vercel deployment serves the new sections — fairness table, FGT block, compound
+      scenario and CSV export checked in a browser against the production URL
 - [ ] Confirm the submission deadline with NISR (`prosper.ayinebyona@statistics.gov.rw`); the
       public page still shows 30 October 2026
 
