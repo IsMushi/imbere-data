@@ -45,6 +45,9 @@ AGENTS.md
 scripts/
 docs/
 
+# Submission video binaries are delivered through the hackathon form, not Git.
+media/
+
 # Environment
 .env
 .env.local

@@ -1,8 +1,8 @@
 # Competition presentation
 
 NISR 2026 Big Data Hackathon, Track 2 — Financial Inclusion & Poverty Reduction.
-Live: <https://imberedata.vercel.app> · Code: this repository · Pitch: `media/imbere-pitch.mp4`
-(2:46, subtitles `media/imbere-pitch.srt`).
+Live: <https://imberedata.vercel.app> · Code: this repository · Pitch: submitted with the entry
+(2:46), narration in `docs/VIDEO_SCRIPT.md`.
 **Team:** ISHIMWE KEZA Grace and Isaac MUSHIMIYIMANA.
 
 ## The argument in one paragraph
@@ -105,7 +105,7 @@ pipeline. All four are listed in `docs/IMPLEMENTATION_ROADMAP.md` with what woul
 
 | Asset | Location |
 |---|---|
-| Pitch video (2:46, 1920×1080) | `media/imbere-pitch.mp4`, subtitles `media/imbere-pitch.srt` |
+| Pitch video (2:46, 1920×1080) | submitted with the entry; re-render from `docs/video/` |
 | Screen-recorded demo (4:41) | linked from `README.md` §Videos |
 | Method and data reference | `/methodology` |
 | Model evaluation | `docs/MODEL_EVALUATION.md` |

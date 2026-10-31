@@ -184,14 +184,15 @@ Third-party components retain their own licences:
 |---|---|
 | Public GitHub repository | [IsMushi/imbere-data](https://github.com/IsMushi/imbere-data) |
 | Deployed application | [imberedata.vercel.app](https://imberedata.vercel.app) · API: [imbere-data.onrender.com](https://imbere-data.onrender.com/api/meta) |
-| **Video — pitch (2:46, required)** | [`media/imbere-pitch.mp4`](../media/imbere-pitch.mp4) · captions [`media/imbere-pitch.srt`](../media/imbere-pitch.srt) · script in `docs/VIDEO_SCRIPT.md` |
-| **Video — screen-recorded demo (4:41, required)** | [Google Drive](https://drive.google.com/file/d/1Ccac1gl9cttLDfYVWb3dwWqZ-audmsKX/view?usp=sharing) |
+| **Video — pitch (2:46)** | Submitted with the entry through the hackathon form · narration and shot list in `docs/VIDEO_SCRIPT.md` |
+| **Video — screen-recorded demo (4:41)** | [Google Drive](https://drive.google.com/file/d/1Ccac1gl9cttLDfYVWb3dwWqZ-audmsKX/view?usp=sharing) |
 | Documentation | `README.md`, `docs/METHODOLOGY.md`, this file |
 | Reproducible build | `cd api && python -m pytest tests -q` |
 
-Both videos are required, not optional extras, and are linked from `README.md` §Videos and from
-the top of the README. The pitch is committed to the repository at `media/imbere-pitch.mp4` so it
-survives link rot; the demo is hosted on Drive because it is a 4:41 screen capture.
+Both videos are submitted with the entry and linked from `README.md` §Videos. The video binaries are
+not committed to this repository: the pitch is delivered through the submission form, and the demo
+is hosted on Drive because it is a 4:41 screen capture. The narration and shot list are committed in
+`docs/VIDEO_SCRIPT.md`, and every figure they quote is pinned by the API test suite.
 
 ### Running locally
 

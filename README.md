@@ -7,10 +7,6 @@ Aligned with **NST2** (Social Transformation) and **Vision 2050**.
 
 **Team:** ISHIMWE KEZA Grace and Isaac MUSHIMIYIMANA.
 
-> **Watch the pitch (2:46) →** [`media/imbere-pitch.mp4`](media/imbere-pitch.mp4) · captions in
-> [`media/imbere-pitch.srt`](media/imbere-pitch.srt). The video is a required part of the
-> submission, not an extra: it is the only place the argument runs end to end.
-
 ---
 
 ## The problem
@@ -160,13 +156,15 @@ informs a budget.
 
 ## Videos
 
-Two videos are part of the submission and both are required: the pitch carries the argument, and
-the screen recording shows the prototype running.
+The pitch and the screen recording are submitted through the hackathon submission form. Neither
+video binary is stored in this repository. The narration and shot list are version-controlled in
+`docs/VIDEO_SCRIPT.md`, so the argument can be read and checked as text; the slide source and
+render script stay local beside the rendered files.
 
-| Video | What it covers | Length | Link |
+| Video | What it covers | Length | Where it lives |
 |---|---|---|---|
-| **Pitch** — required | Problem, the three modules, the headline result, measured vs modelled, and where it sits against NST2 and Vision 2050 | 2:46 | **[media/imbere-pitch.mp4](media/imbere-pitch.mp4)** · captions [imbere-pitch.srt](media/imbere-pitch.srt) |
-| Screen-recorded demo — required | The prototype captured in Chrome: overview, district detail, shock simulator, targeting lab, methodology | 4:41 | **[Watch on Google Drive](https://drive.google.com/file/d/1Ccac1gl9cttLDfYVWb3dwWqZ-audmsKX/view?usp=sharing)** |
+| **Pitch** | Problem, the three modules, the headline result, measured vs modelled, and where it sits against NST2 and Vision 2050 | 2:46 | Submitted with the entry · script in `docs/VIDEO_SCRIPT.md` |
+| Screen-recorded demo | The prototype captured in Chrome: overview, district detail, shock simulator, targeting lab, methodology | 4:41 | **[Watch on Google Drive](https://drive.google.com/file/d/1Ccac1gl9cttLDfYVWb3dwWqZ-audmsKX/view?usp=sharing)** |
 
 Both videos show results computed on the calibrated synthetic household rows — the same numbers as
 the table above, which are prototype figures rather than Rwanda's. The pitch says so on screen and

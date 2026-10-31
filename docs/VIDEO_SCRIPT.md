@@ -211,9 +211,10 @@ Cut in this order — each costs the least argument:
       in captions before the final upload.
 - [ ] Upload as unlisted/public per the submission form, then paste the link into the video row
       of the deliverables table in `docs/SUBMISSION.md` §9.
-      **Done for the pitch:** the rendered cut is committed at `media/imbere-pitch.mp4` (2:46,
-      1920×1080, captions in `media/imbere-pitch.srt`) and linked from the top of `README.md`
-      and `README.md` §Videos. Re-copy it there after any re-render:
-      `Copy-Item docs\video\imbere-pitch.* media\`. The demo stays on Drive.
+      **Done for the pitch:** the rendered cut (2:46, 1920×1080, sidecar captions) is built by
+      `docs/video/build_pitch.py` into `docs/video/` and uploaded with the submission. The cut and
+      the slide assets stay local; this script and the figures it quotes are the version-controlled
+      part. Re-render into `docs/video/` after any figure change, then upload the new cut. The demo
+      stays on Drive.
 - [ ] The AI-use disclosure in `docs/SUBMISSION.md` §7 stays in the written submission; do not
       let the video imply the team built everything unaided.
