@@ -84,7 +84,7 @@ The competition scores five criteria at 20 points each. What each one would find
 
 | Criterion | What this does | Where to check |
 |---|---|---|
-| **1 · Problem understanding & relevance** | The problem is a measured gap, not an assertion: 96% of adults are financially included, 34% are vulnerable, 27.4% are below the poverty line. Each NST2 Social Transformation target and the Vision 2050 goal is mapped to the module answering it, and the actors are named — LODA, MINALOC, district officers. | Overview *Built for* band; `/methodology` → *Where this sits in national policy*; the closing minute of the pitch |
+| **1 · Problem understanding & relevance** | The problem is a measured gap, not an assertion: 96% of adults are financially included, 34% are vulnerable, 27.4% are below the poverty line. Each NST2 Social Transformation target and the Vision 2050 goal is mapped to the module answering it, and the actors are named — LODA, MINALOC, district officers. | Overview *Built for* band; `/methodology` → *Where this sits in national policy* |
 | **2 · Data use & methodology** | Two NISR surveys (EICV7 Poverty Profile, FinScope 2024) plus Census 2022 and geoBoundaries. 39 transcribed indicators, reconciled to the published 27.4% headcount when population-weighted. FGT incidence, depth and severity (P₀ 27.6%, P₁ 6.0%, P₂ 2.2%) with the formula and weights on the page. The household layer is calibrated to nine published marginals; the risk model is evaluated five-fold out-of-fold (ROC-AUC 0.857, PR-AUC 0.673, Brier 0.134, ECE 0.006) with a sensitivity sweep bounding how much of the conclusion depends on that score. One CSV swap replaces the synthetic rows with real microdata. | `/methodology`; `data/processed/calibration.json`; `api/app/datastore.py` |
 | **3 · Tech innovation** | A targeting optimiser rather than a dashboard: five allocation rules priced on the same budget and the same households, geographic-fairness ratios, compound shock scenarios with per-shock attribution, bootstrap intervals on every headline figure, a degradation sweep that stress-tests the targeting conclusion, and real-vs-modelled separation enforced in the API. | `/targeting`, `/simulator`; `api/app/analytics.py`; `api/tests/` |
 | **4 · Usability & design** | Four pages, one visual language taken from NISR's own palette. Every panel is labelled *Measured · published* or *Modelled · illustrative*. Tables scroll inside a focusable region rather than breaking the page, nothing overflows at 390px, and the palette is checked against WCAG AA. | The app itself; `screenshots/`; `web/components/ui/` |
@@ -156,18 +156,16 @@ informs a budget.
 
 ## Videos
 
-The pitch and the screen recording are submitted through the hackathon submission form. Neither
-video binary is stored in this repository, and the narration, shot list and slide source behind
-them stay local.
+The screen-recorded demo is linked below. The video binary is not stored in this repository; the
+narration, shot list and slide source behind it stay local.
 
 | Video | What it covers | Length | Where it lives |
 |---|---|---|---|
-| **Pitch** | Problem, the three modules, the headline result, measured vs modelled, and where it sits against NST2 and Vision 2050 | 2:46 | Submitted with the entry |
 | Screen-recorded demo | The prototype captured in Chrome: overview, district detail, shock simulator, targeting lab, methodology | 4:41 | **[Watch on Google Drive](https://drive.google.com/file/d/1Ccac1gl9cttLDfYVWb3dwWqZ-audmsKX/view?usp=sharing)** |
 
-Both videos show results computed on the calibrated synthetic household rows — the same numbers as
-the table above, which are prototype figures rather than Rwanda's. The pitch says so on screen and
-in the narration; the demo's figures carry the same `Modelled · illustrative` marking as the app.
+The demo shows results computed on the calibrated synthetic household rows — the same numbers as
+the table above, which are prototype figures rather than Rwanda's. Its figures carry the same
+`Modelled · illustrative` marking as the app.
 
 ---
 
