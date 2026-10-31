@@ -85,7 +85,7 @@ The competition scores five criteria at 20 points each. What each one would find
 | Criterion | What this does | Where to check |
 |---|---|---|
 | **1 · Problem understanding & relevance** | The problem is a measured gap, not an assertion: 96% of adults are financially included, 34% are vulnerable, 27.4% are below the poverty line. Each NST2 Social Transformation target and the Vision 2050 goal is mapped to the module answering it, and the actors are named — LODA, MINALOC, district officers. | Overview *Built for* band; `/methodology` → *Where this sits in national policy*; the closing minute of the pitch |
-| **2 · Data use & methodology** | Two NISR surveys (EICV7 Poverty Profile, FinScope 2024) plus Census 2022 and geoBoundaries. 39 transcribed indicators, reconciled to the published 27.4% headcount when population-weighted. FGT incidence, depth and severity (P₀ 27.6%, P₁ 6.0%, P₂ 2.2%) with the formula and weights on the page. The household layer is calibrated to nine published marginals; the risk model is evaluated five-fold out-of-fold (ROC-AUC 0.857, PR-AUC 0.673, Brier 0.134, ECE 0.006) with a sensitivity sweep bounding how much of the conclusion depends on that score. One CSV swap replaces the synthetic rows with real microdata. | `/methodology`; `docs/MODEL_EVALUATION.md`; `data/processed/calibration.json`; `api/app/datastore.py` |
+| **2 · Data use & methodology** | Two NISR surveys (EICV7 Poverty Profile, FinScope 2024) plus Census 2022 and geoBoundaries. 39 transcribed indicators, reconciled to the published 27.4% headcount when population-weighted. FGT incidence, depth and severity (P₀ 27.6%, P₁ 6.0%, P₂ 2.2%) with the formula and weights on the page. The household layer is calibrated to nine published marginals; the risk model is evaluated five-fold out-of-fold (ROC-AUC 0.857, PR-AUC 0.673, Brier 0.134, ECE 0.006) with a sensitivity sweep bounding how much of the conclusion depends on that score. One CSV swap replaces the synthetic rows with real microdata. | `/methodology`; `data/processed/calibration.json`; `api/app/datastore.py` |
 | **3 · Tech innovation** | A targeting optimiser rather than a dashboard: five allocation rules priced on the same budget and the same households, geographic-fairness ratios, compound shock scenarios with per-shock attribution, bootstrap intervals on every headline figure, a degradation sweep that stress-tests the targeting conclusion, and real-vs-modelled separation enforced in the API. | `/targeting`, `/simulator`; `api/app/analytics.py`; `api/tests/` |
 | **4 · Usability & design** | Four pages, one visual language taken from NISR's own palette. Every panel is labelled *Measured · published* or *Modelled · illustrative*. Tables scroll inside a focusable region rather than breaking the page, nothing overflows at 390px, and the palette is checked against WCAG AA. | The app itself; `screenshots/`; `web/components/ui/` |
 | **5 · Tangible impact** | A number a budget officer can act on: at RWF 300m the proxy-means rule reaches 2.7× more poor households than a universal transfer, and leakage falls from 71.2% to 21.9%. A district can cost a drought reserve in a browser; the next dataset (EICV7 VUP module, catalog 121) is named, which is what would turn selection performance into measured programme impact. | `/targeting` headline cards; *Recommendations* below |
@@ -157,13 +157,12 @@ informs a budget.
 ## Videos
 
 The pitch and the screen recording are submitted through the hackathon submission form. Neither
-video binary is stored in this repository. The narration and shot list are version-controlled in
-`docs/VIDEO_SCRIPT.md`, so the argument can be read and checked as text; the slide source and
-render script stay local beside the rendered files.
+video binary is stored in this repository, and the narration, shot list and slide source behind
+them stay local.
 
 | Video | What it covers | Length | Where it lives |
 |---|---|---|---|
-| **Pitch** | Problem, the three modules, the headline result, measured vs modelled, and where it sits against NST2 and Vision 2050 | 2:46 | Submitted with the entry · script in `docs/VIDEO_SCRIPT.md` |
+| **Pitch** | Problem, the three modules, the headline result, measured vs modelled, and where it sits against NST2 and Vision 2050 | 2:46 | Submitted with the entry |
 | Screen-recorded demo | The prototype captured in Chrome: overview, district detail, shock simulator, targeting lab, methodology | 4:41 | **[Watch on Google Drive](https://drive.google.com/file/d/1Ccac1gl9cttLDfYVWb3dwWqZ-audmsKX/view?usp=sharing)** |
 
 Both videos show results computed on the calibrated synthetic household rows — the same numbers as
@@ -307,8 +306,8 @@ feature set by design.
   11 asset/housing indicators, district poverty rate
 - Top signals: head's education, district poverty rate, TV ownership, income source, modern floor
 
-AUC is measured on synthetic rows and describes the prototype, not Rwanda. The degradation sweep in
-`docs/MODEL_EVALUATION.md` shows proxy-means still beats geographic targeting until the score falls
+AUC is measured on synthetic rows and describes the prototype, not Rwanda. The degradation sweep on
+the method page shows proxy-means still beats geographic targeting until the score falls
 to roughly AUC 0.60, which bounds how much of the result depends on the model being as sharp as the
 calibration makes it. Re-run against the EICV7 file for publishable accuracy.
 
@@ -370,8 +369,6 @@ imbere-data/
 │   ├── raw/                  # transcribed NISR tables (source PDF/XLSX stay local)
 │   ├── reference/            # national indicators, shock tables
 │   └── processed/            # built JSON + calibrated households
-├── scripts/                  # build_data, build_snapshot, evaluate_model
-├── docs/                     # audit, method, evaluation, testing, presentation
 ├── run.ps1 / run.cmd         # one-command local startup (API + UI)
 └── render.yaml               # Render Blueprint for the API
 ```
@@ -380,18 +377,11 @@ imbere-data/
 
 ## Documentation
 
-| Document | Contents |
-|---|---|
-| `docs/METHODOLOGY.md` | Formulas, calibration, data contract, swap procedure |
-| `docs/MODEL_EVALUATION.md` | Generated evaluation report: CV comparison, calibration, degradation sweep |
-| `docs/TECHNICAL_AUDIT.md` | What was wrong, what changed, what is still open |
-| `docs/RESEARCH_GAP_ANALYSIS.md` | The gap in the evidence base and what this prototype does about it |
-| `docs/IMPLEMENTATION_ROADMAP.md` | Live checklist with verification status |
-| `docs/DATA_SOURCES.md` | Source registry with access conditions and update cadence |
-| `docs/DATA_DICTIONARY.md` | Every field the system reads or serves |
-| `docs/SYSTEM_ARCHITECTURE.md` | Modules, request flow, caching, security, deployment |
-| `docs/TESTING_REPORT.md` | Commands run and their results |
-| `docs/COMPETITION_PRESENTATION.md` | Pitch script, rubric mapping, anticipated questions |
+The extended write-ups — methodology, model evaluation, technical audit, research-gap analysis,
+implementation roadmap, data sources, data dictionary, system architecture, testing report and the
+competition presentation — accompany the submission and are held outside this repository. The
+method page at `/methodology` carries the formulas, the model card and the measured-vs-modelled
+boundary in full.
 
 ---
 
@@ -418,7 +408,8 @@ IMBERE DATA is a two-person team:
 
 Problem framing, dataset selection, transcription from the NISR and FinScope sources, the
 calibration design, the targeting rules, the shock model and verification of every quoted figure
-are the team's own work. AI assistance is disclosed in `docs/SUBMISSION.md` §7.
+are the team's own work. AI assistance is disclosed in the submission document that accompanies
+the entry.
 
 ## Licence and attribution
 
