@@ -11,8 +11,8 @@ const badgeVariants = cva(
       variant: {
         outline: "border-line bg-transparent text-ink-soft",
         real: "border-transparent bg-primary-soft text-primary-deep",
-        modelled: "border-transparent bg-[#f9e6dc] text-accent",
-        warn: "border-transparent bg-[#fdece2] text-[#a84300]",
+        modelled: "border-transparent bg-accent-soft text-accent-deep",
+        warn: "border-transparent bg-[#fdece2] text-accent-deep",
         destructive: "border-transparent bg-destructive text-white",
       },
     },

@@ -14,6 +14,10 @@
   --color-primary-deep: #004077;
   --color-primary-soft: #e6f0f9;
   --color-accent: #c95100;
+  /* accent-deep is the AA-safe partner of accent on the peach provenance tints below: #c95100 on
+     #f9e6dc measures 3.7:1 at 12px badge size, #b04800 measures 4.6:1. Keep them paired. */
+  --color-accent-deep: #b04800;
+  --color-accent-soft: #f9e6dc;
   --color-teal: #008482;
 
   /* Semantic aliases read by the primitives in components/ui. The brand tokens above stay the
