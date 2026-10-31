@@ -641,6 +641,70 @@ export default function TargetingPage() {
             </div>
           </section>
 
+          {/* The model is the engine of the winning rule, so it belongs on this page rather
+              than only in the method appendix. Every figure is read from /api/meta. */}
+          <section className="mt-10" aria-label="Machine-learning model behind proxy-means">
+            <div className="border-t border-line pt-5">
+              <div className="flex flex-wrap items-baseline justify-between gap-2">
+                <h3 className="label">The machine-learning model behind proxy-means</h3>
+                <Tag tone="modelled">gradient boosting</Tag>
+              </div>
+              <p className="mt-3 max-w-[92ch] text-[15px] leading-relaxed text-ink-soft">
+                Proxy-means is not a fixed formula. A gradient-boosted classifier scores every
+                household on {meta?.model_card?.features?.length ?? 18} observable characteristics
+                — assets, housing, education, income source and district — then ranks by predicted
+                poverty risk. Consumption is excluded by design: it is the outcome the model is
+                predicting, not something an enumerator could collect at enrolment.
+              </p>
+              <div className="mt-5 grid gap-5 sm:grid-cols-3">
+                <div className="border-l-2 border-primary pl-4">
+                  <div className="label">Out-of-fold ROC-AUC</div>
+                  <div className="tnum mt-1 text-[26px] font-semibold text-ink">
+                    {meta?.model_card?.auc_gradient_boosting?.toFixed(3) ?? "—"}
+                  </div>
+                  <p className="mt-1 text-[13px] leading-snug text-ink-soft">
+                    Five-fold, scored on rows the model did not train on
+                  </p>
+                </div>
+                <div className="border-l-2 border-line pl-4">
+                  <div className="label">Training rows</div>
+                  <div className="tnum mt-1 text-[26px] font-semibold text-ink">
+                    {meta ? num(meta.model_card.n_train) : "—"}
+                  </div>
+                  <p className="mt-1 text-[13px] leading-snug text-ink-soft">
+                    Households in the calibrated layer, not a survey extract
+                  </p>
+                </div>
+                <div className="border-l-2 border-line pl-4">
+                  <div className="label">Features</div>
+                  <div className="tnum mt-1 text-[26px] font-semibold text-ink">
+                    {meta?.model_card?.features?.length ?? 18}
+                  </div>
+                  <p className="mt-1 text-[13px] leading-snug text-ink-soft">
+                    Consumption deliberately excluded
+                  </p>
+                </div>
+              </div>
+              <p className="mt-4 text-[13.5px] leading-snug text-ink-soft">
+                Top signals:{" "}
+                <span className="text-ink">
+                  {meta?.model_card?.importance
+                    ?.slice(0, 3)
+                    .map((i) => i.feature)
+                    .join(", ") ?? "—"}
+                </span>
+                .{" "}
+                <a
+                  className="font-medium text-primary-deep underline underline-offset-2"
+                  href="/methodology#model"
+                >
+                  Full model card, calibration and sensitivity sweep
+                </a>
+                .
+              </p>
+            </div>
+          </section>
+
           {/* Comparison panels. Both are column charts laid out in a two-column row on
               desktop and stacked on narrow screens. The bar list deliberately omits the
               right-hand note: in a half-width column it reserved more margin than the plot

@@ -630,7 +630,9 @@ export default function OverviewPage() {
           >
             <h3 className="display-sm text-[22px] text-ink">Targeting lab</h3>
             <p className="text-[15.5px] leading-relaxed text-ink-soft">
-              Compare universal, geographic, community and proxy-means targeting on the same budget.
+              Compare universal, geographic, community and proxy-means targeting on the same
+              budget. Proxy-means is driven by an 18-feature gradient-boosted model, not a fixed
+              formula.
             </p>
             <span className="mt-auto inline-flex items-center gap-1.5 text-[15px] font-medium text-primary-deep">
               Open
