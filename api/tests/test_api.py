@@ -79,6 +79,76 @@ def test_model_endpoint_is_the_model_card() -> None:
     assert client.get("/api/model").json() == datastore.model_card()
 
 
+def test_compound_shock_request_reaches_the_engine() -> None:
+    body = client.post(
+        "/api/simulate",
+        json={
+            "district": "Nyamagabe",
+            "shock_type": "drought",
+            "severity": 50,
+            "additional_shocks": [{"shock_type": "flood", "severity": 50}],
+        },
+    ).json()
+    assert body["combined"] is True
+    assert {s["id"] for s in body["shocks"]} == {"drought", "flood"}
+    single = client.post(
+        "/api/simulate", json={"district": "Nyamagabe", "shock_type": "drought"}
+    ).json()
+    assert body["result"]["newly_poor_households"] >= single["result"]["newly_poor_households"]
+
+
+def test_simulation_rejects_too_many_additional_shocks() -> None:
+    payload = {
+        "district": "Nyamagabe",
+        "shock_type": "drought",
+        "additional_shocks": [{"shock_type": "flood"}] * 7,
+    }
+    assert client.post("/api/simulate", json=payload).status_code == 422
+
+
+def test_get_endpoints_are_cacheable_and_timed() -> None:
+    r = client.get("/api/meta")
+    assert "max-age" in r.headers["cache-control"]
+    assert "stale-while-revalidate" in r.headers["cache-control"]
+    assert r.headers["server-timing"].startswith("app;dur=")
+
+
+def test_cors_preflight_is_answered() -> None:
+    r = client.options(
+        "/api/targeting",
+        headers={
+            "Origin": "https://imberedata.vercel.app",
+            "Access-Control-Request-Method": "POST",
+        },
+    )
+    assert r.status_code in (200, 204)
+    assert "access-control-allow-origin" in {k.lower() for k in r.headers}
+
+
+def test_rate_limit_returns_429_with_retry_after(monkeypatch: pytest.MonkeyPatch) -> None:
+    from app import main
+
+    monkeypatch.setattr(main, "RATE_LIMIT", 2)
+    main._HITS.clear()
+    payload = {"district": "Nyamagabe", "shock_type": "drought"}
+    assert client.post("/api/simulate", json=payload).status_code == 200
+    assert client.post("/api/simulate", json=payload).status_code == 200
+    blocked = client.post("/api/simulate", json=payload)
+    assert blocked.status_code == 429
+    assert blocked.headers["retry-after"] == "60"
+    main._HITS.clear()
+
+
+def test_health_and_reads_are_not_rate_limited(monkeypatch: pytest.MonkeyPatch) -> None:
+    from app import main
+
+    monkeypatch.setattr(main, "RATE_LIMIT", 1)
+    main._HITS.clear()
+    for _ in range(3):
+        assert client.get("/api/meta").status_code == 200
+
+
+
 def test_simulate_round_trip() -> None:
     body = client.post(
         "/api/simulate", json={"district": "Nyamagabe", "shock_type": "drought", "severity": 50}

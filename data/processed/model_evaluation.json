@@ -1,0 +1,355 @@
+{
+  "evaluated_on": "calibrated synthetic households",
+  "rows": 15066,
+  "folds": 5,
+  "seed": 42,
+  "caseload": 2000,
+  "models": {
+    "logistic": {
+      "roc_auc": 0.86,
+      "pr_auc": 0.68,
+      "brier": 0.1319,
+      "ece": 0.007,
+      "at_programme_caseload": {
+        "k": 2000,
+        "targeting_accuracy": 75.8,
+        "leakage_rate": 24.1,
+        "coverage_of_poor": 36.7,
+        "precision": 0.758,
+        "recall": 0.367,
+        "f1": 0.495,
+        "true_positive": 1517,
+        "false_positive": 483,
+        "false_negative": 2613,
+        "true_negative": 10453
+      },
+      "calibration": [
+        {
+          "decile": 1,
+          "n": 1507,
+          "mean_predicted": 0.0028,
+          "observed": 0.002,
+          "gap_pp": -0.09
+        },
+        {
+          "decile": 2,
+          "n": 1507,
+          "mean_predicted": 0.0191,
+          "observed": 0.0186,
+          "gap_pp": -0.05
+        },
+        {
+          "decile": 3,
+          "n": 1507,
+          "mean_predicted": 0.0459,
+          "observed": 0.0392,
+          "gap_pp": -0.68
+        },
+        {
+          "decile": 4,
+          "n": 1507,
+          "mean_predicted": 0.0872,
+          "observed": 0.0922,
+          "gap_pp": 0.5
+        },
+        {
+          "decile": 5,
+          "n": 1507,
+          "mean_predicted": 0.148,
+          "observed": 0.1506,
+          "gap_pp": 0.26
+        },
+        {
+          "decile": 6,
+          "n": 1507,
+          "mean_predicted": 0.2287,
+          "observed": 0.2356,
+          "gap_pp": 0.69
+        },
+        {
+          "decile": 7,
+          "n": 1506,
+          "mean_predicted": 0.3339,
+          "observed": 0.3393,
+          "gap_pp": 0.54
+        },
+        {
+          "decile": 8,
+          "n": 1506,
+          "mean_predicted": 0.4641,
+          "observed": 0.4555,
+          "gap_pp": -0.86
+        },
+        {
+          "decile": 9,
+          "n": 1506,
+          "mean_predicted": 0.6117,
+          "observed": 0.6275,
+          "gap_pp": 1.58
+        },
+        {
+          "decile": 10,
+          "n": 1506,
+          "mean_predicted": 0.7993,
+          "observed": 0.7815,
+          "gap_pp": -1.78
+        }
+      ]
+    },
+    "random_forest": {
+      "roc_auc": 0.852,
+      "pr_auc": 0.669,
+      "brier": 0.1372,
+      "ece": 0.0438,
+      "at_programme_caseload": {
+        "k": 2000,
+        "targeting_accuracy": 74.2,
+        "leakage_rate": 25.8,
+        "coverage_of_poor": 35.9,
+        "precision": 0.742,
+        "recall": 0.359,
+        "f1": 0.484,
+        "true_positive": 1484,
+        "false_positive": 516,
+        "false_negative": 2646,
+        "true_negative": 10420
+      },
+      "calibration": [
+        {
+          "decile": 1,
+          "n": 1507,
+          "mean_predicted": 0.0242,
+          "observed": 0.008,
+          "gap_pp": -1.63
+        },
+        {
+          "decile": 2,
+          "n": 1507,
+          "mean_predicted": 0.0577,
+          "observed": 0.0259,
+          "gap_pp": -3.18
+        },
+        {
+          "decile": 3,
+          "n": 1507,
+          "mean_predicted": 0.0951,
+          "observed": 0.0498,
+          "gap_pp": -4.53
+        },
+        {
+          "decile": 4,
+          "n": 1507,
+          "mean_predicted": 0.1393,
+          "observed": 0.0909,
+          "gap_pp": -4.84
+        },
+        {
+          "decile": 5,
+          "n": 1507,
+          "mean_predicted": 0.195,
+          "observed": 0.1367,
+          "gap_pp": -5.83
+        },
+        {
+          "decile": 6,
+          "n": 1507,
+          "mean_predicted": 0.2611,
+          "observed": 0.2409,
+          "gap_pp": -2.03
+        },
+        {
+          "decile": 7,
+          "n": 1506,
+          "mean_predicted": 0.3386,
+          "observed": 0.3426,
+          "gap_pp": 0.4
+        },
+        {
+          "decile": 8,
+          "n": 1506,
+          "mean_predicted": 0.429,
+          "observed": 0.4741,
+          "gap_pp": 4.52
+        },
+        {
+          "decile": 9,
+          "n": 1506,
+          "mean_predicted": 0.5327,
+          "observed": 0.6042,
+          "gap_pp": 7.16
+        },
+        {
+          "decile": 10,
+          "n": 1506,
+          "mean_predicted": 0.672,
+          "observed": 0.7689,
+          "gap_pp": 9.69
+        }
+      ]
+    },
+    "gradient_boosting": {
+      "roc_auc": 0.857,
+      "pr_auc": 0.673,
+      "brier": 0.1335,
+      "ece": 0.0061,
+      "at_programme_caseload": {
+        "k": 2000,
+        "targeting_accuracy": 74.2,
+        "leakage_rate": 25.9,
+        "coverage_of_poor": 35.9,
+        "precision": 0.742,
+        "recall": 0.359,
+        "f1": 0.484,
+        "true_positive": 1483,
+        "false_positive": 517,
+        "false_negative": 2647,
+        "true_negative": 10419
+      },
+      "calibration": [
+        {
+          "decile": 1,
+          "n": 1507,
+          "mean_predicted": 0.0046,
+          "observed": 0.002,
+          "gap_pp": -0.26
+        },
+        {
+          "decile": 2,
+          "n": 1507,
+          "mean_predicted": 0.0205,
+          "observed": 0.0166,
+          "gap_pp": -0.39
+        },
+        {
+          "decile": 3,
+          "n": 1507,
+          "mean_predicted": 0.0468,
+          "observed": 0.0491,
+          "gap_pp": 0.23
+        },
+        {
+          "decile": 4,
+          "n": 1507,
+          "mean_predicted": 0.0877,
+          "observed": 0.0922,
+          "gap_pp": 0.46
+        },
+        {
+          "decile": 5,
+          "n": 1507,
+          "mean_predicted": 0.1471,
+          "observed": 0.15,
+          "gap_pp": 0.29
+        },
+        {
+          "decile": 6,
+          "n": 1507,
+          "mean_predicted": 0.2287,
+          "observed": 0.2409,
+          "gap_pp": 1.21
+        },
+        {
+          "decile": 7,
+          "n": 1506,
+          "mean_predicted": 0.3395,
+          "observed": 0.3313,
+          "gap_pp": -0.82
+        },
+        {
+          "decile": 8,
+          "n": 1506,
+          "mean_predicted": 0.4686,
+          "observed": 0.4748,
+          "gap_pp": 0.62
+        },
+        {
+          "decile": 9,
+          "n": 1506,
+          "mean_predicted": 0.6129,
+          "observed": 0.6162,
+          "gap_pp": 0.33
+        },
+        {
+          "decile": 10,
+          "n": 1506,
+          "mean_predicted": 0.7839,
+          "observed": 0.7689,
+          "gap_pp": -1.49
+        }
+      ]
+    }
+  },
+  "best_model": "logistic",
+  "production_model": "gradient_boosting",
+  "robustness": [
+    {
+      "target_auc": 0.9,
+      "achieved_auc": 0.857,
+      "targeting_accuracy": 74.2,
+      "coverage_of_poor": 35.9,
+      "leakage_rate": 25.9,
+      "still_beats_geographic": true
+    },
+    {
+      "target_auc": 0.85,
+      "achieved_auc": 0.85,
+      "targeting_accuracy": 74.2,
+      "coverage_of_poor": 35.9,
+      "leakage_rate": 25.9,
+      "still_beats_geographic": true
+    },
+    {
+      "target_auc": 0.8,
+      "achieved_auc": 0.8,
+      "targeting_accuracy": 68.1,
+      "coverage_of_poor": 33.0,
+      "leakage_rate": 31.9,
+      "still_beats_geographic": true
+    },
+    {
+      "target_auc": 0.75,
+      "achieved_auc": 0.75,
+      "targeting_accuracy": 65.0,
+      "coverage_of_poor": 31.5,
+      "leakage_rate": 35.0,
+      "still_beats_geographic": true
+    },
+    {
+      "target_auc": 0.7,
+      "achieved_auc": 0.7,
+      "targeting_accuracy": 59.6,
+      "coverage_of_poor": 28.9,
+      "leakage_rate": 40.4,
+      "still_beats_geographic": true
+    },
+    {
+      "target_auc": 0.65,
+      "achieved_auc": 0.65,
+      "targeting_accuracy": 53.5,
+      "coverage_of_poor": 25.9,
+      "leakage_rate": 46.5,
+      "still_beats_geographic": true
+    },
+    {
+      "target_auc": 0.6,
+      "achieved_auc": 0.6,
+      "targeting_accuracy": 44.9,
+      "coverage_of_poor": 21.7,
+      "leakage_rate": 55.1,
+      "still_beats_geographic": false
+    }
+  ],
+  "reference": {
+    "geographic": {
+      "targeting_accuracy": 45.3,
+      "coverage_of_poor": 21.9,
+      "leakage_rate": 54.7
+    },
+    "universal": {
+      "targeting_accuracy": 28.8,
+      "coverage_of_poor": 13.9,
+      "leakage_rate": 71.2
+    }
+  },
+  "caveat": "These metrics describe the calibrated synthetic layer, not Rwanda. They measure how well observable assets separate poor from non-poor households when the joint distribution is the one the calibration imposes; real EICV7 microdata will move them. The robustness sweep is the useful part: it says how much discrimination the conclusion needs, not how much the model has."
+}

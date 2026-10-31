@@ -112,6 +112,22 @@ def test_coverage_curve_is_ordered_and_pmt_leads(default_run: dict) -> None:
         assert row["pmt"] >= row["universal"]
 
 
+def test_fairness_reports_how_concentrated_each_rule_is(default_run: dict) -> None:
+    """A rule can reach the poor and still drop the caseload into five districts. Geographic
+    targeting does exactly that, which is the trade-off the fairness block exists to show."""
+    fairness = default_run["fairness"]
+    assert set(fairness) == {r["id"] for r in analytics.RULES}
+    assert fairness["geographic"]["districts_reached"] == 5
+    assert fairness["geographic"]["share_to_poorest_decile"] == 100.0
+    assert fairness["universal"]["districts_reached"] == 30
+    # PMT reaches the poor in most districts, at a ratio near proportional rather than 2x.
+    assert fairness["pmt"]["districts_reached"] >= 25
+    assert 1.0 <= fairness["pmt"]["fairness_ratio"] < fairness["geographic"]["fairness_ratio"]
+    for row in fairness.values():
+        assert 0 <= row["share_to_poorest_decile"] <= 100
+
+
+
 def test_response_declares_the_rows_as_synthetic(default_run: dict) -> None:
     """The documented invariant: household rows are calibrated synthetic and every response that
     touches them says so."""

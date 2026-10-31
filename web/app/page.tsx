@@ -66,7 +66,7 @@ export default function OverviewPage() {
 
   useEffect(() => {
     setError(null);
-    Promise.all([apiGet<Meta>("/api/meta"), apiGet<{ districts: District[] }>("/api/districts")])
+    Promise.all([apiGet<Meta>("/api/meta", "/api/meta.json"), apiGet<{ districts: District[] }>("/api/districts", "/api/districts.json")])
       .then(([m, d]) => {
         setMeta(m);
         setDistricts(d.districts);

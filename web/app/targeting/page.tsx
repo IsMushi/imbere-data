@@ -25,6 +25,7 @@ import {
   SourceNote,
   Tag,
 } from "@/components/Ui";
+import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Slider } from "@/components/ui/slider";
@@ -66,7 +67,7 @@ export default function TargetingPage() {
   const [attempt, setAttempt] = useState(0);
 
   useEffect(() => {
-    apiGet<Meta>("/api/meta").then(setMeta).catch((e: Error) => setError(e.message));
+    apiGet<Meta>("/api/meta", "/api/meta.json").then(setMeta).catch((e: Error) => setError(e.message));
   }, [attempt]);
 
   useEffect(() => {
@@ -109,6 +110,79 @@ export default function TargetingPage() {
       (a, b) => (a.cost_per_poor_reached ?? Infinity) - (b.cost_per_poor_reached ?? Infinity),
     );
   }, [data]);
+
+  // Export the table currently on screen, at the parameters currently on screen. The CSV is
+  // built from the response rather than reread from the API, so what a district officer files
+  // is what they were looking at. It carries the synthetic-data caveat as its first line so a
+  // spreadsheet opened months later cannot be mistaken for a survey extract.
+  const exportCsv = useCallback(() => {
+    if (!data) return;
+    const header = [
+      "rule",
+      "label",
+      "beneficiaries",
+      "poor_reached",
+      "non_poor_reached",
+      "targeting_accuracy_pct",
+      "coverage_of_poor_pct",
+      "coverage_ci95_low",
+      "coverage_ci95_high",
+      "leakage_rate_pct",
+      "exclusion_error_pct",
+      "spend_rwf",
+      "cost_per_poor_reached_rwf",
+      "districts_reached",
+      "share_to_10_poorest_pct",
+      "fairness_ratio",
+    ];
+    const esc = (v: string | number | null | undefined) => {
+      const s = v === null || v === undefined ? "" : String(v);
+      return /[",\n]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s;
+    };
+    const lines = [
+      `# IMBERE DATA targeting allocation — calibrated synthetic households (${data.sample_households} rows), not EICV7 survey microdata`,
+      `# budget_rwf=${data.budget_total} transfer_per_beneficiary_rwf=${data.transfer_per_beneficiary} bootstrap_reps=${data.bootstrap_reps}`,
+      header.join(","),
+    ];
+    for (const r of ranked) {
+      const f = data.fairness?.[r.id];
+      lines.push(
+        [
+          r.id,
+          r.label,
+          r.beneficiaries,
+          r.poor_reached,
+          r.non_poor_reached,
+          r.targeting_accuracy,
+          r.coverage_of_poor,
+          r.ci95.coverage_of_poor?.[0],
+          r.ci95.coverage_of_poor?.[1],
+          r.leakage_rate,
+          r.exclusion_error,
+          r.spend_rwf,
+          r.cost_per_poor_reached,
+          f?.districts_reached,
+          f?.share_to_poorest_decile,
+          f?.fairness_ratio,
+        ]
+          .map(esc)
+          .join(","),
+      );
+    }
+    const blob = new Blob([`\uFEFF${lines.join("\r\n")}\r\n`], {
+      type: "text/csv;charset=utf-8",
+    });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `imbere-targeting-${Math.round(data.budget_total / 1e6)}m-${Math.round(
+      data.transfer_per_beneficiary / 1e3,
+    )}k.csv`;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    URL.revokeObjectURL(url);
+  }, [data, ranked]);
 
   const pmt = data?.results.find((r) => r.id === "pmt");
   const universal = data?.results.find((r) => r.id === "universal");
@@ -481,6 +555,90 @@ export default function TargetingPage() {
               {data?.bootstrap_reps ?? 200} resamples of those households — sampling variability
               only, not the EICV7 design.
             </SourceNote>
+
+            {/* Geographic reach. Coverage alone can be bought by concentrating the caseload in a
+                handful of districts, which is precisely what geographic targeting does; the ratio
+                makes that trade-off visible instead of leaving it to a footnote. */}
+            {data?.fairness ? (
+              <div className="mt-8 border-t border-line pt-5">
+                <h3 className="label">Geographic reach</h3>
+                <p className="mt-1 max-w-[74ch] text-[13.5px] leading-snug text-ink-soft">
+                  A rule can reach the poor and still put the caseload in five districts. The ratio
+                  compares each rule&apos;s share of beneficiaries in the ten poorest districts
+                  with those districts&apos; share of all poor households: 1.00 is proportional,
+                  above 1 concentrates.
+                </p>
+                <div
+                  role="region"
+                  aria-label="Geographic reach by rule"
+                  tabIndex={0}
+                  className="mt-3 overflow-x-auto"
+                >
+                  <table className="w-full min-w-[360px] border-collapse text-[14.5px]">
+                    <caption className="sr-only">
+                      Districts reached and concentration of beneficiaries in the ten poorest
+                      districts, by allocation rule.
+                    </caption>
+                    <thead>
+                      <tr className="border-b border-line">
+                        <th scope="col" className="pb-2 pr-4 text-left font-medium text-ink-soft">
+                          Rule
+                        </th>
+                        <th scope="col" className="pb-2 pr-4 text-right font-medium text-ink-soft">
+                          Districts reached
+                        </th>
+                        <th scope="col" className="pb-2 pr-4 text-right font-medium text-ink-soft">
+                          Share to 10 poorest
+                        </th>
+                        <th scope="col" className="pb-2 text-right font-medium text-ink-soft">
+                          vs proportional
+                        </th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-line">
+                      {[...data.results]
+                        .sort((a, b) => b.coverage_of_poor - a.coverage_of_poor)
+                        .map((r) => {
+                          const f = data.fairness?.[r.id];
+                          if (!f) return null;
+                          return (
+                            <tr key={r.id}>
+                              <th scope="row" className="py-2 pr-4 text-left font-normal">
+                                {r.label}
+                              </th>
+                              <td className="tnum py-2 pr-4 text-right">
+                                {f.districts_reached} / 30
+                              </td>
+                              <td className="tnum py-2 pr-4 text-right">
+                                {pct(f.share_to_poorest_decile, 1)}
+                              </td>
+                              <td className="tnum py-2 text-right font-medium">
+                                {f.fairness_ratio === null ? "—" : f.fairness_ratio.toFixed(2)}
+                              </td>
+                            </tr>
+                          );
+                        })}
+                    </tbody>
+                  </table>
+                </div>
+                <p className="mt-2 max-w-[74ch] text-[13.5px] leading-snug text-ink-soft">
+                  Proxy-means reaches the poor in {data.fairness.pmt?.districts_reached ?? "—"} of
+                  30 districts, so it spreads the caseload the way a national programme needs to.
+                  Geographic targeting concentrates all of it in five, which is cheaper to
+                  administer but concentrates the political risk with it.
+                </p>
+              </div>
+            ) : null}
+
+            <div className="mt-6 flex flex-wrap items-center gap-3 border-t border-line pt-4">
+              <Button variant="outline" size="sm" onClick={exportCsv} disabled={!data}>
+                Download this table (CSV)
+              </Button>
+              <span className="text-[13px] leading-snug text-ink-soft">
+                Rules, coverage, leakage, cost and fairness at the parameters on screen. The file
+                is stamped with the synthetic-data caveat.
+              </span>
+            </div>
           </section>
 
           {/* Comparison panels. Both are column charts laid out in a two-column row on

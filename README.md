@@ -53,6 +53,11 @@ distribution, lets household resilience absorb part of the loss, and reports:
 - the district poverty rate before and after
 - the cash required to bring every affected household back to the line
 
+Shocks can be compounded: add a drought and a flood in the same season and the outcome reports each
+shock's own contribution next to the combined total. Exposure combines as `1 − ∏(1 − pⱼ)` and
+losses add before resilience absorbs them, so the combined figure is larger than either alone but
+smaller than their sum — a household cannot cross the line twice.
+
 ![Shock simulator — one drought, seven shock types compared](screenshots/simulator.png)
 
 ### 03 · Which targeting rule works
@@ -67,7 +72,9 @@ Run five allocation rules against the same budget and the same household distrib
 | **Proxy-means test** | Rank by the model's predicted poverty probability |
 
 Reported for each: targeting accuracy, coverage of the poor, leakage, exclusion error and cost per
-poor person reached.
+poor person reached — plus a geographic-reach block showing how many districts each rule touches
+and how concentrated its caseload is in the ten poorest districts. The table exports to CSV at
+whatever budget and transfer are on screen, with the synthetic-data caveat written into the file.
 
 ![Targeting lab — five allocation rules on the same budget](screenshots/targeting.png)
 
@@ -80,8 +87,8 @@ The competition scores five criteria at 20 points each. What each one would find
 | Criterion | What this does | Where to check |
 |---|---|---|
 | **1 · Problem understanding & relevance** | The problem is a measured gap, not an assertion: 96% of adults are financially included, 34% are vulnerable, 27.4% are below the poverty line. Each NST2 Social Transformation target and the Vision 2050 goal is mapped to the module answering it, and the actors are named — LODA, MINALOC, district officers. | Overview *Built for* band; `/methodology` → *Where this sits in national policy*; the closing minute of the pitch |
-| **2 · Data use & methodology** | Two NISR surveys (EICV7 Poverty Profile, FinScope 2024) plus Census 2022 and geoBoundaries. 39 transcribed indicators, reconciled to the published 27.4% headcount when population-weighted. The household layer is calibrated to nine published marginals, the risk model holds out at AUC 0.857 with consumption deliberately excluded, and one CSV swap replaces the synthetic rows with real microdata. | `/methodology`; `data/processed/calibration.json`; `api/app/datastore.py` |
-| **3 · Tech innovation** | A targeting optimiser rather than a dashboard: five allocation rules priced on the same budget and the same households, a shock simulator that lets savings, mobile money and insurance absorb part of the loss, bootstrap intervals on every headline figure, and real-vs-modelled separation enforced in the API. | `/targeting`, `/simulator`; `api/app/analytics.py`; `api/tests/` |
+| **2 · Data use & methodology** | Two NISR surveys (EICV7 Poverty Profile, FinScope 2024) plus Census 2022 and geoBoundaries. 39 transcribed indicators, reconciled to the published 27.4% headcount when population-weighted. FGT incidence, depth and severity (P₀ 27.6%, P₁ 6.0%, P₂ 2.2%) with the formula and weights on the page. The household layer is calibrated to nine published marginals; the risk model is evaluated five-fold out-of-fold (ROC-AUC 0.857, PR-AUC 0.673, Brier 0.134, ECE 0.006) with a sensitivity sweep bounding how much of the conclusion depends on that score. One CSV swap replaces the synthetic rows with real microdata. | `/methodology`; `docs/MODEL_EVALUATION.md`; `data/processed/calibration.json`; `api/app/datastore.py` |
+| **3 · Tech innovation** | A targeting optimiser rather than a dashboard: five allocation rules priced on the same budget and the same households, geographic-fairness ratios, compound shock scenarios with per-shock attribution, bootstrap intervals on every headline figure, a degradation sweep that stress-tests the targeting conclusion, and real-vs-modelled separation enforced in the API. | `/targeting`, `/simulator`; `api/app/analytics.py`; `api/tests/` |
 | **4 · Usability & design** | Four pages, one visual language taken from NISR's own palette. Every panel is labelled *Measured · published* or *Modelled · illustrative*. Tables scroll inside a focusable region rather than breaking the page, nothing overflows at 390px, and the palette is checked against WCAG AA. | The app itself; `screenshots/`; `web/components/ui/` |
 | **5 · Tangible impact** | A number a budget officer can act on: at RWF 300m the proxy-means rule reaches 2.7× more poor households than a universal transfer, and leakage falls from 71.2% to 21.9%. A district can cost a drought reserve in a browser; the next dataset (EICV7 VUP module, catalog 121) is named, which is what would turn selection performance into measured programme impact. | `/targeting` headline cards; *Recommendations* below |
 
@@ -104,7 +111,9 @@ selection for the same money, and cuts leakage from 71.2% to 21.9%.** Read the r
 about the method rather than about Rwanda: the joint distribution underneath it was calibrated to
 published EICV7 marginals, so 2.7× is what a proxy-means test achieves *when* asset–consumption
 separation looks like the published gradients. Geographic targeting captures most of the gain at a
-fraction of the data cost — which matters where a full household survey is unavailable.
+fraction of the data cost — which matters where a full household survey is unavailable — but it
+spends the whole caseload in five districts, while proxy-means reaches poor households in 28 of 30.
+The fairness ratio makes that trade-off explicit instead of leaving it to a footnote.
 
 > These figures come from calibrated synthetic household rows. The engines do not change when the
 > real EICV7 microdata is loaded — only the rows they read. See [Method](#method).
@@ -281,6 +290,9 @@ Real inputs and modelled outputs are kept strictly separate in code and in the U
   The joint distribution is not observed data.
 - **Shock exposure and loss parameters** are stated assumptions, surfaced in the UI and in
   `api/app/analytics.py`. They are not estimated from EICV7.
+- **Poverty measures** follow Foster–Greer–Thorbecke: P(α) = (1/W) Σ wᵢ[max(0,(z−yᵢ)/z)]^α with α
+  = 0, 1, 2, weighted by household size. The synthetic layer has no strata or PSUs, so these are
+  descriptive statistics about the prototype, not design-based survey estimates.
 
 ![Method page — measured vs modelled, model card and assumption table](screenshots/methodology.png)
 
@@ -289,13 +301,16 @@ Real inputs and modelled outputs are kept strictly separate in code and in the U
 Proxy-means poverty risk model — `HistGradientBoostingClassifier`, consumption excluded from the
 feature set by design.
 
-- Hold-out AUC: **0.857** (logistic baseline 0.861)
+- Five-fold out-of-fold ROC-AUC: **0.857** · PR-AUC **0.673** · Brier **0.134** · ECE **0.006**
+- Logistic baseline 0.860, random forest 0.852 — the three are inside noise of each other
 - Features: district, province, head's education, income source, urban, household size,
   11 asset/housing indicators, district poverty rate
 - Top signals: head's education, district poverty rate, TV ownership, income source, modern floor
 
-AUC is measured on synthetic rows and describes the prototype, not Rwanda. Re-run against the
-EICV7 file for publishable accuracy.
+AUC is measured on synthetic rows and describes the prototype, not Rwanda. The degradation sweep in
+`docs/MODEL_EVALUATION.md` shows proxy-means still beats geographic targeting until the score falls
+to roughly AUC 0.60, which bounds how much of the result depends on the model being as sharp as the
+calibration makes it. Re-run against the EICV7 file for publishable accuracy.
 
 ---
 
@@ -347,15 +362,36 @@ imbere-data/
 ├── web/
 │   ├── app/                  # Overview, simulator, targeting, method
 │   ├── components/           # map, charts, UI primitives
-│   ├── lib/                  # API client and formatting
-│   └── public/rwanda-districts.geojson
+│   ├── lib/                  # API client (2.5 s live fetch + snapshot fallback)
+│   └── public/
+│       ├── api/              # committed JSON snapshots for cold starts
+│       └── rwanda-districts.geojson
 ├── data/
 │   ├── raw/                  # transcribed NISR tables (source PDF/XLSX stay local)
 │   ├── reference/            # national indicators, shock tables
 │   └── processed/            # built JSON + calibrated households
+├── scripts/                  # build_data, build_snapshot, evaluate_model
+├── docs/                     # audit, method, evaluation, testing, presentation
 ├── run.ps1 / run.cmd         # one-command local startup (API + UI)
 └── render.yaml               # Render Blueprint for the API
 ```
+
+---
+
+## Documentation
+
+| Document | Contents |
+|---|---|
+| `docs/METHODOLOGY.md` | Formulas, calibration, data contract, swap procedure |
+| `docs/MODEL_EVALUATION.md` | Generated evaluation report: CV comparison, calibration, degradation sweep |
+| `docs/TECHNICAL_AUDIT.md` | What was wrong, what changed, what is still open |
+| `docs/RESEARCH_GAP_ANALYSIS.md` | The gap in the evidence base and what this prototype does about it |
+| `docs/IMPLEMENTATION_ROADMAP.md` | Live checklist with verification status |
+| `docs/DATA_SOURCES.md` | Source registry with access conditions and update cadence |
+| `docs/DATA_DICTIONARY.md` | Every field the system reads or serves |
+| `docs/SYSTEM_ARCHITECTURE.md` | Modules, request flow, caching, security, deployment |
+| `docs/TESTING_REPORT.md` | Commands run and their results |
+| `docs/COMPETITION_PRESENTATION.md` | Pitch script, rubric mapping, anticipated questions |
 
 ---
 
@@ -367,6 +403,11 @@ imbere-data/
 - EICV7 covers roughly 500 households per district, so district confidence intervals are wide.
 - No causal claim: targeting results are selection performance, not programme impact.
 - Cash-need figures are a costing exercise at the poverty line, not a budget or an evaluation.
+- The household layer carries no survey weights, strata or primary sampling units, so intervals
+  are resampling intervals rather than design-based standard errors.
+- The shipped model is not the cross-validation winner (logistic 0.860 vs. 0.857). The difference is
+  inside noise and switching would move every pinned figure, so the comparison is reported rather
+  than acted on.
 
 ## Licence and attribution
 

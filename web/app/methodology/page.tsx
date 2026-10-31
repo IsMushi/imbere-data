@@ -13,12 +13,13 @@ import {
   Tag,
 } from "@/components/Ui";
 import { Skeleton } from "@/components/ui/skeleton";
-import { apiGet, type Meta } from "@/lib/api";
+import { apiGet, type Meta, type PovertyResponse } from "@/lib/api";
 import { num, pct } from "@/lib/format";
 
 /** Module scope on purpose: `SectionNav` keys its scroll listener on this array. */
 const SECTIONS = [
   { href: "#measured", label: "Measured vs modelled" },
+  { href: "#poverty", label: "Poverty measures" },
   { href: "#model", label: "Proxy-means model" },
   { href: "#rules", label: "Allocation rules" },
   { href: "#shocks", label: "Shock assumptions" },
@@ -76,14 +77,21 @@ const ALIGNMENT = [
 
 export default function MethodologyPage() {
   const [meta, setMeta] = useState<Meta | null>(null);
+  const [poverty, setPoverty] = useState<PovertyResponse | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [attempt, setAttempt] = useState(0);
 
   useEffect(() => {
     setError(null);
-    apiGet<Meta>("/api/meta")
+    apiGet<Meta>("/api/meta", "/api/meta.json")
       .then(setMeta)
       .catch((e: Error) => setError(e.message));
+    apiGet<PovertyResponse>("/api/poverty", "/api/poverty.json")
+      .then(setPoverty)
+      .catch(() => {
+        // The poverty block has its own empty state; a missing FGT payload should not blank
+        // the model card and the reference tables that share this page.
+      });
   }, [attempt]);
 
   const retry = useCallback(() => setAttempt((n) => n + 1), []);
@@ -308,6 +316,178 @@ export default function MethodologyPage() {
             </p>
           </div>
         </FadeIn>
+      </section>
+
+      {/* Poverty measures. Headcount alone says how many are below the line but not how far
+          below they sit, which is what a transfer budget has to cover. FGT gives all three from
+          one formula (alpha = 0, 1, 2), so the numbers are comparable across areas and over time. */}
+      <section
+        id="poverty"
+        aria-label="Poverty incidence, depth and severity"
+        className="mt-16 scroll-mt-[160px] sm:scroll-mt-[132px]"
+      >
+        <div className="border-l-2 border-primary pl-5 pt-1">
+          <SectionHeading title="How many, how far below, how unequal">
+            The Foster–Greer–Thorbecke family measures incidence, depth and severity with one
+            parameter. Headcount alone can fall while the poorest get poorer; these three move
+            together or not at all.
+          </SectionHeading>
+        </div>
+
+        <div className="mt-5 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+          {[
+            {
+              label: "Headcount (P₀)",
+              value: poverty ? pct(poverty.national.headcount_pct, 2) : undefined,
+              note: "share of people below the total poverty line",
+            },
+            {
+              label: "Poverty gap (P₁)",
+              value: poverty ? pct(poverty.national.poverty_gap_pct, 2) : undefined,
+              note: "average shortfall from the line, as a share of the line",
+            },
+            {
+              label: "Severity (P₂)",
+              value: poverty ? pct(poverty.national.severity_pct, 2) : undefined,
+              note: "squared shortfall; weights the poorest more heavily",
+            },
+            {
+              label: "Consumption Gini",
+              value: poverty ? poverty.national.gini_consumption.toFixed(3) : undefined,
+              note: "inequality across all households, not only the poor",
+            },
+          ].map((s) => (
+            <div key={s.label} className="border-t-2 border-ink pt-3">
+              <div className="text-[12.5px] font-medium uppercase tracking-[0.08em] text-ink-soft">
+                {s.label}
+              </div>
+              <div className="tnum mt-1.5 text-[30px] font-semibold leading-none text-ink">
+                {s.value ?? (poverty ? "—" : <Skeleton className="h-[30px] w-24" />)}
+              </div>
+              <p className="mt-2 text-[13.5px] leading-snug text-ink-soft">{s.note}</p>
+            </div>
+          ))}
+        </div>
+
+        <div className="mt-6 grid gap-8 lg:grid-cols-[1.05fr_1fr]">
+          <div className="border border-line bg-surface p-5">
+            <h3 className="label">The formula</h3>
+            <p className="mt-2 font-mono text-[15px] leading-relaxed text-ink">
+              P(α) = (1 / W) · Σ wᵢ · [ max(0, (z − yᵢ) / z) ]^α
+            </p>
+            <dl className="mt-4 space-y-2 text-[14.5px] leading-snug text-ink-soft">
+              <div>
+                <dt className="inline font-medium text-ink">z</dt>
+                <dd className="inline">
+                  {" "}
+                  — poverty line, RWF {num(poverty?.lines.total_poverty_line_rwf ?? 560127)} per
+                  adult equivalent per year (extreme line RWF{" "}
+                  {num(poverty?.lines.extreme_poverty_line_rwf ?? 356432)})
+                </dd>
+              </div>
+              <div>
+                <dt className="inline font-medium text-ink">yᵢ</dt>
+                <dd className="inline">
+                  {" "}
+                  — household consumption per adult equivalent
+                </dd>
+              </div>
+              <div>
+                <dt className="inline font-medium text-ink">wᵢ</dt>
+                <dd className="inline">
+                  {" "}
+                  — household size, used as the per-capita weight
+                </dd>
+              </div>
+              <div>
+                <dt className="inline font-medium text-ink">α</dt>
+                <dd className="inline"> — 0 headcount, 1 gap, 2 severity</dd>
+              </div>
+            </dl>
+            <p className="mt-4 border-l-2 border-accent pl-3 text-[13.5px] leading-relaxed text-ink-soft">
+              Weights here are household size, not EICV7 survey weights. The synthetic layer
+              carries no strata or primary sampling units, so these are descriptive statistics
+              about the prototype — not design-based national estimates.
+            </p>
+          </div>
+
+          <div>
+            <h3 className="text-[16px] font-semibold text-ink">Urban and rural</h3>
+            <div className="mt-3 overflow-x-auto">
+              <table className="w-full min-w-[340px] border-collapse text-[15px]">
+                <caption className="sr-only">
+                  Headcount, poverty gap and severity for urban and rural households.
+                </caption>
+                <thead>
+                  <tr className="border-b border-line">
+                    <th scope="col" className="pb-2 pr-4 text-left font-medium text-ink-soft">
+                      Area
+                    </th>
+                    <th scope="col" className="pb-2 pr-4 text-right font-medium text-ink-soft">
+                      Headcount
+                    </th>
+                    <th scope="col" className="pb-2 pr-4 text-right font-medium text-ink-soft">
+                      Gap
+                    </th>
+                    <th scope="col" className="pb-2 text-right font-medium text-ink-soft">
+                      Severity
+                    </th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-line">
+                  {(poverty?.by_area ?? []).map((row) => (
+                    <tr key={row.area}>
+                      <th scope="row" className="py-2 pr-4 text-left font-normal">
+                        {row.area}
+                      </th>
+                      <td className="tnum py-2 pr-4 text-right">{pct(row.headcount_pct, 2)}</td>
+                      <td className="tnum py-2 pr-4 text-right">{pct(row.poverty_gap_pct, 2)}</td>
+                      <td className="tnum py-2 text-right">{pct(row.severity_pct, 2)}</td>
+                    </tr>
+                  ))}
+                  {poverty ? (
+                    <tr className="font-medium">
+                      <th scope="row" className="py-2 pr-4 text-left">
+                        National
+                      </th>
+                      <td className="tnum py-2 pr-4 text-right">
+                        {pct(poverty.national.headcount_pct, 2)}
+                      </td>
+                      <td className="tnum py-2 pr-4 text-right">
+                        {pct(poverty.national.poverty_gap_pct, 2)}
+                      </td>
+                      <td className="tnum py-2 text-right">
+                        {pct(poverty.national.severity_pct, 2)}
+                      </td>
+                    </tr>
+                  ) : null}
+                </tbody>
+              </table>
+            </div>
+            {poverty ? (
+              <>
+                <p className="mt-3 text-[14.5px] leading-relaxed text-ink-soft">
+                  Extreme poverty headcount:{" "}
+                  <strong className="tnum font-medium text-ink">
+                    {pct(poverty.national.headcount_extreme_pct, 2)}
+                  </strong>
+                  . Mean consumption per adult equivalent:{" "}
+                  <strong className="tnum font-medium text-ink">
+                    RWF {num(poverty.national.mean_consumption_ae_rwf)}
+                  </strong>
+                  ; median{" "}
+                  <strong className="tnum font-medium text-ink">
+                    RWF {num(poverty.national.median_consumption_ae_rwf)}
+                  </strong>
+                  .
+                </p>
+                <p className="mt-2 text-[13.5px] leading-relaxed text-ink-soft">{poverty.note}</p>
+              </>
+            ) : !error ? (
+              <SkeletonBars rows={3} />
+            ) : null}
+          </div>
+        </div>
       </section>
 
       {/* Model card */}

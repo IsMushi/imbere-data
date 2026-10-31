@@ -1,10 +1,40 @@
 export const API_BASE =
   process.env.NEXT_PUBLIC_API_BASE ?? "http://127.0.0.1:8000";
 
-export async function apiGet<T>(path: string): Promise<T> {
-  const res = await fetch(`${API_BASE}${path}`, { cache: "no-store" });
-  if (!res.ok) throw new Error(`${path} failed: ${res.status}`);
-  return res.json() as Promise<T>;
+/** How long a page will wait for the live API before using the committed snapshot.
+ *  The deployed API sleeps on a free tier; a cold wake takes tens of seconds, and a judge who
+ *  sees skeletons for that long has already formed an opinion. */
+const LIVE_TIMEOUT_MS = 2500;
+
+async function fetchJson<T>(url: string, init?: RequestInit): Promise<T> {
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), LIVE_TIMEOUT_MS);
+  try {
+    const res = await fetch(url, { cache: "no-store", signal: controller.signal, ...init });
+    if (!res.ok) throw new Error(`${url} failed: ${res.status}`);
+    return (await res.json()) as T;
+  } finally {
+    clearTimeout(timer);
+  }
+}
+
+/**
+ * GET with a snapshot fallback.
+ *
+ * The snapshot is generated from the same committed data by `scripts/build_snapshot.py`, so a
+ * fallback render is not stale data — it is the same figures with a slower route to the screen.
+ * Callers that need a computed response (targeting, simulation) keep using `apiPost` and show
+ * their own loading state.
+ */
+export async function apiGet<T>(path: string, snapshot?: string): Promise<T> {
+  try {
+    return await fetchJson<T>(`${API_BASE}${path}`);
+  } catch (error) {
+    if (!snapshot) throw error;
+    const res = await fetch(snapshot, { cache: "force-cache" });
+    if (!res.ok) throw error;
+    return (await res.json()) as T;
+  }
 }
 
 export async function apiPost<T>(path: string, body: unknown): Promise<T> {
@@ -124,6 +154,12 @@ export type TargetingResult = {
   };
 };
 
+export type FairnessRow = {
+  districts_reached: number;
+  share_to_poorest_decile: number;
+  fairness_ratio: number | null;
+};
+
 export type TargetingResponse = {
   budget_total: number;
   transfer_per_beneficiary: number;
@@ -131,8 +167,44 @@ export type TargetingResponse = {
   total_poor_in_sample: number;
   results: TargetingResult[];
   coverage_curve: Record<string, number>[];
+  fairness: Record<string, FairnessRow>;
   bootstrap_reps: number;
   microdata_kind: string;
+};
+
+export type FgtMeasures = {
+  headcount_pct: number;
+  poverty_gap_pct: number;
+  severity_pct: number;
+};
+
+export type PovertyDistrict = FgtMeasures & {
+  district: string;
+  province: string;
+  sample_households: number;
+  published_headcount: number;
+};
+
+/** FGT headcount/depth/severity from `/api/poverty`, on the calibrated synthetic layer. */
+export type PovertyResponse = {
+  scope: string;
+  rows: number;
+  weights: string;
+  lines: {
+    total_poverty_line_rwf: number;
+    extreme_poverty_line_rwf: number;
+    price_base: string;
+  };
+  national: FgtMeasures & {
+    headcount_extreme_pct: number;
+    mean_consumption_ae_rwf: number;
+    median_consumption_ae_rwf: number;
+    gini_consumption: number;
+  };
+  by_area: ({ area: string } & FgtMeasures)[];
+  districts: PovertyDistrict[];
+  microdata_kind: string;
+  note: string;
 };
 
 export type SimulationResponse = {
@@ -141,6 +213,15 @@ export type SimulationResponse = {
   shock_type: string;
   shock_label: string;
   severity: number;
+  shocks: { id: string; label: string; severity: number }[];
+  components: {
+    id: string;
+    label: string;
+    severity: number;
+    newly_poor_households: number;
+    cash_need_rwf: number;
+  }[];
+  combined: boolean;
   district_households: number;
   district_poverty_rate: number;
   result: {

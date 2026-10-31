@@ -53,6 +53,7 @@ export default function SimulatorPage() {
   const [district, setDistrict] = useState<string>("");
   const [shock, setShock] = useState<string>("drought");
   const [severity, setSeverity] = useState<number>(50);
+  const [extras, setExtras] = useState<{ shock_type: string; severity: number }[]>([]);
   const [result, setResult] = useState<SimulationResponse | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
@@ -60,7 +61,7 @@ export default function SimulatorPage() {
   const reqId = useRef(0);
 
   useEffect(() => {
-    Promise.all([apiGet<Meta>("/api/meta"), apiGet<{ districts: District[] }>("/api/districts")])
+    Promise.all([apiGet<Meta>("/api/meta", "/api/meta.json"), apiGet<{ districts: District[] }>("/api/districts", "/api/districts.json")])
       .then(([m, d]) => {
         setMeta(m);
         setDistricts(d.districts);
@@ -74,32 +75,36 @@ export default function SimulatorPage() {
       .catch((e: Error) => setError(e.message));
   }, [attempt]);
 
-  const run = useCallback(async (d: string, s: string, sev: number) => {
-    if (!d) return;
-    const id = ++reqId.current;
-    setLoading(true);
-    try {
-      const r = await apiPost<SimulationResponse>("/api/simulate", {
-        district: d,
-        shock_type: s,
-        severity: sev,
-      });
-      if (id === reqId.current) {
-        setResult(r);
-        setError(null);
+  const run = useCallback(
+    async (d: string, s: string, sev: number, extra: { shock_type: string; severity: number }[]) => {
+      if (!d) return;
+      const id = ++reqId.current;
+      setLoading(true);
+      try {
+        const r = await apiPost<SimulationResponse>("/api/simulate", {
+          district: d,
+          shock_type: s,
+          severity: sev,
+          additional_shocks: extra,
+        });
+        if (id === reqId.current) {
+          setResult(r);
+          setError(null);
+        }
+      } catch (e) {
+        if (id === reqId.current) setError((e as Error).message);
+      } finally {
+        if (id === reqId.current) setLoading(false);
       }
-    } catch (e) {
-      if (id === reqId.current) setError((e as Error).message);
-    } finally {
-      if (id === reqId.current) setLoading(false);
-    }
-  }, []);
+    },
+    [],
+  );
 
   useEffect(() => {
     if (!district) return;
-    const t = setTimeout(() => void run(district, shock, severity), 120);
+    const t = setTimeout(() => void run(district, shock, severity, extras), 120);
     return () => clearTimeout(t);
-  }, [district, shock, severity, run, attempt]);
+  }, [district, shock, severity, extras, run, attempt]);
 
   const retry = useCallback(() => setAttempt((n) => n + 1), []);
 
@@ -115,6 +120,24 @@ export default function SimulatorPage() {
         label: meta!.shock_assumptions[k].label,
       })),
     [meta],
+  );
+
+  // Compound scenarios. Two extra shocks is enough to show that impacts add: the rail stays
+  // scannable, and the API accepts up to six for scripted use.
+  const addExtra = useCallback(() => {
+    setExtras((list) => {
+      if (list.length >= 2) return list;
+      const used = new Set([shock, ...list.map((e) => e.shock_type)]);
+      const next = SHOCK_ORDER.find((id) => !used.has(id)) ?? "flood";
+      return [...list, { shock_type: next, severity: 50 }];
+    });
+  }, [shock]);
+
+  const updateExtra = useCallback(
+    (index: number, patch: Partial<{ shock_type: string; severity: number }>) => {
+      setExtras((list) => list.map((e, i) => (i === index ? { ...e, ...patch } : e)));
+    },
+    [],
   );
 
   const r = result?.result;
@@ -205,6 +228,85 @@ export default function SimulatorPage() {
             <span>Severe</span>
           </div>
 
+          <div className="mt-6 border-t border-line pt-4">
+            <div className="flex items-baseline justify-between gap-3">
+              <h3 className="label">Compound scenario</h3>
+              {extras.length > 0 ? (
+                <button
+                  type="button"
+                  onClick={() => setExtras([])}
+                  className="text-[13px] font-medium text-primary underline-offset-4 hover:underline"
+                >
+                  Clear
+                </button>
+              ) : null}
+            </div>
+            <p className="mt-1 text-[12.5px] leading-snug text-ink-soft">
+              Shocks that land in the same season. Exposure combines as 1 − ∏(1 − p) and losses
+              add before resilience absorbs them.
+            </p>
+
+            <div className="mt-3 space-y-3">
+              {extras.map((e, i) => (
+                <div key={i} className="rounded-sm border border-line p-3">
+                  <div className="flex items-center justify-between gap-2">
+                    <span className="text-[13px] font-medium text-ink">Shock {i + 2}</span>
+                    <button
+                      type="button"
+                      onClick={() => setExtras((list) => list.filter((_, j) => j !== i))}
+                      className="text-[12.5px] font-medium text-primary underline-offset-4 hover:underline"
+                    >
+                      Remove
+                    </button>
+                  </div>
+                  <Select
+                    value={e.shock_type}
+                    onValueChange={(v) => updateExtra(i, { shock_type: v })}
+                  >
+                    <SelectTrigger className="mt-2" aria-label={`Shock ${i + 2} type`}>
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {shockOptions.map((s) => (
+                        <SelectItem key={s.id} value={s.id}>
+                          {s.label}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  <div className="mt-2 flex items-baseline justify-between text-[12.5px] text-ink-soft">
+                    <Label htmlFor={`extra-severity-${i}`}>Severity</Label>
+                    <span className="tnum font-medium text-ink">{e.severity}</span>
+                  </div>
+                  <Slider
+                    id={`extra-severity-${i}`}
+                    className="mt-1.5"
+                    value={[e.severity]}
+                    onValueChange={([v]) => updateExtra(i, { severity: v })}
+                    min={0}
+                    max={100}
+                    step={5}
+                    thumbLabel={`Shock ${i + 2} severity`}
+                    valueText={`${e.severity} of 100`}
+                  />
+                </div>
+              ))}
+            </div>
+
+            {extras.length < 2 ? (
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                className="mt-3"
+                onClick={addExtra}
+                disabled={pending}
+              >
+                + Add simultaneous shock
+              </Button>
+            ) : null}
+          </div>
+
           {pending ? (
             <div className="mt-4 border-t border-line pt-3" aria-hidden>
               <Skeleton className="h-[14px] w-full" />
@@ -288,6 +390,70 @@ export default function SimulatorPage() {
                 <SourceNote kind="assumed">
                   Exposure and loss parameters are stated assumptions, not EICV7 estimates.
                 </SourceNote>
+
+                {result.combined ? (
+                  <div className="mt-6 border-t border-line pt-4">
+                    <h3 className="label">What each shock contributes</h3>
+                    <p className="mt-1 max-w-[72ch] text-[13.5px] leading-snug text-ink-soft">
+                      Each row is that shock run on its own at the severity shown. The rows add up
+                      to more than the combined figure because a household already pushed below
+                      the line by one shock cannot cross it a second time.
+                    </p>
+                    <div
+                      role="region"
+                      aria-label="Per-shock contribution to the compound scenario"
+                      tabIndex={0}
+                      className="mt-3 overflow-x-auto"
+                    >
+                      <table className="w-full min-w-[400px] border-collapse text-[14.5px]">
+                        <caption className="sr-only">
+                          Newly poor households and cash needed for each shock in the compound
+                          scenario, measured on its own.
+                        </caption>
+                        <thead>
+                          <tr className="border-b border-line">
+                            <th scope="col" className="pb-2 pr-4 text-left font-medium text-ink-soft">
+                              Shock
+                            </th>
+                            <th scope="col" className="pb-2 pr-4 text-right font-medium text-ink-soft">
+                              Severity
+                            </th>
+                            <th scope="col" className="pb-2 pr-4 text-right font-medium text-ink-soft">
+                              Newly poor alone
+                            </th>
+                            <th scope="col" className="pb-2 text-right font-medium text-ink-soft">
+                              Cash need alone
+                            </th>
+                          </tr>
+                        </thead>
+                        <tbody className="divide-y divide-line">
+                          {result.components.map((c) => (
+                            <tr key={c.id}>
+                              <th scope="row" className="py-2 pr-4 text-left font-normal">
+                                {c.label}
+                              </th>
+                              <td className="tnum py-2 pr-4 text-right">{c.severity}</td>
+                              <td className="tnum py-2 pr-4 text-right">
+                                {num(c.newly_poor_households)}
+                              </td>
+                              <td className="tnum py-2 text-right">{rwf(c.cash_need_rwf)}</td>
+                            </tr>
+                          ))}
+                          <tr className="font-medium">
+                            <th scope="row" className="py-2 pr-4 text-left">
+                              Combined
+                            </th>
+                            <td className="tnum py-2 pr-4 text-right">—</td>
+                            <td className="tnum py-2 pr-4 text-right">
+                              {num(r.newly_poor_households)}
+                            </td>
+                            <td className="tnum py-2 text-right">{rwf(r.cash_need_rwf)}</td>
+                          </tr>
+                        </tbody>
+                      </table>
+                    </div>
+                  </div>
+                ) : null}
               </motion.section>
 
               {/* Same severity, other shocks */}
@@ -369,8 +535,21 @@ export default function SimulatorPage() {
               {/* Reading */}
               <section className="mt-10">
                 <PullQuote label="Reading this">
-                  A {result.shock_label.toLowerCase()} at severity {severity} in {result.district}{" "}
-                  exposes about <strong className="font-semibold">{compact(r.exposed_households)}</strong>{" "}
+                  {result.combined ? (
+                    <>
+                      A compound scenario —{" "}
+                      {result.shocks
+                        .map((s) => `${s.label.toLowerCase()} at ${s.severity}`)
+                        .join(", plus ")}
+                      {" "}— in {result.district} exposes about{" "}
+                    </>
+                  ) : (
+                    <>
+                      A {result.shock_label.toLowerCase()} at severity {severity} in{" "}
+                      {result.district} exposes about{" "}
+                    </>
+                  )}
+                  <strong className="font-semibold">{compact(r.exposed_households)}</strong>{" "}
                   households. Roughly{" "}
                   <strong className="font-semibold">{compact(r.newly_poor_households)}</strong> fall
                   below the poverty line, lifting the district rate from{" "}

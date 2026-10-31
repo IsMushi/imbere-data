@@ -74,3 +74,42 @@ def test_district_metadata_comes_from_the_published_table(baseline: dict) -> Non
     assert baseline["district_households"] == published["households"]
     assert baseline["province"] == published["province"]
     assert "synthetic" in baseline["microdata_kind"].lower()
+
+
+# --- compound shocks -------------------------------------------------------------------
+def test_a_single_shock_is_reported_as_a_set_of_one(baseline: dict) -> None:
+    assert baseline["combined"] is False
+    assert len(baseline["shocks"]) == 1
+    assert [c["id"] for c in baseline["components"]] == [baseline["shock_type"]]
+
+
+def test_compound_shocks_hit_at_least_as_hard_as_either_alone(baseline: dict) -> None:
+    """Two shocks cannot reach fewer households or cost less than one of them: exposure
+    combines as 1 - prod(1 - p) and losses add before resilience absorbs them."""
+    flood = analytics.simulate(DISTRICT, "flood", 50)
+    both = analytics.simulate(
+        DISTRICT, "drought", 50, additional=[{"shock_type": "flood", "severity": 50}]
+    )
+    assert both["combined"] is True
+    assert len(both["shocks"]) == 2
+    for key in ("exposed_households", "newly_poor_households", "cash_need_rwf"):
+        assert both["result"][key] >= baseline["result"][key], key
+        assert both["result"][key] >= flood["result"][key], key
+    assert both["result"]["poverty_rate_after"] >= baseline["result"]["poverty_rate_after"]
+
+
+def test_compound_components_attribute_each_shock(baseline: dict) -> None:
+    both = analytics.simulate(
+        DISTRICT, "drought", 50, additional=[{"shock_type": "flood", "severity": 50}]
+    )
+    by_id = {c["id"]: c for c in both["components"]}
+    assert set(by_id) == {"drought", "flood"}
+    assert by_id["drought"]["newly_poor_households"] == baseline["result"]["newly_poor_households"]
+
+
+def test_an_unknown_additional_shock_is_rejected() -> None:
+    with pytest.raises(KeyError):
+        analytics.simulate(
+            DISTRICT, "drought", 50, additional=[{"shock_type": "volcano", "severity": 50}]
+        )
+

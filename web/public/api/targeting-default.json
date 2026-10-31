@@ -1,0 +1,235 @@
+{
+  "budget_total": 300000000,
+  "transfer_per_beneficiary": 150000,
+  "sample_households": 15066,
+  "total_poor_in_sample": 4130,
+  "results": [
+    {
+      "id": "universal",
+      "label": "Universal (no targeting)",
+      "description": "Benefits allocated at random. The benchmark every other rule must beat.",
+      "beneficiaries": 2000,
+      "poor_reached": 576,
+      "non_poor_reached": 1424,
+      "targeting_accuracy": 28.8,
+      "coverage_of_poor": 13.9,
+      "leakage_rate": 71.2,
+      "exclusion_error": 86.1,
+      "spend_rwf": 300000000,
+      "cost_per_poor_reached": 520833,
+      "ci95": {
+        "coverage_of_poor": [
+          13.1,
+          14.8
+        ],
+        "leakage_rate": [
+          69.1,
+          73.3
+        ],
+        "cost_per_poor_reached": [
+          486164.8,
+          561850.6
+        ]
+      }
+    },
+    {
+      "id": "geographic",
+      "label": "Geographic targeting",
+      "description": "Rank districts by headcount poverty rate, then allocate within them at random.",
+      "beneficiaries": 2000,
+      "poor_reached": 906,
+      "non_poor_reached": 1094,
+      "targeting_accuracy": 45.3,
+      "coverage_of_poor": 21.9,
+      "leakage_rate": 54.7,
+      "exclusion_error": 78.1,
+      "spend_rwf": 300000000,
+      "cost_per_poor_reached": 331126,
+      "ci95": {
+        "coverage_of_poor": [
+          21.1,
+          23.0
+        ],
+        "leakage_rate": [
+          52.1,
+          56.5
+        ],
+        "cost_per_poor_reached": [
+          313471.4,
+          345224.4
+        ]
+      }
+    },
+    {
+      "id": "pmt",
+      "label": "Proxy-means test (IMBERE model)",
+      "description": "Rank households by the model's predicted probability of being poor, using only observable assets and characteristics.",
+      "beneficiaries": 2000,
+      "poor_reached": 1563,
+      "non_poor_reached": 437,
+      "targeting_accuracy": 78.2,
+      "coverage_of_poor": 37.8,
+      "leakage_rate": 21.9,
+      "exclusion_error": 62.2,
+      "spend_rwf": 300000000,
+      "cost_per_poor_reached": 191939,
+      "ci95": {
+        "coverage_of_poor": [
+          36.9,
+          38.9
+        ],
+        "leakage_rate": [
+          19.7,
+          23.6
+        ],
+        "cost_per_poor_reached": [
+          186796.6,
+          196206.7
+        ]
+      }
+    },
+    {
+      "id": "community",
+      "label": "Community-based (Ubudehe-style)",
+      "description": "Rank by asset poverty, mimicking a community ranking of household wealth.",
+      "beneficiaries": 2000,
+      "poor_reached": 1152,
+      "non_poor_reached": 848,
+      "targeting_accuracy": 57.6,
+      "coverage_of_poor": 27.9,
+      "leakage_rate": 42.4,
+      "exclusion_error": 72.1,
+      "spend_rwf": 300000000,
+      "cost_per_poor_reached": 260417,
+      "ci95": {
+        "coverage_of_poor": [
+          27.0,
+          28.9
+        ],
+        "leakage_rate": [
+          40.4,
+          44.5
+        ],
+        "cost_per_poor_reached": [
+          251883.9,
+          270276.4
+        ]
+      }
+    },
+    {
+      "id": "financial_exclusion",
+      "label": "Financial-exclusion first",
+      "description": "Prioritise households with no mobile money and no savings account, then by predicted risk.",
+      "beneficiaries": 2000,
+      "poor_reached": 1219,
+      "non_poor_reached": 781,
+      "targeting_accuracy": 61.0,
+      "coverage_of_poor": 29.5,
+      "leakage_rate": 39.0,
+      "exclusion_error": 70.5,
+      "spend_rwf": 300000000,
+      "cost_per_poor_reached": 246103,
+      "ci95": {
+        "coverage_of_poor": [
+          28.6,
+          30.7
+        ],
+        "leakage_rate": [
+          37.0,
+          40.9
+        ],
+        "cost_per_poor_reached": [
+          238095.2,
+          253823.3
+        ]
+      }
+    }
+  ],
+  "coverage_curve": [
+    {
+      "caseload_pct": 5,
+      "universal": 5.0,
+      "geographic": 9.0,
+      "pmt": 15.9,
+      "community": 11.8,
+      "financial_exclusion": 12.8
+    },
+    {
+      "caseload_pct": 10,
+      "universal": 10.6,
+      "geographic": 17.1,
+      "pmt": 29.8,
+      "community": 21.7,
+      "financial_exclusion": 21.0
+    },
+    {
+      "caseload_pct": 15,
+      "universal": 15.7,
+      "geographic": 24.8,
+      "pmt": 41.8,
+      "community": 31.2,
+      "financial_exclusion": 33.8
+    },
+    {
+      "caseload_pct": 20,
+      "universal": 20.4,
+      "geographic": 32.2,
+      "pmt": 52.6,
+      "community": 38.7,
+      "financial_exclusion": 43.7
+    },
+    {
+      "caseload_pct": 30,
+      "universal": 30.4,
+      "geographic": 46.4,
+      "pmt": 69.4,
+      "community": 53.3,
+      "financial_exclusion": 54.6
+    },
+    {
+      "caseload_pct": 40,
+      "universal": 40.2,
+      "geographic": 59.7,
+      "pmt": 82.6,
+      "community": 65.4,
+      "financial_exclusion": 63.2
+    },
+    {
+      "caseload_pct": 50,
+      "universal": 50.7,
+      "geographic": 69.9,
+      "pmt": 90.7,
+      "community": 75.0,
+      "financial_exclusion": 81.7
+    }
+  ],
+  "fairness": {
+    "universal": {
+      "districts_reached": 30,
+      "share_to_poorest_decile": 32.6,
+      "fairness_ratio": 0.68
+    },
+    "geographic": {
+      "districts_reached": 5,
+      "share_to_poorest_decile": 100.0,
+      "fairness_ratio": 2.09
+    },
+    "pmt": {
+      "districts_reached": 28,
+      "share_to_poorest_decile": 63.3,
+      "fairness_ratio": 1.32
+    },
+    "community": {
+      "districts_reached": 30,
+      "share_to_poorest_decile": 38.5,
+      "fairness_ratio": 0.8
+    },
+    "financial_exclusion": {
+      "districts_reached": 30,
+      "share_to_poorest_decile": 47.0,
+      "fairness_ratio": 0.98
+    }
+  },
+  "bootstrap_reps": 200,
+  "microdata_kind": "calibrated_synthetic"
+}
