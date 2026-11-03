@@ -1,5 +1,12 @@
 {
   "country": "Rwanda",
+  "round": {
+    "id": "EICV7",
+    "fieldwork": "2023/24",
+    "published": 2025,
+    "sample_households": 15066,
+    "note": "Round identity and the values that change between survey rounds. When EICV8 lands: repoint this file, replace the marginal tables in scripts/build_data.py, drop the new CSVs into data/raw, then rerun build_data.py and build_snapshot.py. Poverty lines are not repeated here - they live in national_indicators.json, which is the single source the calibration reads."
+  },
   "poverty_lines": {
     "total_poverty_line_rwf_per_adult_equiv_year": 560127,
     "extreme_poverty_line_rwf_per_adult_equiv_year": 356432,

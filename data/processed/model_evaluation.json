@@ -281,6 +281,67 @@
   },
   "best_model": "logistic",
   "production_model": "gradient_boosting",
+  "fairness": {
+    "residence": [
+      {
+        "group": "rural",
+        "households": 11590,
+        "poor_share_pct": 30.8,
+        "selected_share_pct": 15.8,
+        "coverage_of_group_poor_pct": 38.2
+      },
+      {
+        "group": "urban",
+        "households": 3476,
+        "poor_share_pct": 16.2,
+        "selected_share_pct": 4.8,
+        "coverage_of_group_poor_pct": 21.5
+      }
+    ],
+    "province": [
+      {
+        "group": "East",
+        "households": 4079,
+        "poor_share_pct": 26.5,
+        "selected_share_pct": 10.4,
+        "coverage_of_group_poor_pct": 29.4
+      },
+      {
+        "group": "Kigali City",
+        "households": 1922,
+        "poor_share_pct": 9.0,
+        "selected_share_pct": 0.9,
+        "coverage_of_group_poor_pct": 6.4
+      },
+      {
+        "group": "North",
+        "households": 2340,
+        "poor_share_pct": 20.2,
+        "selected_share_pct": 4.9,
+        "coverage_of_group_poor_pct": 17.6
+      },
+      {
+        "group": "South",
+        "households": 3447,
+        "poor_share_pct": 34.4,
+        "selected_share_pct": 21.3,
+        "coverage_of_group_poor_pct": 46.6
+      },
+      {
+        "group": "West",
+        "households": 3278,
+        "poor_share_pct": 37.2,
+        "selected_share_pct": 21.7,
+        "coverage_of_group_poor_pct": 42.6
+      }
+    ],
+    "summary": {
+      "province_coverage_min_pct": 6.4,
+      "province_coverage_max_pct": 46.6,
+      "province_coverage_ratio": 7.28,
+      "note": "Coverage is the share of a group's poor households selected at the national caseload. A ratio near 1 means the rule reaches poor households at a similar rate everywhere; a high ratio means it concentrates. Measured on calibrated synthetic rows."
+    }
+  },
   "robustness": [
     {
       "target_auc": 0.9,

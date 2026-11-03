@@ -38,8 +38,9 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { apiGet, apiPost, type Meta, type TargetingResponse } from "@/lib/api";
+import { apiGet, apiPost, ApiTimeoutError, type Meta, type TargetingResponse } from "@/lib/api";
 import { num, pct, rwf, rwfValue } from "@/lib/format";
+import { useSlowNotice } from "@/lib/useSlowNotice";
 
 const COLORS: Record<string, string> = {
   universal: "#acaeb0",
@@ -62,12 +63,12 @@ export default function TargetingPage() {
   const [budget, setBudget] = useState(DEFAULT_BUDGET);
   const [transfer, setTransfer] = useState(DEFAULT_TRANSFER);
   const [data, setData] = useState<TargetingResponse | null>(null);
-  const [error, setError] = useState<string | null>(null);
+  const [error, setError] = useState<Error | null>(null);
   const [loading, setLoading] = useState(true);
   const [attempt, setAttempt] = useState(0);
 
   useEffect(() => {
-    apiGet<Meta>("/api/meta", "/api/meta.json").then(setMeta).catch((e: Error) => setError(e.message));
+    apiGet<Meta>("/api/meta", "/api/meta.json").then(setMeta).catch((e: Error) => setError(e));
   }, [attempt]);
 
   useEffect(() => {
@@ -81,7 +82,7 @@ export default function TargetingPage() {
           setData(d);
           setError(null);
         })
-        .catch((e: Error) => setError(e.message))
+        .catch((e: Error) => setError(e))
         .finally(() => setLoading(false));
     }, 140);
     return () => clearTimeout(t);
@@ -103,6 +104,10 @@ export default function TargetingPage() {
 
   // First answer has not arrived yet: the rail's computed figures are placeholders, not zeroes.
   const firstLoad = !data && !error;
+
+  // The free-tier engine sleeps when idle, and the first POST of a session is the one that
+  // wakes it. Explain the wait rather than leaving a shimmering panel on screen for a minute.
+  const waking = useSlowNotice(loading && !data);
 
   const ranked = useMemo(() => {
     if (!data) return [];
@@ -300,6 +305,12 @@ export default function TargetingPage() {
                 <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-primary motion-reduce:animate-none" />
                 Updating for {bound(budget)} and {bound(transfer)}…
               </>
+            ) : waking ? (
+              <>
+                <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-primary motion-reduce:animate-none" />
+                Waking the analytical engine. It sleeps when idle, so the first run of a session can
+                take up to a minute.
+              </>
             ) : data ? (
               <>Showing {bound(data.budget_total)} at {bound(data.transfer_per_beneficiary)} per household.</>
             ) : null}
@@ -371,7 +382,15 @@ export default function TargetingPage() {
                 </button>
               </div>
             ) : (
-              <PanelState kind="error" onRetry={retry}>
+              <PanelState
+                kind="error"
+                onRetry={retry}
+                detail={
+                  error instanceof ApiTimeoutError
+                    ? "The engine sleeps when idle and is still waking up. Retry, or give it a few seconds and adjust the budget again."
+                    : "Make sure the API server is running and accessible."
+                }
+              >
                 Could not compute targeting
               </PanelState>
             )

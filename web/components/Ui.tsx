@@ -209,10 +209,13 @@ export function PanelState({
   kind,
   children,
   onRetry,
+  detail,
 }: {
   kind: "loading" | "error" | "empty";
   children: ReactNode;
   onRetry?: () => void;
+  /** Second line of an error panel. Defaults to the local-development hint. */
+  detail?: ReactNode;
 }) {
   return (
     <Card
@@ -251,7 +254,7 @@ export function PanelState({
           </p>
           {kind === "error" ? (
             <p className="text-[15px] leading-relaxed text-ink-soft">
-              Make sure the API server is running and accessible.
+              {detail ?? "Make sure the API server is running and accessible."}
             </p>
           ) : null}
         </div>

@@ -37,18 +37,99 @@ export async function apiGet<T>(path: string, snapshot?: string): Promise<T> {
   }
 }
 
-export async function apiPost<T>(path: string, body: unknown): Promise<T> {
-  const res = await fetch(`${API_BASE}${path}`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(body),
-    cache: "no-store",
-  });
-  if (!res.ok) {
-    const detail = await res.text();
-    throw new Error(`${path} failed: ${res.status} ${detail}`);
+/**
+ * POSTs drive the interactive pages, so they need a different budget from GETs.
+ *
+ * The deployed API sleeps on a free tier, and the first request after idle is the one that wakes
+ * it: 30–60 s on a cold container, against 4–6 s warm. A short timeout would turn that cold start
+ * into a visible failure, so the POST budget is generous. The retry covers the other cold-start
+ * failure mode, where the connection is dropped rather than answered — it is deliberately not
+ * applied to an HTTP error (a 4xx is a real answer) or to a timeout (retrying doubles a wait the
+ * reader is already watching).
+ */
+const POST_TIMEOUT_MS = 60_000;
+const POST_RETRIES = 1;
+
+/** The server answered, and the answer was a failure. */
+export class ApiResponseError extends Error {
+  constructor(
+    message: string,
+    readonly status: number,
+  ) {
+    super(message);
+    this.name = "ApiResponseError";
   }
-  return res.json() as Promise<T>;
+}
+
+/** The request never completed: the engine was asleep, unreachable, or slower than the budget. */
+export class ApiTimeoutError extends Error {
+  constructor(
+    message: string,
+    readonly timeoutMs: number,
+  ) {
+    super(message);
+    this.name = "ApiTimeoutError";
+  }
+}
+
+export type PostOptions = {
+  timeoutMs?: number;
+  retries?: number;
+};
+
+export async function apiPost<T>(
+  path: string,
+  body: unknown,
+  options: PostOptions = {},
+): Promise<T> {
+  const timeoutMs = options.timeoutMs ?? POST_TIMEOUT_MS;
+  const retries = options.retries ?? POST_RETRIES;
+  let lastError = new Error(`${path} failed`);
+
+  for (let attempt = 0; attempt <= retries; attempt += 1) {
+    const controller = new AbortController();
+    const timer = setTimeout(() => controller.abort(), timeoutMs);
+    let aborted = false;
+    controller.signal.addEventListener("abort", () => {
+      aborted = true;
+    });
+
+    try {
+      const res = await fetch(`${API_BASE}${path}`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(body),
+        cache: "no-store",
+        signal: controller.signal,
+      });
+      if (!res.ok) {
+        const detail = await res.text();
+        throw new ApiResponseError(`${path} failed: ${res.status} ${detail}`, res.status);
+      }
+      return (await res.json()) as T;
+    } catch (error) {
+      // A real answer, however unhappy: surface it rather than asking again.
+      if (error instanceof ApiResponseError) throw error;
+
+      if (aborted) {
+        throw new ApiTimeoutError(
+          `The analytical engine did not answer within ${Math.round(timeoutMs / 1000)} s.`,
+          timeoutMs,
+        );
+      }
+
+      // Transport failure. Worth one retry: this is the signature of a container waking up.
+      lastError = new Error(
+        error instanceof Error && error.message
+          ? error.message
+          : `Could not reach the analytical engine at ${API_BASE}.`,
+      );
+    } finally {
+      clearTimeout(timer);
+    }
+  }
+
+  throw lastError;
 }
 
 export type District = {
@@ -90,6 +171,14 @@ export type Indicator = {
 
 export type Meta = {
   country: string;
+  /** Which survey round the layer was built from. Read from data/reference/round.json. */
+  round: {
+    id: string;
+    fieldwork: string;
+    published: number;
+    sample_households: number;
+    note: string;
+  };
   poverty_lines: {
     total_poverty_line_rwf_per_adult_equiv_year: number;
     extreme_poverty_line_rwf_per_adult_equiv_year: number;

@@ -39,11 +39,13 @@ import {
 import {
   apiGet,
   apiPost,
+  ApiTimeoutError,
   type District,
   type Meta,
   type SimulationResponse,
 } from "@/lib/api";
 import { compact, num, pct, rwf, rwfValue } from "@/lib/format";
+import { useSlowNotice } from "@/lib/useSlowNotice";
 
 const SHOCK_ORDER = ["drought", "flood", "storm", "pest", "health", "food_price", "income_loss"];
 
@@ -55,7 +57,7 @@ export default function SimulatorPage() {
   const [severity, setSeverity] = useState<number>(50);
   const [extras, setExtras] = useState<{ shock_type: string; severity: number }[]>([]);
   const [result, setResult] = useState<SimulationResponse | null>(null);
-  const [error, setError] = useState<string | null>(null);
+  const [error, setError] = useState<Error | null>(null);
   const [loading, setLoading] = useState(false);
   const [attempt, setAttempt] = useState(0);
   const reqId = useRef(0);
@@ -72,7 +74,7 @@ export default function SimulatorPage() {
             : (d.districts[0]?.district ?? "");
         setDistrict(initial);
       })
-      .catch((e: Error) => setError(e.message));
+      .catch((e: Error) => setError(e));
   }, [attempt]);
 
   const run = useCallback(
@@ -92,7 +94,7 @@ export default function SimulatorPage() {
           setError(null);
         }
       } catch (e) {
-        if (id === reqId.current) setError((e as Error).message);
+        if (id === reqId.current) setError(e as Error);
       } finally {
         if (id === reqId.current) setLoading(false);
       }
@@ -145,6 +147,10 @@ export default function SimulatorPage() {
   // Metadata and the district list arrive together; until they do the controls have no
   // options and the outcome has nothing to show, so both sides shimmer in place.
   const pending = !error && !meta;
+
+  // A cold free-tier container can take a minute to answer the first POST. Past a couple of
+  // seconds the skeleton stops being self-explanatory.
+  const waking = useSlowNotice(loading && !result);
 
   return (
     <div className="shell pt-10">
@@ -323,12 +329,20 @@ export default function SimulatorPage() {
         {/* Outcome */}
         <div>
           {error ? (
-            <PanelState kind="error" onRetry={retry}>
+            <PanelState
+              kind="error"
+              onRetry={retry}
+              detail={
+                error instanceof ApiTimeoutError
+                  ? "The engine sleeps when idle and is still waking up. Retry, or give it a few seconds and change the scenario again."
+                  : "Make sure the API server is running and accessible."
+              }
+            >
               Could not run the simulation
             </PanelState>
           ) : null}
 
-          {!result && !error ? <OutcomeSkeleton /> : null}
+          {!result && !error ? <OutcomeSkeleton waking={waking} /> : null}
 
           {r && result ? (
             <>
@@ -573,11 +587,28 @@ export default function SimulatorPage() {
  * four-cell ledger, the fact line, the comparison bars, the assumption table and the pull
  * quote — so nothing jumps when the simulation answers. The visual blocks are hidden from
  * assistive tech; the live region carries the one sentence a screen reader needs.
+ *
+ * `waking` switches that sentence from "running" to an explanation. The deployed engine sleeps
+ * when idle, and a reader who is told why is far more likely to keep waiting than one who is
+ * looking at an animated skeleton with no end date.
  */
-function OutcomeSkeleton() {
+function OutcomeSkeleton({ waking }: { waking: boolean }) {
   return (
     <div role="status" aria-live="polite">
-      <span className="sr-only">Running the scenario…</span>
+      <span className="sr-only">
+        {waking
+          ? "Still waiting for the analytical engine to wake up."
+          : "Running the scenario…"}
+      </span>
+      {waking ? (
+        <div className="mb-4 flex items-start gap-2.5 rounded-sm border border-line bg-secondary px-3.5 py-2.5">
+          <span className="mt-1.5 h-1.5 w-1.5 flex-shrink-0 animate-pulse rounded-full bg-primary motion-reduce:animate-none" />
+          <p className="text-[13.5px] leading-snug text-ink-soft">
+            Waking the analytical engine. It sleeps when idle, so the first scenario of a session
+            can take up to a minute; later ones answer in a few seconds.
+          </p>
+        </div>
+      ) : null}
       <div aria-hidden>
         <Ledger>
           <SkeletonKpi />

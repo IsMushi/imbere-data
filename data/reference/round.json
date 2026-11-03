@@ -1,0 +1,15 @@
+{
+  "round": "EICV7",
+  "fieldwork": "2023/24",
+  "published": 2025,
+  "average_household_size": 4.3,
+  "sample_households": 15066,
+  "seed": 20261030,
+  "headline": {
+    "poverty_rate_2024": 27.4,
+    "extreme_poverty_rate_2024": 5.4,
+    "poverty_rate_2017": 39.8,
+    "extreme_poverty_rate_2017": 11.3
+  },
+  "note": "Round identity and the values that change between survey rounds. When EICV8 lands: repoint this file, replace the marginal tables in scripts/build_data.py, drop the new CSVs into data/raw, then rerun build_data.py and build_snapshot.py. Poverty lines are not repeated here - they live in national_indicators.json, which is the single source the calibration reads."
+}

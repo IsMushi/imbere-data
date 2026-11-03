@@ -1,0 +1,72 @@
+{
+  "_purpose": "Column and category mapping for scripts/import_eicv7.py. Fill this from the EICV7 codebook shipped with the extract, then run the importer. Nothing here is pre-filled with guessed EICV7 variable names: a wrong guess would import the wrong column silently, which is worse than an explicit error.",
+  "_how_to_fill": {
+    "columns": "Map each source variable name to a contract column name. Keys are the names as they appear in your extract; values are from _contract_columns. A key that is not in the extract is an error.",
+    "value_maps": "For every categorical contract column, map each source code or label to a value from _vocabularies. A source value with no mapping is an error rather than a default.",
+    "targets": "poor and extreme_poor do not need mapping unless you pass --keep-targets: by default they are recomputed from consumption_ae against the published poverty lines."
+  },
+  "columns": {},
+  "value_maps": {},
+  "_contract_columns": [
+    "hh_id",
+    "district",
+    "province",
+    "urban",
+    "hh_size",
+    "head_education",
+    "main_income_source",
+    "modern_floor",
+    "electricity",
+    "corrugated_roof",
+    "improved_sanitation",
+    "owns_tv",
+    "owns_radio",
+    "owns_phone",
+    "owns_bicycle",
+    "health_insurance",
+    "has_momo",
+    "has_savings",
+    "shock_experienced",
+    "shock_type",
+    "coping_response",
+    "consumption_ae",
+    "poor",
+    "extreme_poor",
+    "resilience_index",
+    "financial_health"
+  ],
+  "_optional_design_columns": ["weight", "stratum", "psu"],
+  "_vocabularies": {
+    "head_education": [
+      "none_below_primary",
+      "primary",
+      "lower_secondary",
+      "upper_secondary",
+      "university"
+    ],
+    "main_income_source": [
+      "farm_wages",
+      "independent_farmer",
+      "independent_nonfarmer",
+      "nonfarm_wages",
+      "other"
+    ],
+    "shock_type": ["none", "environmental", "farm", "health", "food_price", "income_loss", "other"],
+    "coping_response": [
+      "none",
+      "less_food",
+      "more_work",
+      "savings_borrowing",
+      "sell_assets",
+      "received_help",
+      "other"
+    ],
+    "financial_health": ["healthy", "coping", "vulnerable", "extremely_vulnerable"]
+  },
+  "_notes": [
+    "urban, modern_floor, electricity, corrugated_roof, improved_sanitation, owns_*, health_insurance, has_momo, has_savings and shock_experienced must arrive as 0/1. Recode yes/no codes through value_maps if the extract uses strings.",
+    "consumption_ae is annual consumption per adult equivalent in RWF at January 2024 prices. If the extract is in a different price base or a monthly figure, deflate it in the pipeline before importing - the importer rejects implausible scales rather than rescaling them.",
+    "district values must be the 30 district names used in data/processed/districts.json.",
+    "If the extract carries weight, stratum and psu, map them. Their presence is what allows design-based intervals instead of resampling intervals."
+  ]
+}

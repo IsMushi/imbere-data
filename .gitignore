@@ -42,8 +42,28 @@ data/raw/**/*.7z
 AGENTS.md
 
 # Local-only build tooling, working docs and video production assets.
-scripts/
-docs/
+#
+# The exceptions below are files the submitted documentation names as deliverables or cites as
+# authoritative, so they ship with the repository:
+#   - METHODOLOGY.md and SUBMISSION.md are the documentation column of the submission table;
+#   - MODEL_EVALUATION.md is where METHODOLOGY.md sends a reader for the model comparison;
+#   - DATA_SOURCES.md and DATA_DICTIONARY.md document provenance and the household contract;
+#   - build_data.py, build_snapshot.py and evaluate_model.py are the scripts those docs tell a
+#     reader to run, so publishing the docs without them would create dead references.
+# Everything else in docs/ and scripts/ (audits, roadmap, icon and screenshot tooling) stays local.
+# `docs/*` rather than `docs/` is deliberate: an ignored directory cannot have its children
+# re-included.
+scripts/*
+!scripts/build_data.py
+!scripts/build_snapshot.py
+!scripts/evaluate_model.py
+docs/*
+!docs/METHODOLOGY.md
+!docs/SUBMISSION.md
+!docs/MODEL_EVALUATION.md
+!docs/DATA_DICTIONARY.md
+!docs/DATA_SOURCES.md
+!docs/TRACEABILITY.md
 
 # Demo recordings are hosted on Google Drive, not in Git.
 media/

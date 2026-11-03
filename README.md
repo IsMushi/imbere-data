@@ -156,8 +156,7 @@ and each needs re-checking against the real microdata before it informs a budget
 ## Videos
 
 The demo lives on Google Drive rather than in this repository. It is 60 MB, above GitHub's 50 MB
-recommended file size, and keeping it out means a clone stays small. The narration, shot list and
-slide source stay local too.
+recommended file size, and keeping it out means a clone stays small.
 
 | Video | What it covers | Length | Where it lives |
 |---|---|---|---|
@@ -222,7 +221,8 @@ Open http://localhost:3000. The frontend reads `NEXT_PUBLIC_API_BASE` (default
 `http://127.0.0.1:8000`).
 
 **The data layer is prebuilt.** `data/processed/` is committed, so a clone runs the API with no
-rebuild step.
+rebuild step. To rebuild it from the transcribed CSVs, run `python scripts/build_data.py`; to
+check the browser-side snapshots still match, run `python scripts/build_snapshot.py --check`.
 
 **Verify a change.** The API carries a pytest suite covering the targeting engine, the shock
 simulator, the model card, the household column contract and the HTTP layer. It pins the headline
@@ -352,6 +352,7 @@ imbere-data/
 │   ├── app/
 │   │   ├── datastore.py      # loaders, calibration, risk model
 │   │   ├── analytics.py      # targeting rules, shock simulator
+│   │   ├── contract.py       # household-file contract, validated on import
 │   │   └── main.py           # FastAPI routes
 │   ├── tests/                # pytest: engines, model card, HTTP contract
 │   ├── requirements.txt
@@ -365,8 +366,14 @@ imbere-data/
 │       └── rwanda-districts.geojson
 ├── data/
 │   ├── raw/                  # transcribed NISR tables (source PDF/XLSX stay local)
-│   ├── reference/            # national indicators, shock tables
+│   ├── reference/            # national indicators, round config, shock tables
 │   └── processed/            # built JSON + calibrated households
+├── docs/                     # methodology, model evaluation, data sources and dictionary
+├── scripts/
+│   ├── build_data.py         # regenerates data/processed/ from data/raw + data/reference
+│   ├── build_snapshot.py     # writes web/public/api/*.json (--check detects drift)
+│   ├── evaluate_model.py     # five-fold evaluation, fairness audit, degradation sweep
+│   └── import_eicv7.py       # swaps real EICV7 microdata in, contract-checked
 ├── run.ps1 / run.cmd         # one-command local startup (API + UI)
 └── render.yaml               # Render Blueprint for the API
 ```
@@ -375,11 +382,22 @@ imbere-data/
 
 ## Documentation
 
-The extended write-ups (methodology, model evaluation, technical audit, research-gap analysis,
-implementation roadmap, data sources, data dictionary, system architecture, testing report and the
-competition presentation) accompany the submission and are held outside this repository. The
-method page at `/methodology` carries the formulas, the model card and the measured-vs-modelled
-boundary in full.
+Linked absolutely, so they resolve from the submission form, a PDF export or a local viewer as
+well as from GitHub.
+
+| Document | What it covers |
+|---|---|
+| [`METHODOLOGY.md`](https://github.com/IsMushi/imbere-data/blob/main/docs/METHODOLOGY.md) | Formulas, calibration, the data contract, the measured-vs-modelled boundary, the EICV7 swap procedure |
+| [`MODEL_EVALUATION.md`](https://github.com/IsMushi/imbere-data/blob/main/docs/MODEL_EVALUATION.md) | Five-fold model comparison, calibration table, and the sweep that stress-tests the targeting conclusion |
+| [`DATA_SOURCES.md`](https://github.com/IsMushi/imbere-data/blob/main/docs/DATA_SOURCES.md) | Every input, its publisher, its table, its licence |
+| [`DATA_DICTIONARY.md`](https://github.com/IsMushi/imbere-data/blob/main/docs/DATA_DICTIONARY.md) | Column-level contract for `households.csv` and the processed JSON |
+| [`SUBMISSION.md`](https://github.com/IsMushi/imbere-data/blob/main/docs/SUBMISSION.md) | Competition write-up: problem, headline result, rubric mapping, AI disclosure, limitations |
+| [`TRACEABILITY.md`](https://github.com/IsMushi/imbere-data/blob/main/docs/TRACEABILITY.md) | Every rubric criterion mapped to the code that implements it and the test that proves it |
+
+The method page at `/methodology` carries the same formulas, model card and measured-vs-modelled
+boundary in the running app. Detailed working notes — technical audit, research-gap analysis,
+competitive review, implementation roadmap, system architecture and testing report — stay outside
+the repository.
 
 ---
 
