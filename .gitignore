@@ -48,8 +48,8 @@ AGENTS.md
 #   - METHODOLOGY.md and SUBMISSION.md are the documentation column of the submission table;
 #   - MODEL_EVALUATION.md is where METHODOLOGY.md sends a reader for the model comparison;
 #   - DATA_SOURCES.md and DATA_DICTIONARY.md document provenance and the household contract;
-#   - build_data.py, build_snapshot.py and evaluate_model.py are the scripts those docs tell a
-#     reader to run, so publishing the docs without them would create dead references.
+#   - build_data.py, build_snapshot.py, evaluate_model.py and import_eicv7.py are the scripts those
+#     docs tell a reader to run, so publishing the docs without them would create dead references.
 # Everything else in docs/ and scripts/ (audits, roadmap, icon and screenshot tooling) stays local.
 # `docs/*` rather than `docs/` is deliberate: an ignored directory cannot have its children
 # re-included.
@@ -57,6 +57,7 @@ scripts/*
 !scripts/build_data.py
 !scripts/build_snapshot.py
 !scripts/evaluate_model.py
+!scripts/import_eicv7.py
 docs/*
 !docs/METHODOLOGY.md
 !docs/SUBMISSION.md
