@@ -25,7 +25,7 @@ Access has grown faster than resilience.
 The policy question is which households sit one shock away from the poverty line, and which
 intervention reaches them most cheaply.
 
-IMBERE answers that question in three modules.
+IMBERE answers that question in four modules.
 
 ---
 
@@ -76,6 +76,16 @@ whatever budget and transfer are on screen, with the synthetic-data caveat writt
 
 ![Targeting lab: five allocation rules on the same budget](screenshots/targeting.png)
 
+### 04 — Does help reach the people a shock pushes down
+The measured half opens with VUP coverage from NISR: 410,000 beneficiaries, 40.9% of them below the
+poverty line against 27.4% nationally, 74% women, and 15.1% of Direct Support paid on time. Beside it,
+EICV7 Tables 6.10 and 6.11: 37.1% of households reported a severe shock, 41.0% of poor households did,
+and only 8.3% said their main response was to receive help.
+
+The scenario half prices a VUP-style transfer against the households a shock pushes below the line,
+at RWF 50,000 to 400,000 per household per year, and reports the share protected, how many
+households that is, and the cost. It is an adequacy test, not a selection test.
+
 ---
 
 ## Against the rubric
@@ -87,7 +97,7 @@ The competition scores five criteria at 20 points each. What each one would find
 | **1 · Problem understanding & relevance** | The problem is a measured gap: 96% of adults are financially included, 34% are vulnerable, 27.4% are below the poverty line. Each NST2 Social Transformation target and the Vision 2050 goal is mapped to the module answering it, and the actors are named: LODA, MINALOC, district officers. | Overview *Built for* band; `/methodology` → *Where this sits in national policy* |
 | **2 · Data use & methodology** | Two NISR surveys (EICV7 Poverty Profile, FinScope 2024) plus Census 2022 and geoBoundaries. 39 transcribed indicators, reconciled to the published 27.4% headcount when population-weighted. FGT incidence, depth and severity (P₀ 27.6%, P₁ 6.0%, P₂ 2.2%) with the formula and weights on the page. The household layer is calibrated to nine published marginals; the risk model is evaluated five-fold out-of-fold (ROC-AUC 0.857, PR-AUC 0.673, Brier 0.134, ECE 0.006) with a sensitivity sweep bounding how much of the conclusion depends on that score. One CSV swap replaces the synthetic rows with real microdata. | `/methodology`; `data/processed/calibration.json`; `api/app/datastore.py` |
 | **3 · Tech innovation** | A targeting optimiser rather than a dashboard: five allocation rules priced on the same budget and the same households, geographic-fairness ratios, compound shock scenarios with per-shock attribution, bootstrap intervals on every headline figure, a degradation sweep that stress-tests the targeting conclusion, and real-vs-modelled separation enforced in the API. | `/targeting`, `/simulator`; `api/app/analytics.py`; `api/tests/` |
-| **4 · Usability & design** | Four pages, one visual language taken from NISR's own palette. Every panel is labelled *Measured · published* or *Modelled · illustrative*. Tables scroll inside a focusable region rather than breaking the page, nothing overflows at 390px, and the palette is checked against WCAG AA. | The app itself; `screenshots/`; `web/components/ui/` |
+| **4 · Usability & design** | Five pages, one visual language taken from NISR's own palette. Every panel is labelled *Measured · published* or *Modelled · illustrative*. Tables scroll inside a focusable region rather than breaking the page, nothing overflows at 390px, and the palette is checked against WCAG AA. | The app itself; `screenshots/`; `web/components/ui/` |
 | **5 · Tangible impact** | A number a budget officer can act on: at RWF 300m the proxy-means rule reaches 2.7× more poor households than a universal transfer, and leakage falls from 71.2% to 21.9%. A district can cost a drought reserve in a browser; the next dataset (EICV7 VUP module, catalog 121) is named, which is what would turn selection performance into measured programme impact. | `/targeting` headline cards; *Recommendations* below |
 
 ---
@@ -252,6 +262,11 @@ the variable alone does nothing.
 Render's free tier sleeps after ~15 minutes without traffic. The first request after idle
 wakes the service (30–60 s); subsequent requests are immediate.
 
+The API also runs on Cloudflare Containers — `deploy/cloudflare/` holds the Dockerfile, Worker and
+`wrangler.jsonc`, and `.github/workflows/deploy-api.yml` builds and deploys it from CI. That path
+needs the Workers Paid plan (Containers have no free tier); see `deploy/cloudflare/README.md`. The
+image freezes the fitted model at build time, so its cold start is seconds rather than the fit.
+
 ---
 
 ## Data
@@ -373,7 +388,9 @@ imbere-data/
 │   ├── build_data.py         # regenerates data/processed/ from data/raw + data/reference
 │   ├── build_snapshot.py     # writes web/public/api/*.json (--check detects drift)
 │   ├── evaluate_model.py     # five-fold evaluation, fairness audit, degradation sweep
+│   ├── freeze_model.py       # fits the model into a pickle at image build time
 │   └── import_eicv7.py       # swaps real EICV7 microdata in, contract-checked
+├── deploy/cloudflare/        # optional Cloudflare Containers deployment for the API
 ├── run.ps1 / run.cmd         # one-command local startup (API + UI)
 └── render.yaml               # Render Blueprint for the API
 ```

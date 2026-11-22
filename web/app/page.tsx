@@ -444,7 +444,11 @@ export default function OverviewPage() {
                       </svg>
                     </Link>
 
-                    <SourceNote kind="measured">
+                    <SourceNote
+                      kind="measured"
+                      shows="The national starting point: how many people are poor, how deep poverty runs, and how far it fell since 2016/17."
+                      trust="EICV7 published figures on a revised poverty series. The 2016/17 level is modelled back onto the same methodology so the change is comparable; the older level was not measured this way at the time."
+                    >
                       EICV7 Annex B; population and households from Census 2022.
                     </SourceNote>
                   </div>
@@ -499,7 +503,11 @@ export default function OverviewPage() {
             ) : (
               <PanelState kind="empty">No districts to list.</PanelState>
             )}
-            <SourceNote kind="measured">
+            <SourceNote
+              kind="measured"
+              shows="Where poverty is deepest: all 30 districts ranked by headcount rate, with the change since 2016/17."
+              trust="Survey-based district estimates carry sampling error, and it is larger for small districts. Treat neighbouring ranks as ties rather than a strict order."
+            >
               Headcount poverty by district, EICV7 Annex B. Sorted highest first.
             </SourceNote>
           </div>
@@ -529,7 +537,13 @@ export default function OverviewPage() {
             ) : (
               <SkeletonBars rows={4} />
             )}
-            <SourceNote kind="measured">EICV7 Table 5.1.</SourceNote>
+            <SourceNote
+              kind="measured"
+              shows="Poverty split by province and by urban or rural residence."
+              trust="Published EICV7 Table 5.1. These are aggregates of the district estimates, so they move with them and inherit the same sampling error."
+            >
+              EICV7 Table 5.1.
+            </SourceNote>
           </div>
 
           <div className="border-t border-line pt-6">
@@ -556,7 +570,13 @@ export default function OverviewPage() {
                 </div>
               </div>
             )}
-            <SourceNote kind="measured">FinScope 2024, national sample.</SourceNote>
+            <SourceNote
+              kind="measured"
+              shows="Whether access converts into resilience: how adults split across financially healthy, coping, vulnerable and extremely vulnerable."
+              trust="FinScope 2024 national sample, using FinScope's own band definitions rather than definitions of our own. The bands describe households, not individuals."
+            >
+              FinScope 2024, national sample.
+            </SourceNote>
           </div>
         </section>
 
@@ -592,7 +612,13 @@ export default function OverviewPage() {
                 />
               </div>
             </div>
-            <SourceNote kind="measured">EICV7 Tables 6.10 / 6.11.</SourceNote>
+            <SourceNote
+              kind="measured"
+              shows="How often households report a severe shock, which kinds dominate, and what they did in response."
+              trust="EICV7 Tables 6.10 and 6.11. Coping is recorded as one main response, so the rows describe the largest action taken rather than everything a household did."
+            >
+              EICV7 Tables 6.10 / 6.11.
+            </SourceNote>
           </div>
         </section>
 

@@ -60,7 +60,7 @@ its *Budgeting, Budget Execution and Cash flow Plan* manual.
 
 ## 3. What the prototype does
 
-Three linked modules, each answering one decision.
+Four linked modules, each answering one decision.
 
 ### Module 01 — Where fragility sits
 A 30-district choropleth of headcount poverty (2024) with the change since 2017, using the same legend bins as the official EICV7 Poverty Profile map so the two can be read side by side. Clicking a district shows people below the line, share of Rwanda's poor, national rank, mobile-money and savings coverage, severe-shock incidence, a resilience index and the financial-health distribution.
@@ -80,6 +80,14 @@ Five allocation rules run against the same budget and the same household distrib
 | **Proxy-means test** | Model-predicted poverty probability from observable characteristics |
 
 Each is scored on targeting accuracy, coverage of the poor, leakage, exclusion error and **cost per poor person reached**, with a coverage curve showing how each degrades as the caseload grows. A geographic-reach block adds districts reached and a fairness ratio against the poorest decile, because a rule can hit its coverage target by concentrating the caseload in five districts. The table exports to CSV at the parameters on screen, with the synthetic-data caveat written into the file.
+
+### Module 04 — Does help reach the people a shock pushes down
+
+The first half is VUP coverage, transcribed from NISR: 410,000 beneficiaries in 2023/24, 40.9% of them below the poverty line against 27.4% nationally, 74% of them women, and only 15.1% of Direct Support households paid on time. The programme split and the poverty rate within each programme are shown beside it, with the caveat that the five shares total 104.7 because a household can hold more than one instrument.
+
+The second half is EICV7 Tables 6.10 and 6.11 as published: 37.1% of households reported a severe shock, 41.0% of poor households did, and only 8.3% of those reporting a shock said their main response was to receive help (9.5% among the poor). The full coping table is shown by poverty status, so the response profile of poor and non-poor households can be compared directly: the poor buy less food (24.4% against 21.4%), the non-poor draw on savings or borrowing (23.0% against 16.3%).
+
+The third part takes a district, a shock and a severity, identifies the households the shock pushes below the line, and prices a VUP-style transfer against them: at RWF 50,000, 100,000, 150,000, 250,000 and 400,000 per household per year, it reports the share of those households that end the year above the line, how many there are, and what the transfer costs. In Nyamagabe under a drought at severity 50, RWF 150,000 protects 25.0% of the 1,110 households the shock pushes down; RWF 400,000 protects 75.0%. This is an adequacy test, not a selection test — selection is Module 03 — and the transfer levels are stated assumptions, not published VUP benefit levels.
 
 ---
 
@@ -190,7 +198,7 @@ district or LODA can adopt, not a pilot in progress. The team has not represente
 - **A named pilot, not a hypothetical one.** §4 names Nyanza — the poorest stalled district, 43.3% headcount, −3.6 pts since 2017 — the envelope, the allocation rule, the reach metric that can be checked in one season, and the two outcomes that would count as failure. No agreement is claimed.
 - **Quantified efficiency gain:** 2.7× more poor people reached per franc on the calibrated layer; leakage cut by 49.3 percentage points. The direction is what proxy-means testing predicts generally; the magnitude is a property of this calibration and is restated against real rows once EICV7 lands.
 - **Deployable at low cost:** a district officer needs only a browser; the backend is a single container.
-- **Extensible to programme impact:** the EICV7 VUP module (catalog 121) is identified as the next dataset, enabling matched recipient/non-recipient comparison rather than selection performance alone.
+- **Extensible to programme impact:** Module 04 already prices a VUP-style transfer against the households a shock pushes below the line, using the published EICV7 coping tables; the EICV7 VUP module (catalog 121) is identified as the next dataset, enabling matched recipient/non-recipient comparison rather than adequacy and selection performance alone.
 - **Honest about the frontier:** the tool states what it cannot yet claim (no causal impact), which is what makes it safe to put in front of a policymaker.
 - **Evidence:** §4; `docs/METHODOLOGY.md` §8; Targeting page headline cards.
 
@@ -206,6 +214,8 @@ This separation is the core methodological commitment of the project.
 | Province and urban/rural poverty | **Published** — EICV7 Table 5.1 |
 | Poverty lines (RWF 560,127 / 356,432) | **Published** — EICV7 §3.3 |
 | Shock incidence, types, coping responses | **Published** — EICV7 Tables 6.10 / 6.11 |
+| VUP coverage, poverty among beneficiaries, payment timeliness | **Published** — EICV7 Main Indicators 10.1/10.2/10.4; VUP Thematic Report 4.2 |
+| Shock-pushed households, transfer protection share | **Modelled on the calibrated layer** |
 | Inclusion, financial health, climate exposure | **Published** — FinScope 2024 |
 | District populations and household counts | **Published** — Census 2022 |
 | Household-level rows | **Calibrated synthetic** |

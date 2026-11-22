@@ -24,10 +24,10 @@ export function Logo({ className = "" }: { className?: string }) {
         <path d="M9.5 22V10.5A2.5 2.5 0 0 1 14.5 10.5V22Z" className="fill-current opacity-[0.85]" />
         <path d="M19 22V4.5A2.5 2.5 0 0 1 24 4.5V22Z" className="fill-current" />
       </svg>
-      {/* Wordmark in Comfortaa, so the name speaks in the same face as the hero and section
-          figures rather than the UI text face. "IMBERE" stays all caps and "Data" is title case
-          at black weight, which is the only weight contrast the lockup needs. */}
-      <span className="display text-[19.5px] leading-none">
+      {/* Wordmark in Comfortaa, so the name keeps the face the lockup was drawn against rather
+          than following the UI text face. "IMBERE" stays all caps and "Data" is title case at
+          black weight, which is the only weight contrast the lockup needs. */}
+      <span className="brand text-[19.5px] leading-none">
         IMBERE <span className="font-black">Data</span>
       </span>
     </span>

@@ -1,0 +1,54 @@
+{
+  // Cloudflare Worker + Container for the IMBERE DATA FastAPI engine.
+  //
+  // Run from this directory:  npx wrangler deploy
+  // Requires the Workers Paid plan ($5/mo) — Containers have no free tier.
+  "$schema": "./node_modules/wrangler/config-schema.json",
+  "name": "imbere-api",
+  "main": "./src/index.ts",
+  "compatibility_date": "2026-11-22",
+  "upload_source_maps": true,
+
+  "observability": {
+    "enabled": true
+  },
+
+  "containers": [
+    {
+      "class_name": "ImbereContainer",
+      // The Durable Object picks the image and instance size at runtime via
+      // ctx.container.start(), instead of the config fixing one image for the whole app.
+      "scheduling_policy": "durable_object",
+      // No max_instances here: under the durable_object policy that field is rejected. Instance
+      // count is implied by routing — src/index.ts always resolves the one Durable Object named
+      // "imbere-api", so exactly one container exists. The engine caches its fitted model and
+      // POST responses in process, so that is also the only correct topology.
+      "images": {
+        "api": {
+          "dockerfile": "./Dockerfile",
+          // Relative to THIS file. The Dockerfile needs api/ + data/processed/ in the
+          // repository layout, because datastore.py derives the data path from parents[2].
+          "build_context": "../.."
+        }
+      }
+    }
+  ],
+
+  "durable_objects": {
+    "bindings": [
+      {
+        "name": "IMBERE_CONTAINER",
+        "class_name": "ImbereContainer"
+      }
+    ]
+  },
+
+  // Declarative Durable Object lifecycle (`exports`) replaces the legacy `migrations` array;
+  // the two cannot be combined. The key must match the exported class in src/index.ts.
+  "exports": {
+    "ImbereContainer": {
+      "type": "durable-object",
+      "storage": "sqlite"
+    }
+  }
+}

@@ -42,10 +42,15 @@
   --color-input: var(--color-line);
   --color-ring: var(--color-primary);
 
-  --font-sans: "Comfortaa", ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, Arial,
-    sans-serif;
-  /* Single family: Comfortaa for display and body (Google Sans removed per redesign decision). */
+  --font-sans: Manrope, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+  /* One family for display and body. Manrope carries the heading weight at 600 and the body at
+     400, so there is no separate display cut to keep in step with the text cut. */
   --font-display: var(--font-sans);
+  /* The wordmark keeps the original rounded face. It is a brand mark, not running text, so it is
+     allowed to disagree with the UI face; Comfortaa's wide, rounded forms are what the lockup was
+     drawn against. */
+  --font-brand: "Comfortaa", ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont,
+    sans-serif;
 }
 
 @layer base {
@@ -58,6 +63,9 @@
     background-color: var(--color-paper);
     color: var(--color-ink);
     font-family: var(--font-sans);
+    font-size: 15.36px;
+    font-weight: 400;
+    line-height: 23.808px;
   }
 
   ::selection {
@@ -94,9 +102,17 @@
   font-variant-numeric: tabular-nums;
 }
 
-/* Display scale: Comfortaa for page titles, Google Sans for section titles. Comfortaa is a
-   wide, rounded face, so its tracking is looser than a neutral grotesk would take; the small
-   heading keeps the UI face, where rounded terminals would read as decoration. */
+/* Brand lockup face: the wordmark only. Same weight and tracking the display scale used before the
+   UI face changed, so the logo is pixel-identical to its previous rendering. */
+@utility brand {
+  font-family: var(--font-brand);
+  font-weight: 600;
+  letter-spacing: -0.02em;
+}
+
+/* Display scale: Manrope at 600 with slightly negative tracking. It is a neutral geometric sans,
+   tighter than the rounded face it replaced, so the value stays mild rather than doing the
+   letter-spacing work a wide face needs. */
 @utility display {
   font-family: var(--font-display);
   font-weight: 600;

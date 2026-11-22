@@ -250,6 +250,46 @@ did not move. The response also runs each shock alone so the combined figure can
 combined count is at least as large as either component but smaller than their sum, because a
 household already below the line cannot cross it again.
 
+### Social protection: who is reached, and is it enough
+
+The protection page opens with the published coverage figures, then prices a transfer. Both halves are on the same page because they answer the same question at two levels: who VUP reaches, and whether what they receive is adequate.
+
+**Who VUP reaches.** Transcribed from the EICV7 Main Indicators Report 2023/24, Tables 10.1, 10.2 and 10.4, and the EICV7 VUP Thematic Report 2023/24, Table 4.2, into `data/reference/vup.json`:
+
+```
+beneficiaries                   410,000 (2023/24)
+women                           74.0% of beneficiaries (52.1% of the population)
+poverty among beneficiaries     40.9% against 27.4% nationally
+severely poor among them         8.9% against 5.4% nationally
+Direct Support paid on time     15.1% (56.2% a week or more late)
+```
+
+The five programme shares (NSDS 28.8, Direct Support 22.7, classic public works 22.5, expanded public works 18.8, financial services 11.9) total 104.7 and are not a partition: a household can hold more than one instrument. They are drawn as separate bars for that reason, never as a 100% stack.
+
+These are point estimates published as they stand, and they are national. NISR does not publish VUP beneficiaries by district, so this block is not joined to the district selector and cannot be cut geographically.
+
+**Is it enough.** The scenario half reuses the shock arrays above. For a transfer `T` (RWF per household per year):
+
+```
+newly poor   = 1(y_i �%� z) and 1(y'_i < z)
+deficit_i    = max(0, z �^' y'_i) �� h_i
+protected_i  = 1(y'_i + T / h_i �%� z)
+protected    = ל p_exp,i �� 1(newly poor_i) �� protected_i
+cost         = protected �� T
+```
+
+`T` is divided by household size because `y` is per adult equivalent while the transfer is per
+household. A transfer of `z` therefore protects roughly one household-size worth of deficit, not a
+whole household; the ladder reports the size that reaches 50% and 100% protection rather than
+asserting one. The ladder (`analytics.TRANSFER_LADDER`) runs 50k, 100k, 150k, 250k and 400k RWF, and
+150k matches the per-beneficiary cost on the targeting page so the two pages describe the same
+programme.
+
+Two limits are stated on the page and belong here too: the transfer level is an assumption, not a
+published VUP benefit; and protection is only about adequacy, since every newly poor household is
+assumed to receive the transfer. Selection is priced separately on `/targeting`.
+
+
 ---
 
 ## 6. Replacing synthetic rows with real microdata

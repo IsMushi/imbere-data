@@ -6,11 +6,14 @@ tier, so there is a small in-process rate limit and cacheable GETs.
 """
 from __future__ import annotations
 
+import json
 import os
+import threading
 import time
-from collections import defaultdict, deque
+from collections import OrderedDict, defaultdict, deque
+from contextlib import asynccontextmanager
 
-from fastapi import FastAPI, HTTPException, Request
+from fastapi import FastAPI, HTTPException, Request, Response
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 from pydantic import BaseModel, Field
@@ -24,6 +27,38 @@ ALLOW_ORIGINS = [
 RATE_LIMIT = int(os.environ.get("IMBERE_RATE_LIMIT", "90"))
 CACHE_SECONDS = int(os.environ.get("IMBERE_CACHE_SECONDS", "300"))
 
+# Free-tier containers sleep, and the first request after idle pays for a cold Python import plus
+# a model fit. Fitting in a background thread at startup means `/api/health` still answers in
+# milliseconds (so Render's health check never cycles the container for being slow) while the
+# engine becomes ready behind it. Set IMBERE_WARM_ON_STARTUP=0 to keep the old lazy behaviour.
+WARM_ON_STARTUP = os.environ.get("IMBERE_WARM_ON_STARTUP", "1").strip() != "0"
+# Both compute endpoints are deterministic functions of their request: targeting derives each
+# rule's RNG from the seed and the rule id, and the simulator draws no random numbers at all. The
+# same payload therefore always produces the same response, so repeating one - which is exactly
+# what a demo or a rehearsal does - need not recompute it.
+POST_CACHE_SIZE = int(os.environ.get("IMBERE_POST_CACHE", "128"))
+
+_BOOTED_AT = time.time()
+_WARM: dict = {"ready": False, "seconds": None, "error": None}
+
+
+def _warm_model() -> None:
+    started = time.perf_counter()
+    try:
+        datastore.get()
+    except Exception as exc:  # a failed warm must not kill the server; the next request retries
+        _WARM.update(ready=False, error=f"{type(exc).__name__}: {exc}")
+        return
+    _WARM.update(ready=True, seconds=round(time.perf_counter() - started, 2), error=None)
+
+
+@asynccontextmanager
+async def lifespan(_: FastAPI):
+    if WARM_ON_STARTUP:
+        threading.Thread(target=_warm_model, name="imbere-warm", daemon=True).start()
+    yield
+
+
 app = FastAPI(
     title="IMBERE DATA API",
     description=(
@@ -32,6 +67,7 @@ app = FastAPI(
         "household rows are calibrated synthetic microdata until EICV7 access is granted."
     ),
     version="0.2.0",
+    lifespan=lifespan,
 )
 
 app.add_middleware(
@@ -74,10 +110,86 @@ async def demo_guard(request: Request, call_next):
 _HITS: dict[str, deque[float]] = defaultdict(deque)
 
 
+class _PostCache:
+    """Bounded LRU over deterministic POST responses.
+
+    Only correct because neither engine reads a clock, a random source that is not seeded from the
+    request, or any mutable state. `analytics._rule_rng` derives each rule's stream from the seed
+    and the rule id; `analytics.simulate` draws no random numbers. If either ever gains
+    request-dependent randomness, this cache must be removed rather than seeded around.
+    """
+
+    def __init__(self, capacity: int) -> None:
+        self._data: OrderedDict[str, dict] = OrderedDict()
+        self.capacity = capacity
+        self.hits = 0
+        self.misses = 0
+
+    def get(self, key: str) -> dict | None:
+        if self.capacity <= 0:
+            return None
+        value = self._data.get(key)
+        if value is None:
+            self.misses += 1
+            return None
+        self._data.move_to_end(key)
+        self.hits += 1
+        return value
+
+    def put(self, key: str, value: dict) -> None:
+        if self.capacity <= 0:
+            return
+        self._data[key] = value
+        self._data.move_to_end(key)
+        while len(self._data) > self.capacity:
+            self._data.popitem(last=False)
+
+    def clear(self) -> None:
+        self._data.clear()
+        self.hits = 0
+        self.misses = 0
+
+    def stats(self) -> dict:
+        return {"size": len(self._data), "capacity": self.capacity, "hits": self.hits,
+                "misses": self.misses}
+
+
+_POST_CACHE = _PostCache(POST_CACHE_SIZE)
+
+
+def _cache_key(path: str, parts: list) -> str:
+    return json.dumps([path, *parts], separators=(",", ":"), sort_keys=True)
+
+
+def _cached_or_compute(
+    response: Response, key: str, compute
+) -> dict:
+    """Serve a deterministic POST from the LRU, else compute it and store the answer."""
+    hit = _POST_CACHE.get(key)
+    if hit is not None:
+        response.headers["X-Imbere-Cache"] = "hit"
+        return hit
+    value = compute()
+    _POST_CACHE.put(key, value)
+    response.headers["X-Imbere-Cache"] = "miss"
+    return value
+
+
 @app.get("/api/health")
 @app.get("/health")
 def health() -> dict:
-    return {"status": "ok"}
+    """Liveness plus enough readiness detail for a demo script to wait on.
+
+    Kept cheap and side-effect free: it never triggers the model fit itself, so a health probe
+    cannot make a cold container slower to answer than it already is.
+    """
+    return {
+        "status": "ok",
+        "model_ready": datastore.ready(),
+        "uptime_s": round(time.time() - _BOOTED_AT, 1),
+        "warm": dict(_WARM),
+        "post_cache": _POST_CACHE.stats(),
+    }
 
 
 @app.get("/api/meta")
@@ -126,13 +238,23 @@ class TargetingRequest(BaseModel):
 
 
 @app.post("/api/targeting")
-def targeting(req: TargetingRequest) -> dict:
+def targeting(req: TargetingRequest, response: Response) -> dict:
     valid = [r["id"] for r in analytics.RULES]
     rules = req.rules or valid
     unknown = [r for r in rules if r not in valid]
     if unknown:
         raise HTTPException(status_code=400, detail=f"unknown rules: {unknown}")
-    return analytics.evaluate_targeting(req.budget_total, req.transfer_per_beneficiary, rules)
+    # Rule order is part of the result, so the key keeps it rather than sorting.
+    key = _cache_key(
+        "/api/targeting", [req.budget_total, req.transfer_per_beneficiary, list(rules)]
+    )
+    return _cached_or_compute(
+        response,
+        key,
+        lambda: analytics.evaluate_targeting(
+            req.budget_total, req.transfer_per_beneficiary, rules
+        ),
+    )
 
 
 class AdditionalShock(BaseModel):
@@ -152,13 +274,56 @@ class SimulationRequest(BaseModel):
 
 
 @app.post("/api/simulate")
-def simulate(req: SimulationRequest) -> dict:
-    try:
-        return analytics.simulate(
+def simulate(req: SimulationRequest, response: Response) -> dict:
+    key = _cache_key(
+        "/api/simulate",
+        [
             req.district,
             req.shock_type,
             req.severity,
-            additional=[s.model_dump() for s in req.additional_shocks],
+            [[s.shock_type, s.severity] for s in req.additional_shocks],
+        ],
+    )
+    try:
+        return _cached_or_compute(
+            response,
+            key,
+            lambda: analytics.simulate(
+                req.district,
+                req.shock_type,
+                req.severity,
+                additional=[s.model_dump() for s in req.additional_shocks],
+            ),
+        )
+    except KeyError as exc:
+        raise HTTPException(status_code=400, detail=str(exc)) from exc
+
+
+class ProtectionRequest(BaseModel):
+    district: str
+    shock_type: str = Field("drought", description="one of the seven shock ids")
+    severity: float = Field(50, ge=0, le=100)
+    transfers: list[float] | None = Field(
+        default=None,
+        max_length=8,
+        description="transfer levels in RWF per household per year; defaults to the published ladder",
+    )
+
+
+@app.post("/api/protection")
+def protection(req: ProtectionRequest, response: Response) -> dict:
+    """Social protection: what a transfer of a given size protects after a shock."""
+    key = _cache_key(
+        "/api/protection",
+        [req.district, req.shock_type, req.severity, req.transfers],
+    )
+    try:
+        return _cached_or_compute(
+            response,
+            key,
+            lambda: analytics.protection(
+                req.district, req.shock_type, req.severity, transfers=req.transfers
+            ),
         )
     except KeyError as exc:
         raise HTTPException(status_code=400, detail=str(exc)) from exc

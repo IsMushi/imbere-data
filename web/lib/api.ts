@@ -332,3 +332,53 @@ export type SimulationResponse = {
   severity_note: string;
   microdata_kind: string;
 };
+
+export type ProtectionResponse = {
+  district: string;
+  province: string;
+  shock_type: string;
+  shock_label: string;
+  severity: number;
+  district_context: {
+    households: number;
+    poverty_rate: number;
+    exposed_households: number;
+    newly_poor_households: number;
+    cash_need_rwf: number;
+    mean_deficit_rwf: number;
+  };
+  ladder: {
+    transfer_rwf: number;
+    households_protected: number;
+    share_protected_pct: number;
+    cost_rwf: number;
+    cost_per_household_protected_rwf: number;
+  }[];
+  measured: {
+    source: string | null;
+    shock_incidence: { all: number; poor: number; non_poor: number } | null;
+    coping_responses:
+      | { id: string; label: string; all: number; poor: number; non_poor: number }[]
+      | null;
+    vup_components: string[] | null;
+    vup: {
+      beneficiaries: { total: number; female_share_pct: number; male_share_pct: number };
+      poverty: {
+        beneficiaries_pct: number;
+        national_pct: number;
+        severely_poor_beneficiaries_pct: number;
+        severely_poor_national_pct: number;
+        moderately_poor_beneficiaries_pct: number;
+      };
+      components: { id: string; label: string; share_pct: number }[];
+      poverty_by_component: { id: string; label: string; poverty_pct: number }[];
+      timeliness: {
+        ds_on_time_pct: number;
+        ds_1_to_10_days_late_pct: number;
+        ds_11_to_20_days_late_pct: number;
+        ds_over_20_days_late_pct: number;
+      };
+    } | null;
+  };
+  microdata_kind: string;
+};

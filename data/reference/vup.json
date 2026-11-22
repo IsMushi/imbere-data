@@ -1,0 +1,62 @@
+{
+  "note": "VUP coverage and adequacy, transcribed from two published NISR documents. Beneficiary counts, sex split, programme split and poverty status come from the EICV7 Main Indicators Report 2023/24 (Tables 10.1, 10.2, 10.4). Payment timeliness comes from the EICV7 VUP Thematic Report 2023/24 (Table 4.2). Nothing here is modelled.",
+  "sources": [
+    {
+      "id": "eicv7_main_indicators",
+      "title": "EICV7 Main Indicators Report 2023/24",
+      "publisher": "National Institute of Statistics of Rwanda (NISR)",
+      "year": 2025,
+      "tables": ["10.1", "10.2", "10.4"],
+      "url": "https://statistics.gov.rw/sites/default/files/documents/2025-07/EICV7_Main%20Indicator%20Report.pdf"
+    },
+    {
+      "id": "eicv7_vup_thematic",
+      "title": "EICV7 Thematic Report: Vision 2020 Umurenge Programme 2023/24",
+      "publisher": "National Institute of Statistics of Rwanda (NISR)",
+      "year": 2025,
+      "tables": ["4.2"],
+      "url": "https://statistics.gov.rw/sites/default/files/documents/2025-07/EICV7_VUP_Thematic_Report__0.pdf"
+    }
+  ],
+  "beneficiaries": {
+    "total": 410000,
+    "unit": "beneficiaries",
+    "female_share_pct": 74.0,
+    "male_share_pct": 26.0,
+    "source": "eicv7_main_indicators",
+    "table": "10.1, 10.2"
+  },
+  "poverty": {
+    "beneficiaries_pct": 40.9,
+    "national_pct": 27.4,
+    "severely_poor_beneficiaries_pct": 8.9,
+    "severely_poor_national_pct": 5.4,
+    "moderately_poor_beneficiaries_pct": 32.0,
+    "source": "eicv7_main_indicators",
+    "table": "10.4"
+  },
+  "components": [
+    { "id": "nsds", "label": "Nutrition-sensitive Direct Support", "share_pct": 28.8 },
+    { "id": "ds", "label": "Direct Support", "share_pct": 22.7 },
+    { "id": "cpw", "label": "Classic Public Works", "share_pct": 22.5 },
+    { "id": "epw", "label": "Expanded Public Works", "share_pct": 18.8 },
+    { "id": "fs", "label": "Financial Services", "share_pct": 11.9 }
+  ],
+  "components_source": { "source": "eicv7_main_indicators", "table": "10.2" },
+  "components_note": "The five shares total 104.7 because they are not a partition: a household can receive more than one VUP instrument. Do not read the bars as parts of a whole.",
+  "poverty_by_component": [
+    { "id": "cpw", "label": "Classic Public Works", "poverty_pct": 48.5 },
+    { "id": "epw", "label": "Expanded Public Works", "poverty_pct": 43.5 },
+    { "id": "nsds", "label": "Nutrition-sensitive Direct Support", "poverty_pct": 41.4 },
+    { "id": "ds", "label": "Direct Support", "poverty_pct": 35.0 },
+    { "id": "fs", "label": "Financial Services", "poverty_pct": 32.6 }
+  ],
+  "timeliness": {
+    "ds_on_time_pct": 15.1,
+    "ds_1_to_10_days_late_pct": 56.2,
+    "ds_11_to_20_days_late_pct": 22.4,
+    "ds_over_20_days_late_pct": 6.4,
+    "source": "eicv7_vup_thematic",
+    "table": "4.2"
+  }
+}

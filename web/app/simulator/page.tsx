@@ -401,8 +401,12 @@ export default function SimulatorPage() {
                   </span>
                 </div>
 
-                <SourceNote kind="assumed">
-                  Exposure and loss parameters are stated assumptions, not EICV7 estimates.
+                <SourceNote
+                  kind="assumed"
+                  shows="How many households the selected shock exposes, how many it pushes below the poverty line, and what it would cost to restore every affected household to the line."
+                  trust="Exposure and loss parameters are stated assumptions, not EICV7 estimates, applied to the calibrated household layer. The direction and ranking of shocks are the robust part; the level is not a forecast."
+                >
+                  District counts are scaled from the sample to the district household total.
                 </SourceNote>
 
                 {result.combined ? (

@@ -366,8 +366,10 @@ def _severity_multiplier(severity: float) -> float:
     return 0.2 + 0.016 * max(0.0, min(100.0, severity))
 
 
-def _simulate_set(sub: pd.DataFrame, shocks: list[tuple[str, float]], scale: float) -> dict:
-    """One or more shocks applied to the same households.
+def _shock_arrays(
+    sub: pd.DataFrame, shocks: list[tuple[str, float]]
+) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
+    """Per-household exposure, consumption loss and post-shock consumption.
 
     Exposure combines independently (1 - prod(1 - p_j)); losses add and then pass through the
     same resilience absorption, so a household with savings and insurance still keeps 55% of its
@@ -386,7 +388,12 @@ def _simulate_set(sub: pd.DataFrame, shocks: list[tuple[str, float]], scale: flo
     loss_frac = np.clip(loss_raw * (1 - 0.55 * resilience), 0, 0.95)
 
     cons = sub["consumption_ae"].to_numpy()
-    new_cons = cons * (1 - loss_frac)
+    return p_exp, loss_frac, cons * (1 - loss_frac)
+
+
+def _simulate_set(sub: pd.DataFrame, shocks: list[tuple[str, float]], scale: float) -> dict:
+    """One or more shocks applied to the same households."""
+    p_exp, loss_frac, new_cons = _shock_arrays(sub, shocks)
     was_poor = sub["poor"].to_numpy().astype(bool)
     was_extreme = sub["extreme_poor"].to_numpy().astype(bool)
 
@@ -508,5 +515,93 @@ def simulate(
             100 * (1 - np.prod([1 - v["exposure"] for v in SHOCK_ASSUMPTIONS.values()])), 1
         ),
         "severity_note": SEVERITY_NOTE,
+        "microdata_kind": st["meta"]["microdata"]["kind"],
+    }
+
+
+# ---------------------------------------------------------------------------------------
+# Social protection
+# ---------------------------------------------------------------------------------------
+# Transfer levels the page offers, in RWF per household per year. The middle one matches the
+# per-beneficiary cost the targeting page uses, so the two pages describe the same programme.
+TRANSFER_LADDER = [50_000, 100_000, 150_000, 250_000, 400_000]
+
+
+def protection(
+    district: str,
+    shock_type: str,
+    severity: float = 50.0,
+    transfers: list[float] | None = None,
+) -> dict:
+    """What a VUP-style transfer does to households a shock pushes below the line.
+
+    Measured half: EICV7 Tables 6.10 and 6.11, passed through untouched. Scenario half: the
+    district is shocked, the households that fall below the poverty line are identified, and each
+    transfer level is tested against them. A household is protected when the transfer is large
+    enough to cover its deficit, so the ladder answers "how big does the transfer have to be, and
+    what does that cost", not "who should receive it" - that question belongs to /targeting.
+    """
+    st = datastore.get()
+    if district not in st["district_by_name"]:
+        raise KeyError(district)
+    if shock_type not in SHOCK_ASSUMPTIONS:
+        raise KeyError(shock_type)
+
+    d = st["district_by_name"][district]
+    hh = st["households"]
+    sub = hh[(hh["district"] == district).to_numpy()]
+    scale = d["households"] / max(len(sub), 1)
+
+    p_exp, _, new_cons = _shock_arrays(sub, [(shock_type, severity)])
+    line = POVERTY_LINE
+    hh_size = sub["hh_size"].to_numpy()
+    was_poor = sub["poor"].to_numpy().astype(bool)
+
+    newly_poor = (~was_poor) & (new_cons < line)
+    newly_poor_hh = float((p_exp * newly_poor).sum())
+    deficit = np.maximum(0.0, line - new_cons) * hh_size
+    cash_need = float((p_exp * newly_poor * deficit).sum())
+
+    ladder = []
+    for amount in sorted(transfers or TRANSFER_LADDER):
+        per_ae = amount / hh_size
+        protected = newly_poor & ((new_cons + per_ae) >= line)
+        protected_hh = float((p_exp * protected).sum())
+        ladder.append(
+            {
+                "transfer_rwf": int(amount),
+                "households_protected": round(protected_hh * scale),
+                "share_protected_pct": (
+                    round(100 * protected_hh / newly_poor_hh, 1) if newly_poor_hh else 0.0
+                ),
+                "cost_rwf": round(protected_hh * scale * amount),
+                "cost_per_household_protected_rwf": round(amount),
+            }
+        )
+
+    return {
+        "district": district,
+        "province": d["province"],
+        "shock_type": shock_type,
+        "shock_label": SHOCK_ASSUMPTIONS[shock_type]["label"],
+        "severity": severity,
+        "district_context": {
+            "households": d["households"],
+            "poverty_rate": d["poverty_2024"],
+            "exposed_households": round(float(p_exp.sum()) * scale),
+            "newly_poor_households": round(newly_poor_hh * scale),
+            "cash_need_rwf": round(cash_need * scale),
+            "mean_deficit_rwf": (
+                round(cash_need * scale / (newly_poor_hh * scale)) if newly_poor_hh else 0
+            ),
+        },
+        "ladder": ladder,
+        "measured": {
+            "source": (st["meta"].get("shocks") or {}).get("source"),
+            "shock_incidence": (st["meta"].get("shocks") or {}).get("shock_incidence"),
+            "coping_responses": (st["meta"].get("shocks") or {}).get("coping_responses"),
+            "vup_components": (st["meta"].get("shocks") or {}).get("vup_components"),
+            "vup": st["vup"],
+        },
         "microdata_kind": st["meta"]["microdata"]["kind"],
     }

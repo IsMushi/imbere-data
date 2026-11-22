@@ -6,8 +6,8 @@ import { MotionProvider } from "@/components/Motion";
 import { Nav } from "@/components/Nav";
 
 /**
- * Typography: a single family, Comfortaa, for display and body (Google Sans removed). Comfortaa
- * is not in next/font's catalogue, so it comes from the Google Fonts stylesheet in <head>; the
+ * Typography: Manrope for display and body, Comfortaa kept for the wordmark only. Neither is in
+ * next/font's catalogue, so both come from the one Google Fonts stylesheet in <head>; the
  * preconnects keep the handshake off the critical path.
  */
 
@@ -29,7 +29,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
         <link
           rel="stylesheet"
-          href="https://fonts.googleapis.com/css2?family=Comfortaa:wght@300..700&display=swap"
+          href="https://fonts.googleapis.com/css2?family=Comfortaa:wght@300..700&family=Manrope:wght@200..800&display=swap"
         />
       </head>
       <body className="paper-grain min-h-screen">

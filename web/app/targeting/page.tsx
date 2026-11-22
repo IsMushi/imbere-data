@@ -355,8 +355,12 @@ export default function TargetingPage() {
             </div>
           </dl>
 
-          <SourceNote kind="modelled">
-            Selection runs on {data ? num(data.sample_households) : "—"} calibrated synthetic
+          <SourceNote
+            kind="modelled"
+            shows="What each allocation rule achieves on the same budget: who it reaches, how much leaks to non-poor households, and what each poor household costs."
+            trust="Selection runs on the calibrated synthetic sample, not EICV7 microdata. Compare rules with each other; a single level is a property of this calibration, not of Rwanda."
+          >
+            Selection runs on {data ? num(data.sample_households) : "-"} calibrated synthetic
             households, not on EICV7 microdata.
           </SourceNote>
         </div>
@@ -567,11 +571,15 @@ export default function TargetingPage() {
                 </Table>
               </div>
             </FadeIn>
-            <SourceNote kind="modelled">
-              Each rule selects the same number of beneficiaries from the same synthetic sample;
-              only the ordering differs. Poor reached: {data ? num(data.total_poor_in_sample) : "—"}{" "}
-              poor households in sample. Ranges are 95% bootstrap intervals from{" "}
-              {data?.bootstrap_reps ?? 200} resamples of those households — sampling variability
+          <SourceNote
+            kind="modelled"
+            shows="What each allocation rule achieves on the same budget: who it reaches, how much leaks to non-poor households, and what a poor household costs."
+            trust="Selection runs on the calibrated synthetic sample, not EICV7 microdata, and the transfer and budget are the values on screen. Compare rules with each other rather than quoting a level."
+          >
+            Each rule selects the same number of beneficiaries from the same synthetic sample;
+            only the ordering differs. Poor reached: {data ? num(data.total_poor_in_sample) : "-"}{" "}
+            poor households in sample. Ranges are 95% bootstrap intervals from{" "}
+            {data?.bootstrap_reps ?? 200} resamples of those households - sampling variability
               only, not the EICV7 design.
             </SourceNote>
 

@@ -7,11 +7,14 @@ as such in every response that touches them.
 from __future__ import annotations
 
 import json
+import os
+import pickle
 import threading
 from pathlib import Path
 
 import numpy as np
 import pandas as pd
+import sklearn
 from sklearn.compose import ColumnTransformer
 from sklearn.ensemble import HistGradientBoostingClassifier
 from sklearn.inspection import permutation_importance
@@ -23,6 +26,13 @@ from sklearn.preprocessing import OneHotEncoder, StandardScaler
 
 ROOT = Path(__file__).resolve().parents[2]
 PROC = ROOT / "data" / "processed"
+REF = ROOT / "data" / "reference"
+
+# A frozen copy of the fitted engine, written at image build time by
+# deploy/cloudflare/Dockerfile via scripts/freeze_model.py. Unset in normal development, so the
+# behaviour there is unchanged: fit on first access. See `freeze()` and `_read_cache()`.
+_CACHE_ENV = os.environ.get("IMBERE_MODEL_CACHE", "").strip()
+CACHE_PATH: Path | None = Path(_CACHE_ENV) if _CACHE_ENV else None
 
 CAT_COLS = ["district", "province", "head_education", "main_income_source"]
 ASSET_COLS = [
@@ -79,28 +89,93 @@ def _load() -> dict:
         if _ready:
             return _state
 
-        districts = json.loads((PROC / "districts.json").read_text(encoding="utf-8"))
-        meta = json.loads((PROC / "meta.json").read_text(encoding="utf-8"))
-        calibration = json.loads((PROC / "calibration.json").read_text(encoding="utf-8"))
-        hh = pd.read_csv(PROC / "households.csv")
-
-        rate = {d["district"]: d["poverty_2024"] for d in districts}
-        hh["district_poverty_rate"] = hh["district"].map(rate)
-
-        built = {
-            "districts": districts,
-            "meta": meta,
-            "calibration": calibration,
-            "households": hh,
-            "district_by_name": {d["district"]: d for d in districts},
-        }
-        built.update(_fit_model(hh))
+        # A frozen payload short-circuits the fit. deploy/cloudflare/Dockerfile writes one at
+        # build time, because a container that fits on boot takes longer than the interface is
+        # willing to wait (docs/DEPLOY.md §4).
+        built = _read_cache()
+        if built is None:
+            built = _build_state()
 
         # Publish only once everything (including the model) exists.
         _state.update(built)
         _ready = True
 
     return _state
+
+
+def _build_state() -> dict:
+    """Read data/processed and fit the model from scratch. Never consults the cache."""
+    districts = json.loads((PROC / "districts.json").read_text(encoding="utf-8"))
+    meta = json.loads((PROC / "meta.json").read_text(encoding="utf-8"))
+    calibration = json.loads((PROC / "calibration.json").read_text(encoding="utf-8"))
+    vup = json.loads((REF / "vup.json").read_text(encoding="utf-8"))
+    hh = pd.read_csv(PROC / "households.csv")
+
+    rate = {d["district"]: d["poverty_2024"] for d in districts}
+    hh["district_poverty_rate"] = hh["district"].map(rate)
+
+    built = {
+        "districts": districts,
+        "meta": meta,
+        "calibration": calibration,
+        "vup": vup,
+        "households": hh,
+        "district_by_name": {d["district"]: d for d in districts},
+    }
+    built.update(_fit_model(hh))
+    return built
+
+
+def _versions() -> dict[str, str]:
+    return {"numpy": np.__version__, "pandas": pd.__version__, "sklearn": sklearn.__version__}
+
+
+def _read_cache() -> dict | None:
+    """Load the frozen payload, or return None so the caller fits instead.
+
+    Unpickling runs code, so this only ever reads the path an operator set in
+    IMBERE_MODEL_CACHE — in practice a file baked into the image at build time. A payload built
+    by different numpy/pandas/scikit-learn versions than the ones running is rejected: sklearn
+    pipelines do not reliably survive that, and a wrong answer here would be invisible.
+    """
+    if CACHE_PATH is None or not CACHE_PATH.is_file():
+        return None
+    try:
+        with CACHE_PATH.open("rb") as fh:
+            payload = pickle.load(fh)
+        built_with = payload.get("versions", {})
+        running = _versions()
+        if built_with != running:
+            print(
+                f"imbere: ignoring model cache {CACHE_PATH}: built with {built_with}, "
+                f"running {running}; refitting",
+                flush=True,
+            )
+            return None
+        return payload["state"]
+    except Exception as exc:  # noqa: BLE001 - a bad cache must degrade to a slow start, not a crash
+        print(
+            f"imbere: could not read model cache {CACHE_PATH}: {type(exc).__name__}: {exc}; "
+            "refitting",
+            flush=True,
+        )
+        return None
+
+
+def freeze(path: Path) -> Path:
+    """Fit from scratch and write the result to `path`.
+
+    Called by scripts/freeze_model.py inside the deployment image, so the payload is produced by
+    the exact interpreter and library versions that will unpickle it. Always refits rather than
+    reusing an in-memory state, so a stale cache can never be re-stamped with current versions.
+    """
+    payload = {"versions": _versions(), "state": _build_state()}
+    path.parent.mkdir(parents=True, exist_ok=True)
+    tmp = path.with_name(path.name + ".tmp")
+    with tmp.open("wb") as fh:
+        pickle.dump(payload, fh, protocol=pickle.HIGHEST_PROTOCOL)
+    tmp.replace(path)
+    return path
 
 
 def _fit_model(hh: pd.DataFrame) -> dict:
@@ -194,6 +269,11 @@ def _fit_model(hh: pd.DataFrame) -> dict:
 
 def get() -> dict:
     return _load()
+
+
+def ready() -> bool:
+    """Whether the data and model are loaded. Never blocks, so health checks can ask it."""
+    return _ready
 
 
 def districts() -> list[dict]:

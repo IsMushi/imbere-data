@@ -1,0 +1,43 @@
+# The Containers build context is the repository root (see deploy/cloudflare/wrangler.jsonc),
+# so keep anything the image does not need out of the upload. The Dockerfile copies only
+# api/ and data/processed/; this list stops the rest — including web/node_modules and
+# web/.next, which run to hundreds of megabytes — from being sent at all.
+
+.git
+.gitignore
+.gitattributes
+.github
+
+web
+docs
+*.md
+*.ps1
+*.cmd
+*.sln
+
+# scripts/ is build tooling, but the image build runs this one.
+scripts/*
+!scripts/freeze_model.py
+
+# Local-only assets: the downloaded NISR PDF/XLSX live in data/raw and are gitignored.
+data/raw
+data/reference
+
+api/tests
+api/requirements-dev.txt
+api/smoke_test.py
+
+**/__pycache__
+**/*.pyc
+**/*.pyo
+**/.pytest_cache
+**/.mypy_cache
+**/.ruff_cache
+**/.venv
+**/venv
+
+# The Worker's own toolchain: wrangler, typescript and their dependencies live here, and nothing
+# in the image needs them.
+**/node_modules
+deploy/cloudflare/.wrangler
+deploy/cloudflare/.dist-check

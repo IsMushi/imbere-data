@@ -1,0 +1,19 @@
+{
+  "name": "imbere-api-container",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Cloudflare Worker + Container deployment for the IMBERE DATA FastAPI engine",
+  "scripts": {
+    "//": "This repo's Windows machine cannot create node_modules/.bin links, so scripts call the entrypoints through node directly. See AGENTS.md.",
+    "types": "node node_modules/wrangler/bin/wrangler.js types",
+    "typecheck": "node node_modules/typescript/bin/tsc --noEmit",
+    "deploy": "node node_modules/wrangler/bin/wrangler.js deploy",
+    "dev": "node node_modules/wrangler/bin/wrangler.js dev",
+    "tail": "node node_modules/wrangler/bin/wrangler.js tail"
+  },
+  "devDependencies": {
+    "typescript": "^5.9.3",
+    "wrangler": "^4.166.0"
+  }
+}

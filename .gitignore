@@ -15,6 +15,11 @@ out/
 *.tsbuildinfo
 .eslintcache
 
+# Wrangler / Cloudflare Containers (deploy/cloudflare)
+.wrangler/
+.dist-check/
+.devtmp/
+
 # Local previews and scratch
 .preview/
 scratch/
@@ -49,7 +54,8 @@ AGENTS.md
 #   - MODEL_EVALUATION.md is where METHODOLOGY.md sends a reader for the model comparison;
 #   - DATA_SOURCES.md and DATA_DICTIONARY.md document provenance and the household contract;
 #   - build_data.py, build_snapshot.py, evaluate_model.py and import_eicv7.py are the scripts those
-#     docs tell a reader to run, so publishing the docs without them would create dead references.
+#     docs tell a reader to run, so publishing the docs without them would create dead references;
+#   - warm_demo.py is the same case: README.md's quickstart names it as the pre-demo warm-up.
 # Everything else in docs/ and scripts/ (audits, roadmap, icon and screenshot tooling) stays local.
 # `docs/*` rather than `docs/` is deliberate: an ignored directory cannot have its children
 # re-included.
@@ -58,6 +64,10 @@ scripts/*
 !scripts/build_snapshot.py
 !scripts/evaluate_model.py
 !scripts/import_eicv7.py
+!scripts/warm_demo.py
+# freeze_model.py is run by deploy/cloudflare/Dockerfile during the image build, so it has to be
+# in the checkout that Image builds from — it is part of the deployment, not dev tooling.
+!scripts/freeze_model.py
 docs/*
 !docs/METHODOLOGY.md
 !docs/SUBMISSION.md

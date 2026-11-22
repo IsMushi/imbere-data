@@ -168,9 +168,15 @@ export function Tag({
 export function SourceNote({
   kind,
   children,
+  shows,
+  trust,
 }: {
   kind: "measured" | "modelled" | "assumed";
   children: ReactNode;
+  /** One sentence on what the figure above actually shows. */
+  shows?: ReactNode;
+  /** How far to trust it: sampling, synthetic rows, stated assumptions, known limits. */
+  trust?: ReactNode;
 }) {
   const dot =
     kind === "measured" ? "bg-primary" : kind === "modelled" ? "bg-accent" : "bg-teal";
@@ -178,13 +184,27 @@ export function SourceNote({
     kind === "measured" ? "Measured · published" : kind === "modelled" ? "Modelled · illustrative" : "Stated assumption";
 
   return (
-    <p className="mt-4 flex flex-wrap items-baseline gap-x-2 gap-y-1 border-t border-line pt-3 text-[14px] leading-relaxed text-ink-soft">
-      <span className="inline-flex items-center gap-1.5 font-medium text-ink">
-        <span className={`h-1.5 w-1.5 rounded-full ${dot}`} aria-hidden />
-        {word}
-      </span>
-      <span className="min-w-0">{children}</span>
-    </p>
+    <div className="mt-4 border-t border-line pt-3 text-[14px] leading-relaxed text-ink-soft">
+      <p className="flex flex-wrap items-baseline gap-x-2 gap-y-1">
+        <span className="inline-flex items-center gap-1.5 font-medium text-ink">
+          <span className={`h-1.5 w-1.5 rounded-full ${dot}`} aria-hidden />
+          {word}
+        </span>
+        <span className="min-w-0">{children}</span>
+      </p>
+      {shows ? (
+        <p className="mt-1.5">
+          <span className="font-medium text-ink">What it shows. </span>
+          {shows}
+        </p>
+      ) : null}
+      {trust ? (
+        <p className="mt-1">
+          <span className="font-medium text-ink">How far to trust it. </span>
+          {trust}
+        </p>
+      ) : null}
+    </div>
   );
 }
 
