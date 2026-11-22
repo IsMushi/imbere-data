@@ -27,6 +27,10 @@ RUN pip install --no-cache-dir -r api/requirements.txt
 
 COPY api api
 COPY data/processed data/processed
+# data/reference/vup.json is read by _build_state(). The image needs it too, not just the build:
+# if a frozen payload is rejected (different numpy/pandas/scikit-learn), the runtime falls back to
+# refitting, and without this it would raise FileNotFoundError instead. 18 KB in total.
+COPY data/reference data/reference
 COPY scripts/freeze_model.py scripts/freeze_model.py
 
 # Fit the model once, here, and bake the result in. Without this the container fits on every cold

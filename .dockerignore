@@ -20,8 +20,8 @@ scripts/*
 !scripts/freeze_model.py
 
 # Local-only assets: the downloaded NISR PDF/XLSX live in data/raw and are gitignored.
+# data/reference/ is NOT excluded — api/app/datastore.py reads vup.json from it.
 data/raw
-data/reference
 
 api/tests
 api/requirements-dev.txt

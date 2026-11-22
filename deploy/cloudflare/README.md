@@ -122,9 +122,10 @@ month, so the inactivity timeout is the cost control, not an optimisation:
 - **Beta.** Instance selection, image references and the `exports` config shape have all changed
   during 2026. Check <https://developers.cloudflare.com/containers/> before editing
   `wrangler.jsonc`.
-- **`data/processed/` is baked into the image.** Changing the data means rebuilding and
-  redeploying, not restarting a service. That is fine here because the files are committed and
-  change only when `scripts/build_data.py` runs.
+- **`data/processed/` and `data/reference/` are baked into the image.** Changing either means
+  rebuilding and redeploying, not restarting a service. `data/reference/vup.json` is needed at
+  runtime as well as build time, because a rejected frozen payload falls back to refitting. That
+  is fine here because both trees are committed and change only when `scripts/build_data.py` runs.
 - Disk is ephemeral. The container writes nothing outside `/tmp`; the engine is read-only.
 
 ## Removing it
