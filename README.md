@@ -263,9 +263,10 @@ Render's free tier sleeps after ~15 minutes without traffic. The first request a
 wakes the service (30–60 s); subsequent requests are immediate.
 
 The API also runs on Cloudflare Containers — `deploy/cloudflare/` holds the Dockerfile, Worker and
-`wrangler.jsonc`, and `.github/workflows/deploy-api.yml` builds and deploys it from CI. That path
-needs the Workers Paid plan (Containers have no free tier); see `deploy/cloudflare/README.md`. The
-image freezes the fitted model at build time, so its cold start is seconds rather than the fit.
+`wrangler.jsonc`, deployed by Workers Builds on push. That path needs the Workers Paid plan
+(Containers have no free tier); see `deploy/cloudflare/README.md`. The image freezes the fitted
+model at build time, so its cold start is seconds rather than the fit. `.github/workflows/verify-api.yml`
+runs the typecheck and test suite only.
 
 ---
 

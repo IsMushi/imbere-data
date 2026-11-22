@@ -1,0 +1,84 @@
+name: Verify API
+
+# Checks only. Deploying the container is Workers Builds' job (Cloudflare dashboard →
+# Worker `imbere-api` → Settings → Build), because it authenticates with an auto-generated
+# token and needs no repository secrets:
+#
+#   Root directory   deploy/cloudflare
+#   Build command    npm ci
+#   Deploy command   npx wrangler deploy
+#
+# Two pipelines deploying the same Worker would race on the container image and overwrite each
+# other, so this workflow deliberately stops at "the image would build".
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main, test]
+    paths:
+      - "api/**"
+      - "data/processed/**"
+      - "deploy/cloudflare/**"
+      - ".github/workflows/verify-api.yml"
+  pull_request:
+    paths:
+      - "api/**"
+      - "data/processed/**"
+      - "deploy/cloudflare/**"
+      - ".github/workflows/verify-api.yml"
+
+concurrency:
+  group: verify-api-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    name: Verify
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    defaults:
+      run:
+        working-directory: deploy/cloudflare
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+          cache-dependency-path: deploy/cloudflare/package-lock.json
+
+      - name: Install wrangler and TypeScript
+        run: npm ci
+
+      # The committed worker-configuration.d.ts is what makes a fresh clone typecheck without
+      # first running wrangler. Regenerating it here and diffing keeps it honest.
+      - name: Regenerate Worker types
+        run: npx wrangler types
+
+      - name: Check generated types are committed
+        run: git diff --exit-code worker-configuration.d.ts
+
+      - name: Typecheck the Worker
+        run: npx tsc --noEmit
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+          cache: pip
+          cache-dependency-path: |
+            api/requirements.txt
+            api/requirements-dev.txt
+
+      # The suite pins the headline targeting figures, so it also catches data/processed drift
+      # that the image would otherwise ship unnoticed. It also proves the frozen-model path
+      # (api/tests/test_model_cache.py) still equals a fresh fit.
+      - name: API tests
+        working-directory: api
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install -r requirements.txt -r requirements-dev.txt
+          python -m pytest tests -q

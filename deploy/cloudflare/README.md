@@ -17,17 +17,44 @@ deploy/cloudflare/
 | Requirement | Why |
 |---|---|
 | **Workers Paid plan** ($5/month) | Containers have **no free tier**. The plan includes 25 GiB-hours of memory, 375 vCPU-minutes and 200 GB-hours of disk per month. |
-| **Docker running locally** | `wrangler deploy` builds and pushes the image. It refuses to run at all — even `--dry-run` — if the Docker CLI is unreachable. |
-| A Cloudflare account ID | `npx wrangler login` first. |
+| **Docker wherever the deploy runs** | `wrangler deploy` builds and pushes the image. Workers Builds provides it; locally, wrangler refuses to run at all — even `--dry-run` — if the Docker CLI is unreachable. |
+| The repository connected to a Worker | Workers Builds deploys on push. It authenticates with an auto-generated token, so no repository secrets are needed. |
 
 Docker may be replaced by a Docker-compatible CLI: set `WRANGLER_DOCKER_BIN` (for example to
 Podman) and `DOCKER_HOST`. It is not verified here.
 
 ## Deploy
 
+Deployment is **Workers Builds**, not GitHub Actions. `.github/workflows/verify-api.yml` runs the
+typecheck and the test suite only — two pipelines deploying the same Worker would race on the
+container image.
+
+In the dashboard, on the `imbere-api` Worker → **Settings → Build**:
+
+| Setting | Value |
+|---|---|
+| Git branch | your production branch (`main`, or `test` to rehearse) |
+| Root directory | `deploy/cloudflare` |
+| Build command | `npm ci` |
+| Deploy command | `npx wrangler deploy` |
+
+**Root directory is the one that breaks the build if it is wrong.** Left at the repository root,
+`wrangler deploy` finds no `wrangler.jsonc` (this one is a directory down), falls back to automatic
+project configuration, and fails with *"Could not detect a directory containing static files"*.
+The whole repository is still checked out, so `build_context: "../.."` keeps working from there.
+
+Workers Builds runs the **deploy** command on the production branch and the **preview** command
+on everything else. The default preview command, `wrangler versions upload`, does not update
+container images — so either make the branch you push to the production branch, or set the
+preview command to `npx wrangler deploy` as well.
+
+### Deploying from a machine instead
+
+Only possible where Docker runs:
+
 ```powershell
 cd deploy/cloudflare
-npm install --no-bin-links          # this machine cannot create .bin links
+npm install --no-bin-links          # this Windows machine cannot create .bin links
 npm run types                       # regenerates worker-configuration.d.ts from wrangler.jsonc
 npm run typecheck                   # tsc --noEmit
 npm run deploy                      # builds the image, pushes it, deploys the Worker
@@ -37,9 +64,10 @@ npm run deploy                      # builds the image, pushes it, deploys the W
 `python:3.13-slim` and installs numpy, pandas and scikit-learn. Later deploys reuse the Docker
 layer cache and only push changed layers.
 
-After deploying, Cloudflare still has to provision container instances across its network. The
-Worker URL can answer while container routes fail — that is expected for a few minutes, not a
-bug.
+### After either route
+
+Cloudflare still has to provision container instances across its network. The Worker URL can
+answer while container routes fail — that is expected for a few minutes, not a bug.
 
 ```powershell
 curl https://imbere-api.<your-subdomain>.workers.dev/api/health
