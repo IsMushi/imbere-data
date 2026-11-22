@@ -13,7 +13,7 @@ import { DurableObject } from "cloudflare:workers";
 const CONTAINER_PORT = 8000;
 
 /** Durable Object name that owns the only container instance. */
-const INSTANCE_NAME = "imbere-api";
+const INSTANCE_NAME = "imbere-data";
 
 /**
  * How long the container keeps running after the last request. This is a billing knob, not a

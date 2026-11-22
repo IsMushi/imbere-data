@@ -29,7 +29,7 @@ Deployment is **Workers Builds**, not GitHub Actions. `.github/workflows/verify-
 typecheck and the test suite only — two pipelines deploying the same Worker would race on the
 container image.
 
-In the dashboard, on the `imbere-api` Worker → **Settings → Build**:
+In the dashboard, on the `imbere-data` Worker → **Settings → Build**:
 
 | Setting | Value |
 |---|---|
@@ -70,21 +70,21 @@ Cloudflare still has to provision container instances across its network. The Wo
 answer while container routes fail — that is expected for a few minutes, not a bug.
 
 ```powershell
-curl https://imbere-api.<your-subdomain>.workers.dev/api/health
-curl https://imbere-api.<your-subdomain>.workers.dev/api/meta
+curl https://imbere-data.<your-subdomain>.workers.dev/api/health
+curl https://imbere-data.<your-subdomain>.workers.dev/api/meta
 ```
 
 Then set the interface's build-time variable and redeploy the frontend:
 
 ```
-NEXT_PUBLIC_API_BASE=https://imbere-api.<your-subdomain>.workers.dev
+NEXT_PUBLIC_API_BASE=https://imbere-data.<your-subdomain>.workers.dev
 ```
 
 ## What the Worker actually does
 
 `src/index.ts` exports one Durable Object class and one `fetch` handler:
 
-1. Every request is routed to the single Durable Object named `imbere-api`, which owns the
+1. Every request is routed to the single Durable Object named `imbere-data`, which owns the
    single container. Routing is deliberately **not** load balanced: `datastore.py` fits the
    model once and keeps it, plus the POST cache and rate-limit windows, in process memory.
 2. On a cold start the container is started with `instance: "basic"` and `enableInternet: false`,

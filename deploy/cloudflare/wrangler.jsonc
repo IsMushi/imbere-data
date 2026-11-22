@@ -4,7 +4,7 @@
   // Run from this directory:  npx wrangler deploy
   // Requires the Workers Paid plan ($5/mo) — Containers have no free tier.
   "$schema": "./node_modules/wrangler/config-schema.json",
-  "name": "imbere-api",
+  "name": "imbere-data",
   "main": "./src/index.ts",
   "compatibility_date": "2026-11-22",
   "upload_source_maps": true,
