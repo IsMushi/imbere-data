@@ -30,7 +30,7 @@ export function Nav() {
 
         <nav
           aria-label="Sections"
-          className="flex items-stretch gap-4 overflow-x-auto border-t border-white/10 text-[14.5px] [scrollbar-width:none] sm:ml-auto sm:gap-6 sm:border-t-0"
+          className="flex items-center gap-4 overflow-x-auto border-t border-white/10 text-[14.5px] [scrollbar-width:none] sm:ml-auto sm:gap-6 sm:border-t-0"
         >
           {MENU.items.map((l) => {
             // An in-page anchor ("/#risk-map") is not a page, so it never claims the current
@@ -46,7 +46,7 @@ export function Nav() {
                 href={l.href}
                 aria-label={l.label}
                 aria-current={active ? "page" : undefined}
-                className={`flex items-center whitespace-nowrap py-3.5 transition-colors focus-visible:outline-white sm:py-0 ${
+                className={`flex h-12 items-center whitespace-nowrap transition-colors focus-visible:outline-white sm:px-1 ${
                   active ? "font-medium text-white" : "text-primary-soft hover:text-white"
                 }`}
               >
@@ -58,7 +58,10 @@ export function Nav() {
         </nav>
 
         <div className="hidden items-center sm:flex">
-          <Button asChild className="bg-white text-primary-deep hover:bg-primary-soft">
+          <Button
+            asChild
+            className="h-12 bg-white px-5 text-[15.5px] text-primary-deep hover:bg-primary-soft"
+          >
             <Link href="/simulator">{MENU.cta}</Link>
           </Button>
         </div>
