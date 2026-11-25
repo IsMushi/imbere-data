@@ -19,11 +19,9 @@ actually changed.
 
 ### Task 2 — Design system
 
-The token block in `web/app/globals.css` and the `web/components/ui/*` primitive layer were
-already in place. The palette has since moved to the plan's calm teal system — `primary #0f766e`,
-deep `#115e59`, soft `#ccfbf1`, a warm `#b45309` accent for modelled figures, and outcome-only
-green/red — with the chart, map and icon hexes moved in the same pass. Manrope is kept for UI and
-Comfortaa for the wordmark.
+Already implemented and not changed: one `@theme` token block in `web/app/globals.css`, the
+`web/components/ui/*` primitive layer, and NISR's published palette. The plan's teal palette and
+Inter would have replaced a documented brand decision (see `AGENTS.md`), so it was not applied.
 
 ### Task 3 — Home page
 

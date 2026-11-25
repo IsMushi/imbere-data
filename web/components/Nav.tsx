@@ -15,7 +15,7 @@ const LINKS = [
 ];
 
 /**
- * Deep-teal bar, the same surface as the overview hero, so the two read as one band
+ * Brand-blue bar, the same surface as the overview hero, so the two read as one band
  * rather than a paper strip sitting above a colour panel.
  */
 export function Nav() {

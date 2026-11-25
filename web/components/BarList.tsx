@@ -31,8 +31,8 @@ export function BarList({
    */
   valueLabels?: boolean;
 }) {
-  const fill = color === "accent" ? "#b45309" : color === "ink" ? "#111827" : "#0f766e";
-  const hiFill = highlightColor === "teal" ? "#0e7490" : "#b45309";
+  const fill = color === "accent" ? "#c95100" : color === "ink" ? "#0d2343" : "#005cab";
+  const hiFill = highlightColor === "teal" ? "#008482" : "#c95100";
   const data = items.map((item) => ({
     name: item.label,
     value: item.value,
@@ -55,20 +55,20 @@ export function BarList({
         margin={{ top: 4, right, bottom: 4, left: 4 }}
         barCategoryGap="28%"
       >
-        <CartesianGrid horizontal={false} stroke="#e5e7eb" strokeDasharray="3 3" />
+        <CartesianGrid horizontal={false} stroke="#dfe4ea" strokeDasharray="3 3" />
         <XAxis
           type="number"
           domain={[0, max ?? "auto"]}
           tickFormatter={(v) => format(Number(v))}
-          tick={{ fontSize: 12, fill: "#4b5563" }}
+          tick={{ fontSize: 12, fill: "#37404d" }}
           tickLine={false}
-          axisLine={{ stroke: "#e5e7eb" }}
+          axisLine={{ stroke: "#dfe4ea" }}
         />
         <YAxis
           type="category"
           dataKey="name"
           width={170}
-          tick={{ fontSize: 13, fill: "#4b5563" }}
+          tick={{ fontSize: 13, fill: "#37404d" }}
           tickLine={false}
           axisLine={false}
         />
@@ -79,7 +79,7 @@ export function BarList({
           ]}
           contentStyle={{
             background: "#ffffff",
-            border: "1px solid #e5e7eb",
+            border: "1px solid #dfe4ea",
             borderRadius: 6,
             fontSize: 13,
           }}
@@ -103,7 +103,7 @@ export function BarList({
                 <text
                   x={x + width + 8}
                   y={y + height / 2}
-                  fill="#4b5563"
+                  fill="#37404d"
                   fontSize={12}
                   dominantBaseline="middle"
                 >

@@ -25,13 +25,11 @@ import { apiGet, type District, type Meta } from "@/lib/api";
 import { compact, num, pct, signed } from "@/lib/format";
 
 // Chart colours cannot use Tailwind classes; kept in step with the tokens in globals.css.
-// Severity runs deep teal to red: healthy households are the brand colour, vulnerable ones
-// take the outcome red, so the four segments read in order without a legend.
 const HEALTH = [
-  { key: "healthy", label: "Healthy", color: "#115e59" },
-  { key: "coping", label: "Coping", color: "#0f766e" },
-  { key: "vulnerable", label: "Vulnerable", color: "#b45309" },
-  { key: "extremely_vulnerable", label: "Extremely vulnerable", color: "#dc2626" },
+  { key: "healthy", label: "Healthy", color: "#004077" },
+  { key: "coping", label: "Coping", color: "#196cb3" },
+  { key: "vulnerable", label: "Vulnerable", color: "#008482" },
+  { key: "extremely_vulnerable", label: "Extremely vulnerable", color: "#c95100" },
 ] as const;
 
 /**
@@ -790,7 +788,7 @@ function MiniBar({
       <span className="h-[5px] overflow-hidden rounded-[1px] bg-line" aria-hidden>
         <MotionBar
           as="span"
-          className={`block h-full ${muted ? "bg-[#9ca3af]" : "bg-[#115e59]"}`}
+          className={`block h-full ${muted ? "bg-[#acaeb0]" : "bg-[#004077]"}`}
           value={Math.max(2, (value / max) * 100)}
         />
       </span>

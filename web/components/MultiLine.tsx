@@ -37,20 +37,20 @@ export function MultiLine({
     <div>
       <ResponsiveContainer width="100%" height={320}>
         <AreaChart data={data} margin={{ top: 10, right: 14, left: 8, bottom: 34 }}>
-          <CartesianGrid stroke="#e5e7eb" strokeDasharray="3 3" vertical={false} />
+          <CartesianGrid stroke="#dfe4ea" strokeDasharray="3 3" vertical={false} />
           <XAxis
             dataKey={xKey}
-            tick={{ fontSize: 13, fill: "#4b5563" }}
+            tick={{ fontSize: 13, fill: "#37404d" }}
             tickLine={false}
-            axisLine={{ stroke: "#e5e7eb" }}
-            label={{ value: xLabel, position: "insideBottom", offset: -18, fontSize: 13, fill: "#4b5563" }}
+            axisLine={{ stroke: "#dfe4ea" }}
+            label={{ value: xLabel, position: "insideBottom", offset: -18, fontSize: 13, fill: "#37404d" }}
           />
           <YAxis
             domain={[0, top]}
             tickFormatter={(v) => format(Number(v))}
-            tick={{ fontSize: 13, fill: "#4b5563" }}
+            tick={{ fontSize: 13, fill: "#37404d" }}
             tickLine={false}
-            axisLine={{ stroke: "#e5e7eb" }}
+            axisLine={{ stroke: "#dfe4ea" }}
             width={52}
             label={{
               value: yLabel,
@@ -58,7 +58,7 @@ export function MultiLine({
               position: "insideLeft",
               offset: 8,
               fontSize: 13,
-              fill: "#4b5563",
+              fill: "#37404d",
               style: { textAnchor: "middle" },
             }}
           />
@@ -66,13 +66,13 @@ export function MultiLine({
             formatter={(value, name) => [format(Number(value)), name]}
             contentStyle={{
               background: "#ffffff",
-              border: "1px solid #e5e7eb",
+              border: "1px solid #dfe4ea",
               borderRadius: 6,
               fontSize: 13,
             }}
           />
           <Legend
-            wrapperStyle={{ fontSize: 12.5, color: "#4b5563", paddingTop: 12 }}
+            wrapperStyle={{ fontSize: 12.5, color: "#37404d", paddingTop: 12 }}
             content={({ payload }) => (
               <div className="flex flex-wrap items-center justify-center gap-x-5 gap-y-1 pt-3 text-[12.5px] text-ink-soft">
                 {(payload ?? []).map((entry, i) => (

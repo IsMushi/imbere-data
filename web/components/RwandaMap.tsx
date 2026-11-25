@@ -13,14 +13,14 @@ type Feature = {
 type Geo = { type: string; features: Feature[] };
 
 // Legend bins mirror the EICV7 Poverty Profile map so the two can be read side by side.
-// A teal ramp: light enough for the low bins on the paper background, dark enough for the
-// top bin to carry white labels.
+// The map now sits on the paper rather than on a white card, so the two lightest bins are
+// deepened: #e3edf7 on #eef1f5 disappeared into the page.
 const BINS = [
-  { max: 20, color: "#ccfbf1", ink: "#111827", label: "Less than 20" },
-  { max: 30, color: "#99f6e4", ink: "#111827", label: "20 – 30" },
-  { max: 40, color: "#5eead4", ink: "#111827", label: "31 – 40" },
-  { max: 50, color: "#14b8a6", ink: "#111827", label: "41 – 50" },
-  { max: Infinity, color: "#0f766e", ink: "#ffffff", label: "51 and above" },
+  { max: 20, color: "#cfe0f0", ink: "#0d2343", label: "Less than 20" },
+  { max: 30, color: "#a5c5e1", ink: "#0d2343", label: "20 – 30" },
+  { max: 40, color: "#5b93c4", ink: "#0d2343", label: "31 – 40" },
+  { max: 50, color: "#196cb3", ink: "#ffffff", label: "41 – 50" },
+  { max: Infinity, color: "#004077", ink: "#ffffff", label: "51 and above" },
 ];
 
 /** Index of the bin a poverty rate falls in. Shared by the legend filter and the colours. */
@@ -130,7 +130,7 @@ export function RwandaMap({
               <path
                 key={p.name}
                 d={p.d}
-                fill={d ? binColor(d.poverty_2024) : "#e5e7eb"}
+                fill={d ? binColor(d.poverty_2024) : "#dfe4ea"}
                 // A legend band narrows the map to its own districts; the rest stay in place,
                 // faint, so the country's shape and the selected district never jump.
                 opacity={inFocus ? 1 : 0.22}
