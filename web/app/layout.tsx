@@ -74,17 +74,32 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
                     </li>
                     <li>
                       <Link href="/simulator" className="text-ink-soft transition-colors hover:text-primary-deep">
-                        Shock simulator
+                        What if a shock hits
                       </Link>
                     </li>
                     <li>
                       <Link href="/targeting" className="text-ink-soft transition-colors hover:text-primary-deep">
-                        Targeting lab
+                        Who gets help
+                      </Link>
+                    </li>
+                    <li>
+                      <Link href="/protection" className="text-ink-soft transition-colors hover:text-primary-deep">
+                        Help after a shock
                       </Link>
                     </li>
                     <li>
                       <Link href="/methodology" className="text-ink-soft transition-colors hover:text-primary-deep">
-                        Method &amp; data
+                        How it works
+                      </Link>
+                    </li>
+                    <li>
+                      <Link href="/proof" className="text-ink-soft transition-colors hover:text-primary-deep">
+                        Proof the data is calibrated
+                      </Link>
+                    </li>
+                    <li>
+                      <Link href="/sources" className="text-ink-soft transition-colors hover:text-primary-deep">
+                        Sources
                       </Link>
                     </li>
                   </ul>

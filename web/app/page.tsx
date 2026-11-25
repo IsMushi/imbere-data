@@ -626,12 +626,12 @@ export default function OverviewPage() {
         <div className="mb-3">
           <div className="label text-primary">Continue exploring</div>
         </div>
-        <section className="grid gap-6 sm:grid-cols-2" aria-label="Explore the tools">
+        <section className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4" aria-label="Explore the tools">
           <Link
             href="/simulator"
             className="group flex flex-col gap-3 rounded-md border border-line bg-surface p-6 transition-colors hover:border-primary"
           >
-            <h3 className="display-sm text-[22px] text-ink">Shock simulator</h3>
+            <h3 className="display-sm text-[22px] text-ink">What if a shock hits</h3>
             <p className="text-[15.5px] leading-relaxed text-ink-soft">
               Pick a district and a shock. See how many households fall below the line and what it
               costs to catch them.
@@ -654,11 +654,57 @@ export default function OverviewPage() {
             href="/targeting"
             className="group flex flex-col gap-3 rounded-md border border-line bg-surface p-6 transition-colors hover:border-primary"
           >
-            <h3 className="display-sm text-[22px] text-ink">Targeting lab</h3>
+            <h3 className="display-sm text-[22px] text-ink">Who gets help</h3>
             <p className="text-[15.5px] leading-relaxed text-ink-soft">
               Compare universal, geographic, community and proxy-means targeting on the same
               budget. Proxy-means is driven by an 18-feature gradient-boosted model, not a fixed
               formula.
+            </p>
+            <span className="mt-auto inline-flex items-center gap-1.5 text-[15px] font-medium text-primary-deep">
+              Open
+              <svg
+                aria-hidden
+                className="h-4 w-4 transition-transform group-hover:translate-x-0.5"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth={2}
+              >
+                <path strokeLinecap="round" strokeLinejoin="round" d="M5 12h14m-6-6 6 6-6 6" />
+              </svg>
+            </span>
+          </Link>
+          <Link
+            href="/protection"
+            className="group flex flex-col gap-3 rounded-md border border-line bg-surface p-6 transition-colors hover:border-primary"
+          >
+            <h3 className="display-sm text-[22px] text-ink">Help after a shock</h3>
+            <p className="text-[15.5px] leading-relaxed text-ink-soft">
+              See who social protection actually reaches, and how much cash keeps a family out of
+              poverty once a shock has pushed it under.
+            </p>
+            <span className="mt-auto inline-flex items-center gap-1.5 text-[15px] font-medium text-primary-deep">
+              Open
+              <svg
+                aria-hidden
+                className="h-4 w-4 transition-transform group-hover:translate-x-0.5"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth={2}
+              >
+                <path strokeLinecap="round" strokeLinejoin="round" d="M5 12h14m-6-6 6 6-6 6" />
+              </svg>
+            </span>
+          </Link>
+          <Link
+            href="/proof"
+            className="group flex flex-col gap-3 rounded-md border border-line bg-surface p-6 transition-colors hover:border-primary"
+          >
+            <h3 className="display-sm text-[22px] text-ink">Does the data hold up?</h3>
+            <p className="text-[15.5px] leading-relaxed text-ink-soft">
+              Published NISR and FinScope figures beside the same statistics in the synthetic layer,
+              including the rows where the two disagree.
             </p>
             <span className="mt-auto inline-flex items-center gap-1.5 text-[15px] font-medium text-primary-deep">
               Open

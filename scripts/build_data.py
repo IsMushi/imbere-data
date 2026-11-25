@@ -170,8 +170,11 @@ hh_province = np.array([district_prov[x] for x in hh_district])
 urban_p = np.where(hh_province == "Kigali City", 0.88, 0.14)
 hh_urban = rng.random(n) < urban_p
 
-# Household size: right-skewed around the 4.3 national average.
-hh_size = rng.poisson(4.0, n) + 1
+# Household size: right-skewed around the published national average. A Poisson(lambda) draw
+# plus one has mean lambda + 1, so the rate is the published average minus one. The draw used to
+# be hard-coded at Poisson(4) + 1, i.e. a mean of 5.0 against the published 4.3, which inflated
+# every figure derived from household counts.
+hh_size = rng.poisson(AVG_HH_SIZE - 1.0, n) + 1
 hh_size = np.clip(hh_size, 1, 12)
 
 hh_edu_idx = rng.choice(len(EDU_LEVELS), size=n, p=EDU_SHARE)

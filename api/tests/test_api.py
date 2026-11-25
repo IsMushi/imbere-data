@@ -38,10 +38,10 @@ def test_targeting_defaults_match_the_documented_table() -> None:
     body = client.post("/api/targeting", json={}).json()
     rows = {r["id"]: r for r in body["results"]}
     assert list(rows) == [r["id"] for r in analytics.RULES]
-    assert rows["pmt"]["targeting_accuracy"] == 78.2
-    assert rows["pmt"]["coverage_of_poor"] == 37.8
-    assert rows["pmt"]["leakage_rate"] == 21.9
-    assert rows["pmt"]["cost_per_poor_reached"] == 191939
+    assert rows["pmt"]["targeting_accuracy"] == 78.3
+    assert rows["pmt"]["coverage_of_poor"] == 37.9
+    assert rows["pmt"]["leakage_rate"] == 21.7
+    assert rows["pmt"]["cost_per_poor_reached"] == 191571
     assert body["budget_total"] == 300_000_000
     assert body["transfer_per_beneficiary"] == 150_000
 
@@ -83,6 +83,48 @@ def test_district_lookup_is_case_insensitive_and_404s_cleanly() -> None:
 
 def test_model_endpoint_is_the_model_card() -> None:
     assert client.get("/api/model").json() == datastore.model_card()
+
+
+def test_model_metrics_compare_the_model_to_two_honest_baselines() -> None:
+    body = client.get("/api/model/metrics").json()
+    assert body == datastore.model_metrics()
+    assert body["rows_train"] + body["rows_test"] == len(datastore.households())
+    assert body["model"]["roc_auc"] > 0.5
+    # Same features, simpler algorithm: the tie is real and must stay visible.
+    assert body["baseline"]["name"].startswith("Logistic regression")
+    # The plan's "simple rule": rank by district averages, which household data must beat.
+    assert body["simple_rule"]["name"] == "District average only"
+    assert body["simple_rule"]["roc_auc"] < body["model"]["roc_auc"]
+    assert 0.0 < body["simple_rule"]["cut_pct"] < 100.0
+    for variant in ("model", "baseline", "simple_rule"):
+        for metric in ("accuracy", "precision", "recall", "f1", "roc_auc"):
+            assert 0.0 <= body[variant][metric] <= 1.0
+    assert "synthetic" in body["caveat"].lower()
+
+
+def test_meta_carries_the_same_metrics_the_dedicated_route_returns() -> None:
+    meta = client.get("/api/meta").json()
+    assert meta["model_metrics"] == datastore.model_metrics()
+    assert meta["model_card"] == datastore.model_card()
+
+
+def test_proof_compares_published_and_synthetic_figures() -> None:
+    body = client.get("/api/proof").json()
+    assert body == datastore.proof()
+    assert body["generated"]["kind"] == "calibrated_synthetic"
+    # The plan names these explicitly: national poverty, province poverty, household size and a
+    # financial-inclusion indicator. They must all be present and computed, not typed.
+    ids = {r["id"] for r in body["rows"]}
+    assert {"poverty_headcount", "household_size", "hh_momo_account"} <= ids
+    assert len(body["provinces"]) == 5
+    published_provinces = {p["province"] for p in datastore.meta()["province_poverty"]}
+    assert {p["province"] for p in body["provinces"]} == published_provinces
+    for row in body["rows"]:
+        assert row["difference"] == round(row["synthetic"] - row["published"], 1)
+        assert row["role"] in {"target", "emergent"}
+        assert row["source"], "every row must name the source it is compared against"
+    assert body["sources"], "the page links each source, so the payload must carry them"
+
 
 
 def test_compound_shock_request_reaches_the_engine() -> None:
@@ -131,6 +173,83 @@ def test_cors_preflight_is_answered() -> None:
     assert "access-control-allow-origin" in {k.lower() for k in r.headers}
 
 
+def test_cors_preflight_mirrors_any_requested_header() -> None:
+    """allow_headers is "*", so a custom header added to the interface cannot fail the preflight."""
+    r = client.options(
+        "/api/targeting",
+        headers={
+            "Origin": "https://imberedata.vercel.app",
+            "Access-Control-Request-Method": "POST",
+            "Access-Control-Request-Headers": "authorization, x-imbere-client",
+        },
+    )
+    assert r.status_code == 200
+    allowed = r.headers["access-control-allow-headers"].lower()
+    assert "authorization" in allowed
+    assert "x-imbere-client" in allowed
+
+
+def test_cors_config_normalises_origins_and_disables_credentials() -> None:
+    from app.main import cors_config
+
+    scoped = cors_config(origins=" https://imberedata.vercel.app/ , https://staging.example ")
+    assert scoped["allow_origins"] == ["https://imberedata.vercel.app", "https://staging.example"]
+    assert scoped["allow_credentials"] is False
+    assert scoped["allow_headers"] == ["*"]
+    # Defaults stay open, so a clone still works against http://localhost:3000 with no env var.
+    assert cors_config()["allow_origins"] == ["*"]
+
+
+def test_restricted_origins_mirror_the_allowed_one_and_reject_others() -> None:
+    from fastapi import FastAPI
+    from fastapi.middleware.cors import CORSMiddleware
+
+    from app.main import cors_config
+
+    scoped_app = FastAPI()
+    scoped_app.add_middleware(
+        CORSMiddleware, **cors_config(origins="https://imberedata.vercel.app")
+    )
+
+    @scoped_app.get("/ping")
+    def ping() -> dict:
+        return {"ok": True}
+
+    scoped = TestClient(scoped_app)
+    allowed = scoped.get("/ping", headers={"Origin": "https://imberedata.vercel.app"})
+    assert allowed.headers["access-control-allow-origin"] == "https://imberedata.vercel.app"
+
+    blocked = scoped.options(
+        "/ping",
+        headers={"Origin": "https://evil.example", "Access-Control-Request-Method": "GET"},
+    )
+    assert blocked.status_code == 400
+    assert "access-control-allow-origin" not in {k.lower() for k in blocked.headers}
+
+
+def test_origin_regex_covers_preview_hosts() -> None:
+    from fastapi import FastAPI
+    from fastapi.middleware.cors import CORSMiddleware
+
+    from app.main import cors_config
+
+    scoped_app = FastAPI()
+    scoped_app.add_middleware(
+        CORSMiddleware,
+        **cors_config(origins="", origin_regex=r"https://[a-z0-9-]+\.vercel\.app"),
+    )
+
+    @scoped_app.get("/ping")
+    def ping() -> dict:
+        return {"ok": True}
+
+    scoped = TestClient(scoped_app)
+    preview = scoped.get("/ping", headers={"Origin": "https://imbere-git-main-isaac.vercel.app"})
+    assert preview.headers["access-control-allow-origin"] == "https://imbere-git-main-isaac.vercel.app"
+    stranger = scoped.get("/ping", headers={"Origin": "https://evil.example"})
+    assert "access-control-allow-origin" not in {k.lower() for k in stranger.headers}
+
+
 def test_rate_limit_returns_429_with_retry_after(monkeypatch: pytest.MonkeyPatch) -> None:
     from app import main
 
@@ -152,6 +271,19 @@ def test_health_and_reads_are_not_rate_limited(monkeypatch: pytest.MonkeyPatch) 
     main._HITS.clear()
     for _ in range(3):
         assert client.get("/api/meta").status_code == 200
+
+
+def test_pruning_drops_clients_whose_window_has_expired() -> None:
+    """The per-IP map must not grow without bound on a long-lived container."""
+    from app import main
+
+    main._HITS.clear()
+    main._HITS["198.51.100.7"].append(0.0)
+    main._HITS["198.51.100.8"].append(0.0)
+    main._prune_hits(now=59.0)
+    assert set(main._HITS) == {"198.51.100.7", "198.51.100.8"}  # still inside the minute
+    main._prune_hits(now=61.0)
+    assert not main._HITS
 
 
 

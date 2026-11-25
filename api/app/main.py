@@ -20,9 +20,35 @@ from pydantic import BaseModel, Field
 
 from . import analytics, datastore
 
-ALLOW_ORIGINS = [
-    o.strip() for o in os.environ.get("IMBERE_ALLOW_ORIGINS", "*").split(",") if o.strip()
-]
+
+def cors_config(origins: str | None = None, origin_regex: str | None = None) -> dict:
+    """Keyword arguments for CORSMiddleware, read from the environment.
+
+    A function rather than a module constant so a test can build an app scoped to a different
+    origin set without reloading this module. `origins` is comma-separated and defaults to "*",
+    which is what a clone needs against http://localhost:3000; a deployment sets
+    IMBERE_ALLOW_ORIGINS to its own frontend instead. IMBERE_ALLOW_ORIGIN_REGEX covers preview
+    deployments whose hostnames change per branch, e.g. `https://.*\\.vercel\\.app`.
+    """
+    raw_origins = origins if origins is not None else os.environ.get("IMBERE_ALLOW_ORIGINS", "*")
+    raw_regex = (
+        origin_regex if origin_regex is not None else os.environ.get("IMBERE_ALLOW_ORIGIN_REGEX", "")
+    )
+    return {
+        # Browsers never send a trailing slash in Origin, so a pasted "https://site/" would never
+        # match. Trimming keeps the env var forgiving.
+        "allow_origins": [o.strip().rstrip("/") for o in raw_origins.split(",") if o.strip()],
+        "allow_origin_regex": raw_regex.strip() or None,
+        # No cookies and no accounts (see the module docstring), so credentials stay off.
+        "allow_credentials": False,
+        "allow_methods": ["GET", "POST", "OPTIONS"],
+        # "*" makes Starlette mirror Access-Control-Request-Headers back, so adding an
+        # Authorization or X- header to the interface later cannot break the preflight.
+        "allow_headers": ["*"],
+        "max_age": 600,
+    }
+
+
 # Requests per minute per client, applied to the compute endpoints only. 0 disables the limiter.
 RATE_LIMIT = int(os.environ.get("IMBERE_RATE_LIMIT", "90"))
 CACHE_SECONDS = int(os.environ.get("IMBERE_CACHE_SECONDS", "300"))
@@ -70,13 +96,7 @@ app = FastAPI(
     lifespan=lifespan,
 )
 
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=ALLOW_ORIGINS,
-    allow_credentials=False,
-    allow_methods=["GET", "POST", "OPTIONS"],
-    allow_headers=["Content-Type"],
-)
+app.add_middleware(CORSMiddleware, **cors_config())
 
 
 @app.middleware("http")
@@ -87,6 +107,10 @@ async def demo_guard(request: Request, call_next):
     if RATE_LIMIT > 0 and request.method == "POST":
         client = request.client.host if request.client else "unknown"
         now = time.monotonic()
+        # One deque per client IP is otherwise kept forever. Prune only when the map is large, so
+        # the common request pays a length check rather than a scan.
+        if len(_HITS) > _HITS_MAX_CLIENTS:
+            _prune_hits(now)
         window = _HITS[client]
         while window and now - window[0] > 60.0:
             window.popleft()
@@ -108,6 +132,15 @@ async def demo_guard(request: Request, call_next):
 
 
 _HITS: dict[str, deque[float]] = defaultdict(deque)
+# Above this many distinct clients, expired windows are dropped instead of accumulated.
+_HITS_MAX_CLIENTS = 4096
+
+
+def _prune_hits(now: float) -> None:
+    """Forget clients whose window has emptied. Bounded memory on a long-lived container."""
+    expired = [ip for ip, window in _HITS.items() if not window or now - window[-1] > 60.0]
+    for ip in expired:
+        del _HITS[ip]
 
 
 class _PostCache:
@@ -198,6 +231,7 @@ def meta() -> dict:
     return {
         **st["meta"],
         "model_card": st["model_card"],
+        "model_metrics": st["model_metrics"],
         "calibration": st["calibration"],
         "targeting_rules": analytics.RULES,
         "shock_assumptions": analytics.SHOCK_ASSUMPTIONS,
@@ -221,6 +255,19 @@ def district(name: str) -> dict:
 @app.get("/api/model")
 def model() -> dict:
     return datastore.model_card()
+
+
+@app.get("/api/model/metrics")
+def model_metrics() -> dict:
+    """Hold-out metrics for the PMT model and its logistic baseline, on the same rows."""
+    return datastore.model_metrics()
+
+
+@app.get("/api/proof")
+def proof() -> dict:
+    """Published figures beside the same statistic in the synthetic household layer."""
+    return datastore.proof()
+
 
 
 @app.get("/api/poverty")

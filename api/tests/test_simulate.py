@@ -43,6 +43,35 @@ def test_scale_projects_the_sample_onto_the_district(baseline: dict) -> None:
     assert r["newly_extreme_poor_households"] <= r["newly_poor_households"]
 
 
+def test_newly_poor_people_come_from_their_own_households(baseline: dict) -> None:
+    """People are weighted by the size of the households that fell, not by the district mean."""
+    r = baseline["result"]
+    assert r["newly_poor_households"] < r["newly_poor_people"]
+    assert r["newly_poor_people"] <= r["newly_poor_households"] * 12
+
+
+def test_the_headline_carries_a_monotone_resampling_band(baseline: dict) -> None:
+    """The UI prints the band beside the point estimate, so it must bracket it and be ordered."""
+    r = baseline["result"]
+    for point, band in (
+        (r["newly_poor_households"], r["newly_poor_households_range"]),
+        (r["newly_poor_people"], r["newly_poor_people_range"]),
+    ):
+        lo, hi = band
+        assert lo < hi, "a band with no width would be a fake range"
+        assert lo <= point <= hi, "the point estimate must sit inside its own band"
+    # People vary more than households: sizes differ, so the band is wider on the same rows.
+    assert r["newly_poor_people_range"][1] - r["newly_poor_people_range"][0] > (
+        r["newly_poor_households_range"][1] - r["newly_poor_households_range"][0]
+    )
+
+
+def test_the_band_is_deterministic_so_the_post_cache_stays_valid(baseline: dict) -> None:
+    again = analytics.simulate(DISTRICT, "drought", 50)["result"]
+    assert again["newly_poor_households_range"] == baseline["result"]["newly_poor_households_range"]
+    assert again["newly_poor_people_range"] == baseline["result"]["newly_poor_people_range"]
+
+
 def test_comparison_covers_every_shock_sorted_by_impact(baseline: dict) -> None:
     compare = baseline["compare"]
     assert {c["id"] for c in compare} == set(analytics.SHOCK_ASSUMPTIONS)

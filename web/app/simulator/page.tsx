@@ -60,6 +60,7 @@ export default function SimulatorPage() {
   const [error, setError] = useState<Error | null>(null);
   const [loading, setLoading] = useState(false);
   const [attempt, setAttempt] = useState(0);
+  const [copyState, setCopyState] = useState<"idle" | "copied" | "failed">("idle");
   const reqId = useRef(0);
 
   useEffect(() => {
@@ -67,15 +68,70 @@ export default function SimulatorPage() {
       .then(([m, d]) => {
         setMeta(m);
         setDistricts(d.districts);
-        const fromUrl = new URLSearchParams(window.location.search).get("district");
+        // A shared link carries the whole scenario, not just the district. Every value is
+        // validated against the options this build actually has, so an old link degrades to the
+        // default instead of posting a shock the engine no longer knows.
+        const q = new URLSearchParams(window.location.search);
+        const fromUrl = q.get("district");
         const initial =
           fromUrl && d.districts.some((x) => x.district === fromUrl)
             ? fromUrl
             : (d.districts[0]?.district ?? "");
         setDistrict(initial);
+
+        const fromShock = q.get("shock");
+        const mainShock = fromShock && SHOCK_ORDER.includes(fromShock) ? fromShock : "drought";
+        setShock(mainShock);
+
+        const sev = Number(q.get("severity"));
+        if (Number.isFinite(sev) && sev >= 0 && sev <= 100) setSeverity(sev);
+
+        const also = q.get("also");
+        if (also) {
+          const seen = new Set([mainShock]);
+          const parsed = also
+            .split(",")
+            .flatMap((pair) => {
+              const [id, value] = pair.split(":");
+              if (!SHOCK_ORDER.includes(id) || seen.has(id)) return [];
+              seen.add(id);
+              const n = Number(value);
+              return [
+                {
+                  shock_type: id,
+                  severity: Number.isFinite(n) ? Math.min(100, Math.max(0, n)) : 50,
+                },
+              ];
+            })
+            .slice(0, 2);
+          setExtras(parsed);
+        }
       })
       .catch((e: Error) => setError(e));
   }, [attempt]);
+
+  // Keep the address bar on the scenario, so "copy this link" and the browser's own address bar
+  // agree. `replaceState` rather than a router push: this is state, not navigation.
+  useEffect(() => {
+    if (!district) return;
+    const params = new URLSearchParams({ district, shock, severity: String(severity) });
+    if (extras.length) {
+      params.set("also", extras.map((e) => `${e.shock_type}:${e.severity}`).join(","));
+    }
+    window.history.replaceState(null, "", `/simulator?${params.toString()}`);
+  }, [district, shock, severity, extras]);
+
+  const copyLink = useCallback(async () => {
+    try {
+      await navigator.clipboard.writeText(window.location.href);
+      setCopyState("copied");
+    } catch {
+      // Clipboard access can be denied (insecure origin, permission policy). Say so rather than
+      // pretending: the address bar already holds the same URL.
+      setCopyState("failed");
+    }
+    window.setTimeout(() => setCopyState("idle"), 3000);
+  }, []);
 
   const run = useCallback(
     async (d: string, s: string, sev: number, extra: { shock_type: string; severity: number }[]) => {
@@ -363,7 +419,7 @@ export default function SimulatorPage() {
                   <Kpi
                     label="Pushed below the line"
                     value={compact(r.newly_poor_households)}
-                    note={`≈ ${compact(r.newly_poor_people)} people`}
+                    note={`≈ ${compact(r.newly_poor_people)} people · ${compact(r.newly_poor_people_range[0])}–${compact(r.newly_poor_people_range[1])}`}
                     tone="accent"
                   />
                   <Kpi
@@ -399,12 +455,36 @@ export default function SimulatorPage() {
                     </strong>{" "}
                     households
                   </span>
+                  <span>
+                    95% band, households pushed under:{" "}
+                    <strong className="tnum font-medium text-ink">
+                      {num(r.newly_poor_households_range[0])}–
+                      {num(r.newly_poor_households_range[1])}
+                    </strong>
+                  </span>
+                </div>
+
+                <div className="mt-4 flex flex-wrap items-center gap-3">
+                  <Button type="button" variant="outline" size="sm" onClick={() => void copyLink()}>
+                    {copyState === "copied"
+                      ? "Link copied"
+                      : copyState === "failed"
+                        ? "Copy failed"
+                        : "Copy result link"}
+                  </Button>
+                  <span className="text-[13px] text-ink-soft" aria-live="polite">
+                    {copyState === "copied"
+                      ? "The scenario is in the address bar and on your clipboard."
+                      : copyState === "failed"
+                        ? "Clipboard access was blocked. The same URL is in your address bar — copy it from there."
+                        : "The district, shock, severity and any simultaneous shocks travel in the URL."}
+                  </span>
                 </div>
 
                 <SourceNote
                   kind="assumed"
                   shows="How many households the selected shock exposes, how many it pushes below the poverty line, and what it would cost to restore every affected household to the line."
-                  trust="Exposure and loss parameters are stated assumptions, not EICV7 estimates, applied to the calibrated household layer. The direction and ranking of shocks are the robust part; the level is not a forecast."
+                  trust="Exposure and loss parameters are stated assumptions, not EICV7 estimates, applied to the calibrated household layer. The direction and ranking of shocks are the robust part; the level is not a forecast. The 95% bands resample the synthetic households, so they measure sampling variation in that layer — not uncertainty about the shock parameters."
                 >
                   District counts are scaled from the sample to the district household total.
                 </SourceNote>

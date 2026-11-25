@@ -95,9 +95,9 @@ The competition scores five criteria at 20 points each. What each one would find
 | Criterion | What this does | Where to check |
 |---|---|---|
 | **1 · Problem understanding & relevance** | The problem is a measured gap: 96% of adults are financially included, 34% are vulnerable, 27.4% are below the poverty line. Each NST2 Social Transformation target and the Vision 2050 goal is mapped to the module answering it, and the actors are named: LODA, MINALOC, district officers. | Overview *Built for* band; `/methodology` → *Where this sits in national policy* |
-| **2 · Data use & methodology** | Two NISR surveys (EICV7 Poverty Profile, FinScope 2024) plus Census 2022 and geoBoundaries. 39 transcribed indicators, reconciled to the published 27.4% headcount when population-weighted. FGT incidence, depth and severity (P₀ 27.6%, P₁ 6.0%, P₂ 2.2%) with the formula and weights on the page. The household layer is calibrated to nine published marginals; the risk model is evaluated five-fold out-of-fold (ROC-AUC 0.857, PR-AUC 0.673, Brier 0.134, ECE 0.006) with a sensitivity sweep bounding how much of the conclusion depends on that score. One CSV swap replaces the synthetic rows with real microdata. | `/methodology`; `data/processed/calibration.json`; `api/app/datastore.py` |
+| **2 · Data use & methodology** | Two NISR surveys (EICV7 Poverty Profile, FinScope 2024) plus Census 2022 and geoBoundaries. 39 transcribed indicators, reconciled to the published 27.4% headcount when population-weighted. FGT incidence, depth and severity (P₀ 27.9%, P₁ 6.1%, P₂ 2.2%) with the formula and weights on the page. The household layer is calibrated to nine published marginals; the risk model is evaluated five-fold out-of-fold (ROC-AUC 0.853, PR-AUC 0.672, Brier 0.135, ECE 0.008) with a sensitivity sweep bounding how much of the conclusion depends on that score. One CSV swap replaces the synthetic rows with real microdata. | `/methodology`; `data/processed/calibration.json`; `api/app/datastore.py` |
 | **3 · Tech innovation** | A targeting optimiser rather than a dashboard: five allocation rules priced on the same budget and the same households, geographic-fairness ratios, compound shock scenarios with per-shock attribution, bootstrap intervals on every headline figure, a degradation sweep that stress-tests the targeting conclusion, and real-vs-modelled separation enforced in the API. | `/targeting`, `/simulator`; `api/app/analytics.py`; `api/tests/` |
-| **4 · Usability & design** | Five pages, one visual language taken from NISR's own palette. Every panel is labelled *Measured · published* or *Modelled · illustrative*. Tables scroll inside a focusable region rather than breaking the page, nothing overflows at 390px, and the palette is checked against WCAG AA. | The app itself; `screenshots/`; `web/components/ui/` |
+| **4 · Usability & design** | Seven pages, one visual language taken from NISR's own palette. Every panel is labelled *Measured · published* or *Modelled · illustrative*. Tables scroll inside a focusable region rather than breaking the page, nothing overflows at 390px, and the palette is checked against WCAG AA. | The app itself; `screenshots/`; `web/components/ui/` |
 | **5 · Tangible impact** | A number a budget officer can act on: at RWF 300m the proxy-means rule reaches 2.7× more poor households than a universal transfer, and leakage falls from 71.2% to 21.9%. A district can cost a drought reserve in a browser; the next dataset (EICV7 VUP module, catalog 121) is named, which is what would turn selection performance into measured programme impact. | `/targeting` headline cards; *Recommendations* below |
 
 ---
@@ -108,16 +108,16 @@ At a **RWF 300m** budget with **RWF 150,000** per beneficiary (2,000 households,
 
 | Rule | Accuracy | Poor reached | Leakage | Cost per poor reached |
 |---|---:|---:|---:|---:|
-| Universal | 28.8% | 13.9% | 71.2% | RWF 520,833 |
-| Geographic | 45.3% | 21.9% | 54.7% | RWF 331,126 |
-| Community-based | 57.6% | 27.9% | 42.4% | RWF 260,417 |
-| Financial-exclusion first | 61.0% | 29.5% | 39.0% | RWF 246,103 |
-| **Proxy-means test** | **78.2%** | **37.8%** | **21.9%** | **RWF 191,939** |
+| Universal | 27.6% | 13.3% | 72.5% | RWF 544,465 |
+| Geographic | 46.1% | 22.3% | 53.9% | RWF 325,380 |
+| Community-based | 56.8% | 27.5% | 43.2% | RWF 264,085 |
+| Financial-exclusion first | 61.4% | 29.7% | 38.6% | RWF 244,499 |
+| **Proxy-means test** | **78.3%** | **37.9%** | **21.7%** | **RWF 191,571** |
 
-**On the calibrated layer, the proxy-means rule reaches 2.7× more poor households than universal
-selection for the same money, and cuts leakage from 71.2% to 21.9%.** That ratio describes the
+**On the calibrated layer, the proxy-means rule reaches 2.9× more poor households than universal
+selection for the same money, and cuts leakage from 72.5% to 21.7%.** That ratio describes the
 method, not Rwanda. The joint distribution underneath it was calibrated to published EICV7
-marginals, so 2.7× is what a proxy-means test achieves *when* asset–consumption separation looks
+marginals, so 2.9× is what a proxy-means test achieves *when* asset–consumption separation looks
 like the published gradients. Geographic targeting captures most of the gain at a fraction of the
 data cost, which matters where a full household survey is unavailable, but it spends the whole
 caseload in five districts while proxy-means reaches poor households in 28 of 30. The fairness
@@ -135,11 +135,11 @@ this kind achieves **when** asset–consumption separation looks like the publis
 and each needs re-checking against the real microdata before it informs a budget.
 
 1. **Prefer a proxy-means test to a universal transfer wherever a recent survey exists.** For the
-   same RWF 300m it reaches 2.7× more poor households and cuts leakage from 71.2% to 21.9%. The
+   same RWF 300m it reaches 2.9× more poor households and cuts leakage from 72.5% to 21.7%. The
    gain is large enough to pay for the household survey that supplies its features.
 
 2. **Keep geographic targeting as the operational fallback.** Ranking districts by poverty rate
-   reaches 21.9% of the poor, most of what community-based listing achieves (27.9%) at a fraction
+   reaches 22.3% of the poor, most of what community-based listing achieves (27.5%) at a fraction
    of the data cost. It is the right rule between survey rounds, and the only one that works where
    no survey exists at all.
 
@@ -152,8 +152,8 @@ and each needs re-checking against the real microdata before it informs a budget
    95% interval over the household sample. Where an interval straddles the gap between two rules,
    the data cannot choose between them and the write-up should say so.
 
-5. **Treat access as solved and resilience as not.** Mobile money reaches 86.9% of adults while
-   only 68.2% save. The binding constraint is now a buffer, not an account. Cash paired with a
+5. **Treat access as solved and resilience as not.** Mobile money reaches 86.8% of adults while
+   only 68.4% save. The binding constraint is now a buffer, not an account. Cash paired with a
    savings or insurance nudge does more per franc than either alone.
 
 > **These are prototype implications, not findings about Rwanda.** Household rows are calibrated
@@ -186,7 +186,8 @@ the table above. They are prototype figures, not Rwanda's, and carry the same
 │  · Overview / map           │ ─────► │  · /api/districts            │
 │  · Shock simulator          │        │  · /api/simulate             │
 │  · Targeting lab            │        │  · /api/targeting            │
-│  · Method & data            │        │  · /api/model  /api/meta     │
+│  · Shock response / proof   │        │  · /api/protection           │
+│  · Method / sources         │        │  · /api/proof  /api/model    │
 └─────────────────────────────┘        └──────────────┬───────────────┘
                                                       │
                                        ┌──────────────▼───────────────┐
@@ -298,8 +299,8 @@ Real inputs and modelled outputs are kept strictly separate in code and in the U
 - **District poverty, populations, national indicators, shock prevalence and coping responses**
   are transcribed from published NISR/FinScope sources. Never modelled.
 - **Household rows** are synthetic. Marginals are calibrated to published EICV7 figures:
-  poverty 27.4%, extreme poverty 5.7%, shock incidence 37.1%, mobile money 86.9%,
-  savings 68.2%, health insurance 85.6%, financial-health bands 9.9 / 56.4 / 30.7 / 3.0.
+  poverty 27.4%, extreme poverty 5.5%, shock incidence 37.0%, mobile money 86.8%,
+  savings 68.4%, health insurance 85.4%, financial-health bands 9.9 / 56.4 / 30.7 / 3.0.
   The joint distribution is not observed data.
 - **Shock exposure and loss parameters** are stated assumptions, surfaced in the UI and in
   `api/app/analytics.py`. They are not estimated from EICV7.
@@ -309,13 +310,15 @@ Real inputs and modelled outputs are kept strictly separate in code and in the U
 
 ![Method page: measured vs modelled, model card and assumption table](screenshots/methodology.png)
 
+![Proof page: published NISR and FinScope figures beside the same statistics in the synthetic layer](screenshots/proof.png)
+
 ### Model
 
 Proxy-means poverty risk model: `HistGradientBoostingClassifier`, with consumption excluded from
 the feature set by design.
 
-- Five-fold out-of-fold ROC-AUC: **0.857** · PR-AUC **0.673** · Brier **0.134** · ECE **0.006**
-- Logistic baseline 0.860, random forest 0.852. The three are inside noise of each other
+- Five-fold out-of-fold ROC-AUC: **0.853** · PR-AUC **0.672** · Brier **0.135** · ECE **0.008**
+- Logistic baseline 0.856, random forest 0.848. The three are inside noise of each other
 - Features: district, province, head's education, income source, urban, household size,
   11 asset/housing indicators, district poverty rate
 - Top signals: head's education, district poverty rate, TV ownership, income source, modern floor
@@ -429,7 +432,7 @@ the repository.
 - Cash-need figures are a costing exercise at the poverty line, not a budget or an evaluation.
 - The household layer carries no survey weights, strata or primary sampling units, so intervals
   are resampling intervals rather than design-based standard errors.
-- The shipped model is not the cross-validation winner (logistic 0.860 vs. 0.857). The difference is
+- The shipped model is not the cross-validation winner (logistic 0.856 vs. 0.853). The difference is
   inside noise and switching would move every pinned figure, so the comparison is reported rather
   than acted on.
 

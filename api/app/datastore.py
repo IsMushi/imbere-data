@@ -19,7 +19,13 @@ from sklearn.compose import ColumnTransformer
 from sklearn.ensemble import HistGradientBoostingClassifier
 from sklearn.inspection import permutation_importance
 from sklearn.linear_model import LogisticRegression
-from sklearn.metrics import roc_auc_score
+from sklearn.metrics import (
+    accuracy_score,
+    f1_score,
+    precision_score,
+    recall_score,
+    roc_auc_score,
+)
 from sklearn.model_selection import train_test_split
 from sklearn.pipeline import Pipeline
 from sklearn.preprocessing import OneHotEncoder, StandardScaler
@@ -33,6 +39,9 @@ REF = ROOT / "data" / "reference"
 # behaviour there is unchanged: fit on first access. See `freeze()` and `_read_cache()`.
 _CACHE_ENV = os.environ.get("IMBERE_MODEL_CACHE", "").strip()
 CACHE_PATH: Path | None = Path(_CACHE_ENV) if _CACHE_ENV else None
+# Bump when the state dict gains a key the API reads, so an older frozen payload is refitted
+# instead of failing with a KeyError on the new field.
+_CACHE_SCHEMA = 3
 
 CAT_COLS = ["district", "province", "head_education", "main_income_source"]
 ASSET_COLS = [
@@ -143,6 +152,13 @@ def _read_cache() -> dict | None:
     try:
         with CACHE_PATH.open("rb") as fh:
             payload = pickle.load(fh)
+        if payload.get("schema") != _CACHE_SCHEMA:
+            print(
+                f"imbere: ignoring model cache {CACHE_PATH}: schema {payload.get('schema')} "
+                f"!= {_CACHE_SCHEMA}; refitting",
+                flush=True,
+            )
+            return None
         built_with = payload.get("versions", {})
         running = _versions()
         if built_with != running:
@@ -169,13 +185,43 @@ def freeze(path: Path) -> Path:
     the exact interpreter and library versions that will unpickle it. Always refits rather than
     reusing an in-memory state, so a stale cache can never be re-stamped with current versions.
     """
-    payload = {"versions": _versions(), "state": _build_state()}
+    payload = {"schema": _CACHE_SCHEMA, "versions": _versions(), "state": _build_state()}
     path.parent.mkdir(parents=True, exist_ok=True)
     tmp = path.with_name(path.name + ".tmp")
     with tmp.open("wb") as fh:
         pickle.dump(payload, fh, protocol=pickle.HIGHEST_PROTOCOL)
     tmp.replace(path)
     return path
+
+
+def _classification_metrics(fitted, X_test, y_test) -> dict:
+    """Threshold-based metrics plus ROC-AUC, all on the same hold-out rows."""
+    prob = fitted.predict_proba(X_test)[:, 1]
+    pred = (prob >= 0.5).astype(int)
+    return {
+        "accuracy": round(float(accuracy_score(y_test, pred)), 3),
+        "precision": round(float(precision_score(y_test, pred, zero_division=0)), 3),
+        "recall": round(float(recall_score(y_test, pred, zero_division=0)), 3),
+        "f1": round(float(f1_score(y_test, pred, zero_division=0)), 3),
+        "roc_auc": round(float(roc_auc_score(y_test, prob)), 3),
+    }
+
+
+def _district_only_metrics(X_test, y_test, cut_pct: float) -> dict:
+    """The rule this project argues against: predict a household from its district average.
+
+    The cut is the sample's own poor share, so the rule flags as many households as are actually
+    poor. That is the fairest version of "target the poorest districts first".
+    """
+    score = X_test["district_poverty_rate"].to_numpy(dtype=float)
+    pred = (score >= cut_pct).astype(int)
+    return {
+        "accuracy": round(float(accuracy_score(y_test, pred)), 3),
+        "precision": round(float(precision_score(y_test, pred, zero_division=0)), 3),
+        "recall": round(float(recall_score(y_test, pred, zero_division=0)), 3),
+        "f1": round(float(f1_score(y_test, pred, zero_division=0)), 3),
+        "roc_auc": round(float(roc_auc_score(y_test, score)), 3),
+    }
 
 
 def _fit_model(hh: pd.DataFrame) -> dict:
@@ -245,9 +291,41 @@ def _fit_model(hh: pd.DataFrame) -> dict:
     # Score every household so the targeting lab can rank on the PMT.
     hh_risk = hgb.predict_proba(X)[:, 1]
 
+    # The simple rule flags as many households as are actually poor, i.e. the same operating
+    # point a budget-constrained programme faces, rather than a cut chosen to flatter the model.
+    simple_cut = 100.0 * float(y_test.mean())
+
+    model_metrics = {
+        "scope": "30% hold-out, never seen during training",
+        "threshold": 0.5,
+        "rows_train": int(len(X_train)),
+        "rows_test": int(len(X_test)),
+        "positive_rate_test_pct": round(100 * float(y_test.mean()), 1),
+        "model": _classification_metrics(hgb, X_test, y_test),
+        "baseline": {
+            "name": "Logistic regression, same features",
+            "rule": "predicted risk at or above 0.50",
+            **_classification_metrics(logit, X_test, y_test),
+        },
+        "simple_rule": {
+            "name": "District average only",
+            "rule": f"district poverty rate at or above {simple_cut:.1f}%",
+            "cut_pct": round(simple_cut, 1),
+            **_district_only_metrics(X_test, y_test, simple_cut),
+        },
+        "caveat": (
+            "Measured on calibrated synthetic households, so these numbers describe the "
+            "prototype, not Rwanda. Precision and recall use a 0.5 probability cut, which is not "
+            "the cut a targeting programme would choose: the ranking (ROC-AUC) is what the "
+            "allocation uses. The district rule is scored at the sample's own poor share, so the "
+            "comparison is not stacked against it."
+        ),
+    }
+
     return {
         "model": hgb,
         "hh_risk": hh_risk,
+        "model_metrics": model_metrics,
         "model_card": {
             "name": "IMBERE DATA proxy-means poverty risk model",
             "algorithm": "HistGradientBoostingClassifier",
@@ -290,6 +368,118 @@ def calibration() -> dict:
 
 def model_card() -> dict:
     return _load()["model_card"]
+
+
+def model_metrics() -> dict:
+    return _load()["model_metrics"]
+
+
+# Published indicator -> the key in calibration.json that holds the synthetic figure for the same
+# statistic. "target" means scripts/build_data.py was tuned to reproduce the published value, so a
+# near-zero difference only proves the calibration ran; "emergent" means the value falls out of the
+# calibrated distribution and can legitimately disagree.
+_PROOF_INDICATORS: list[tuple[str, tuple[str, ...], str]] = [
+    ("poverty_headcount", ("poverty_rate",), "target"),
+    ("extreme_poverty_headcount", ("extreme_poverty_rate",), "emergent"),
+    ("hh_shock_incidence", ("shock_incidence",), "target"),
+    ("hh_shock_incidence_poor", ("shock_incidence_poor",), "target"),
+    ("hh_momo_account", ("momo_ownership",), "target"),
+    ("hh_momo_account_poor", ("momo_poor",), "target"),
+    ("hh_savings_account", ("savings_ownership",), "target"),
+    ("health_insurance", ("health_insurance",), "target"),
+    ("modern_floor", ("modern_floor",), "target"),
+    ("financially_healthy", ("financial_health", "healthy"), "target"),
+    ("financially_coping", ("financial_health", "coping"), "target"),
+    ("financially_vulnerable", ("financial_health", "vulnerable"), "target"),
+    ("financially_extremely_vulnerable", ("financial_health", "extremely_vulnerable"), "target"),
+]
+
+
+def _nested(data: dict, path: tuple[str, ...]):
+    for key in path:
+        data = data[key]
+    return data
+
+
+def proof() -> dict:
+    """Published NISR/FinScope figures beside the same statistic in the synthetic layer.
+
+    Every value is computed or read here rather than typed into the page, so the comparison cannot
+    drift from the data the rest of the API serves.
+    """
+    st = _load()
+    hh = st["households"]
+    meta = st["meta"]
+    cal = st["calibration"]
+    indicators = {i["id"]: i for i in meta["indicators"]}
+
+    rows = []
+    for indicator_id, path, role in _PROOF_INDICATORS:
+        published = float(indicators[indicator_id]["value"])
+        synthetic = float(_nested(cal, path))
+        rows.append(
+            {
+                "id": indicator_id,
+                "label": indicators[indicator_id]["label"],
+                "published": published,
+                "synthetic": round(synthetic, 1),
+                "difference": round(synthetic - published, 1),
+                "unit": indicators[indicator_id]["unit"],
+                "source": indicators[indicator_id].get("source", ""),
+                "role": role,
+            }
+        )
+
+    # Household size is derived, not tabulated: Census 2022 population over occupied households.
+    published_size = round(
+        float(meta["national"]["population_2022"]) / float(meta["national"]["households"]), 1
+    )
+    synthetic_size = round(float(hh["hh_size"].mean()), 1)
+    rows.append(
+        {
+            "id": "household_size",
+            "label": "Average household size",
+            "published": published_size,
+            "synthetic": synthetic_size,
+            "difference": round(synthetic_size - published_size, 1),
+            "unit": "people",
+            "source": "census2022",
+            "role": "emergent",
+            "note": (
+                "Household sizes are drawn as Poisson(average − 1) + 1 from the published average "
+                "in data/reference/round.json, so the mean lands on 4.3. This matters because "
+                "every count of people in the simulator is a household count multiplied by the "
+                "size of the affected households."
+            ),
+        }
+    )
+
+    provinces = []
+    for p in meta["province_poverty"]:
+        mask = hh["province"] == p["province"]
+        synthetic = round(100.0 * float(hh.loc[mask, "poor"].mean()), 1)
+        provinces.append(
+            {
+                "province": p["province"],
+                "published": p["poverty_2024"],
+                "synthetic": synthetic,
+                "difference": round(synthetic - p["poverty_2024"], 1),
+            }
+        )
+
+    return {
+        "rows": rows,
+        "provinces": provinces,
+        "generated": {
+            "round": meta["round"]["id"],
+            "fieldwork": meta["round"]["fieldwork"],
+            "kind": meta["microdata"]["kind"],
+            "rows": int(len(hh)),
+            "seed": meta["microdata"]["seed"],
+        },
+        "sources": meta["sources"],
+    }
+
 
 
 def households() -> pd.DataFrame:

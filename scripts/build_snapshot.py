@@ -30,6 +30,7 @@ FILES = {
     "districts": "/api/districts.json",
     "poverty": "/api/poverty.json",
     "targeting": "/api/targeting-default.json",
+    "proof": "/api/proof.json",
 }
 
 
@@ -39,6 +40,7 @@ def payloads() -> dict[str, dict]:
         "meta": {
             **st["meta"],
             "model_card": st["model_card"],
+            "model_metrics": st["model_metrics"],
             "calibration": st["calibration"],
             "targeting_rules": analytics.RULES,
             "shock_assumptions": analytics.SHOCK_ASSUMPTIONS,
@@ -47,6 +49,7 @@ def payloads() -> dict[str, dict]:
         "districts": {"districts": datastore.district_aggregates()},
         "poverty": analytics.poverty_measures(),
         "targeting": analytics.evaluate_targeting(300_000_000, 150_000),
+        "proof": datastore.proof(),
     }
 
 

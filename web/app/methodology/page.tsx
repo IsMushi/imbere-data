@@ -108,6 +108,7 @@ export default function MethodologyPage() {
   // says so under the metrics table instead of reporting only the flattering number.
   const hgbAuc = meta?.model_card?.auc_gradient_boosting;
   const logitAuc = meta?.model_card?.auc_logistic_baseline;
+  const simpleAuc = meta?.model_metrics?.simple_rule?.roc_auc;
 
   return (
     <div className="shell pt-10">
@@ -512,13 +513,25 @@ export default function MethodologyPage() {
                   label="AUC (logistic baseline, hold-out)"
                   value={meta?.model_card?.auc_logistic_baseline?.toFixed(3) ?? "—"}
                 />
+                <Row
+                  label="AUC (district averages only, hold-out)"
+                  value={simpleAuc?.toFixed(3) ?? "—"}
+                />
               </dl>
               {hgbAuc != null && logitAuc != null && logitAuc > hgbAuc ? (
                 <p className="mt-5 border border-line bg-surface px-4 py-3 text-[14.5px] leading-relaxed text-ink-soft">
-                  Both AUCs are measured on the same {num(meta?.model_card?.n_test)} hold-out
-                  rows. The logistic baseline scores marginally higher ({logitAuc.toFixed(3)}{" "}
-                  against {hgbAuc.toFixed(3)}), so the boosted model should not be read as the
-                  stronger classifier here.
+                  All three scores are measured on the same {num(meta?.model_card?.n_test)}{" "}
+                  hold-out rows. The logistic baseline scores marginally higher (
+                  {logitAuc.toFixed(3)} against {hgbAuc.toFixed(3)}), so the boosted model should
+                  not be read as the stronger classifier here.
+                  {simpleAuc != null ? (
+                    <>
+                      {" "}
+                      What household data buys is visible against a rule that knows only the
+                      district average: {simpleAuc.toFixed(3)}. The gain comes from the
+                      characteristics, not from the algorithm.
+                    </>
+                  ) : null}
                 </p>
               ) : null}
               <div className="mt-6">

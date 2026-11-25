@@ -28,7 +28,8 @@ The UI tags every panel with `Measured · published` or `Modelled · illustrativ
 `scripts/build_data.py`. Seed `20261030`, 15,066 rows (mirrors the EICV7 sample size).
 
 **Step 1 — draw households.** District sampled proportional to Census 2022 population. Urban
-probability 0.88 in Kigali, 0.14 elsewhere. Household size Poisson(4)+1, clipped to 1–12.
+probability 0.88 in Kigali, 0.14 elsewhere. Household size Poisson(4.3 − 1) + 1, clipped to 1–12,
+so the mean lands on the published average in `data/reference/round.json`.
 Education and income source drawn from the published EICV7 marginal distributions
 (Table 6.3 and Table 6.9, "All" columns).
 
@@ -61,7 +62,7 @@ Sampling is without replacement inside the district. Two properties matter:
   point), for all 30 districts;
 - selection is **stochastic**, not deterministic. A deterministic top-k would make poverty a
   function of education and income, and the risk model would score a meaningless AUC of 1.0.
-  The fitted model yields a hold-out AUC of 0.857, above the 0.70–0.85 range reported for real
+  The fitted model yields a hold-out AUC of 0.853, above the 0.70-0.85 range reported for real
   proxy-means tests — because the published conditional gradients are sharper than a real
   survey's messier joint distribution. The direction, not the magnitude, is what survives
   contact with the microdata.
@@ -105,13 +106,13 @@ bands are 10 / 57 / 31 / 3, which sum to 101, so they are normalised by 101 befo
 | Quantity | Target (published) | Achieved |
 |---|---:|---:|
 | Poverty headcount | 27.4% | 27.4% |
-| Extreme poverty | 5.4% | 5.7% |
-| Severe shock incidence | 37.1% | 37.1% |
-| Shock incidence, poor | 41.0% | 41.1% |
-| Mobile money ownership | 86.6% | 86.9% |
-| Mobile money, poor | 77.8% | 77.8% |
-| Savings account | 68.0% | 68.2% |
-| Health insurance | 85.3% | 85.6% |
+| Extreme poverty | 5.4% | 5.5% |
+| Severe shock incidence | 37.1% | 37.0% |
+| Shock incidence, poor | 41.0% | 40.5% |
+| Mobile money ownership | 86.6% | 86.8% |
+| Mobile money, poor | 77.8% | 78.1% |
+| Savings account | 68.0% | 68.4% |
+| Health insurance | 85.3% | 85.4% |
 | Financial health 10/57/31/3 | 10 / 57 / 31 / 3 | 9.9 / 56.4 / 30.7 / 3.0 |
 
 The population-weighted district table reconciles to **27.4%** nationally, matching the published
@@ -132,13 +133,13 @@ headcount — a useful check that the Annex B transcription is internally consis
   enumerator can observe, not on the welfare measure itself.
 - **Split:** 70/30 stratified hold-out in the app; five-fold stratified out-of-fold in
   `scripts/evaluate_model.py`.
-- **AUC:** 0.857 gradient boosting on the hold-out; across the recomputed candidate set, logistic
-  0.860, random forest 0.852, gradient boosting 0.857 (ROC-AUC, out-of-fold).
-- **Calibration:** Brier 0.134, ECE 0.006 for the shipped model; decile table in
+- **AUC:** 0.853 gradient boosting on the hold-out; across the recomputed candidate set, logistic
+  0.856, random forest 0.848, gradient boosting 0.853 (ROC-AUC, out-of-fold).
+- **Calibration:** Brier 0.135, ECE 0.008 for the shipped model; decile table in
   `docs/MODEL_EVALUATION.md`.
 - **Importance:** permutation importance on the hold-out set, AUC loss, 5 repeats.
 
-The logistic baseline scores marginally higher out-of-fold (0.860 vs. 0.857) and the difference is
+The logistic baseline scores marginally higher out-of-fold (0.856 vs. 0.853) and the difference is
 inside noise at this sample size. Switching the shipped model would move every pinned targeting
 figure for no measurable gain, so the comparison is reported rather than acted on. The evaluation
 script is the authority: re-run it after any change to the household layer.
@@ -180,12 +181,13 @@ fairness_ratio = (share of beneficiaries in the ten poorest districts)
 ```
 
 `1.0` is proportional, above `1.0` concentrates. At the default budget geographic targeting reaches
-5 districts with a ratio of 2.09, proxy-means reaches 28 with 1.32, and universal allocation reaches
+5 districts with a ratio of 2.09, proxy-means reaches 28 with 1.30, and universal allocation reaches
 all 30 with 0.68. The ratio is a descriptive statistic of the allocation, not a normative judgement
 about which concentration is acceptable.
 
 **Bootstrap intervals.** Each headline figure is reported with a 95% interval from 200 resamples of
-the household sample, re-ranking the same score vector. The interval captures sampling variability
+the household sample, re-ranking the same score vector. The same resamples are used for every rule,
+so the intervals are paired and rules can be compared on them. The interval captures sampling variability
 of the synthetic sample only — not the EICV7 sampling design, not non-sampling error, and not the
 uncertainty in the calibration itself. It is a floor on the uncertainty, not a measure of it.
 
@@ -206,6 +208,7 @@ Aggregates (expected values, no simulation noise):
 
 ```
 Newly poor households = Σ p_exp,i · 1(y_i ≥ z and y'_i < z)
+Newly poor people     = Σ p_exp,i · 1(newly poor_i) · h_i
 Poverty rate after    = [ Σ p_exp,i · 1(y'_i < z) + Σ 1(y_i < z) ] / N
 Cash need             = Σ p_exp,i · max(0, z − y'_i) · h_i
 ```
@@ -213,6 +216,12 @@ Cash need             = Σ p_exp,i · max(0, z − y'_i) · h_i
 where `h_i` is household size (adult-equivalent units approximated by household size — stated, not
 estimated). Counts are scaled from the district sample to the district's real household count
 (Census 2022 population ÷ 4.3).
+
+The two headline cards carry a 95% band (`newly_poor_households_range`,
+`newly_poor_people_range`) from 200 resamples of the district's synthetic households, using the same
+fixed stream as the targeting intervals. It measures sampling variability in that layer, not
+uncertainty in `E_s` or `L_s`; changing the shock assumption moves the figure far more than the band
+does, and the UI says so where the band is printed.
 
 `E_s` and `L_s` are **assumptions**, visible in the UI and in code:
 
@@ -386,8 +395,8 @@ point of putting the round identity in one file rather than scattered through th
 - **No uncertainty beyond the bootstrap.** The 95% intervals capture sampling variability of the
   synthetic sample only. No survey weights, strata or PSUs exist, so design-based standard errors
   are not available.
-- **The shipped model is not the CV winner.** Logistic regression scores 0.860 out-of-fold against
-  0.857 for the gradient-boosted model. The gap is inside noise and switching would move every
+- **The shipped model is not the CV winner.** Logistic regression scores 0.856 out-of-fold against
+  0.853 for the gradient-boosted model. The gap is inside noise and switching would move every
   pinned targeting figure, so the comparison is reported in `docs/MODEL_EVALUATION.md` rather than
   acted on.
 
@@ -428,8 +437,8 @@ P(α) = (1 / W) · Σᵢ wᵢ · [ max(0, (z − yᵢ) / z) ]^α
 `z = 560,127` RWF per adult equivalent per year (extreme line `356,432`). Computed nationally, by
 urban/rural and for all 30 districts. A household-size-weighted Gini is reported alongside.
 
-Computed values at the current calibration: headcount **27.58%**, gap **6.03%**, severity
-**2.18%**, extreme headcount **5.72%**, Gini **0.218**. The published headcount is 27.4%; the
+Computed values at the current calibration: headcount **27.86%**, gap **6.12%**, severity
+**2.24%**, extreme headcount **5.57%**, Gini **0.216**. The published headcount is 27.4%; the
 difference is the calibration target versus the realised sample, not an independent estimate.
 
 **Weighting caveat.** `wᵢ` is household size, which is the correct weight for a per-capita measure

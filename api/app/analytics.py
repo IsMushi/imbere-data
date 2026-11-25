@@ -120,7 +120,7 @@ def evaluate_targeting(
                 "exclusion_error": round(100 * (1 - poor_reached / total_poor), 1) if total_poor else 0.0,
                 "spend_rwf": round(spend),
                 "cost_per_poor_reached": round(spend / poor_reached) if poor_reached else None,
-                "ci95": _bootstrap_interval(score, poor, n_ben, spend, seed, bootstrap),
+                "ci95": _bootstrap_interval(score, poor, n_ben, spend, bootstrap),
             }
         )
 
@@ -168,11 +168,13 @@ def evaluate_targeting(
 
 
 def _bootstrap_interval(
-    score: np.ndarray, poor: np.ndarray, n_ben: int, spend: float, seed: int, reps: int
+    score: np.ndarray, poor: np.ndarray, n_ben: int, spend: float, reps: int
 ) -> dict[str, list[float]]:
     """Resample the household sample and re-rank it, 200 times.
 
-    This measures how much each figure depends on which households happened to land in the
+    The stream is fixed rather than derived from the targeting seed: the same resamples are used
+    for every rule, so the intervals are paired and a rule-to-rule comparison is like for like.
+    It measures how much each figure depends on which households happened to land in the
     synthetic sample. It is not the EICV7 sampling design and says nothing about non-sampling
     error; the UI and METHODOLOGY say so where the interval is shown.
     """
@@ -403,11 +405,15 @@ def _simulate_set(sub: pd.DataFrame, shocks: list[tuple[str, float]], scale: flo
     exp_newly_poor = float((p_exp * newly_poor).sum())
     exp_newly_extreme = float((p_exp * newly_extreme).sum())
     exp_exposed = float(p_exp.sum())
+    hh_size = sub["hh_size"].to_numpy()
+    # People, not households × the district's average size: the households a shock pushes under
+    # are not a random draw of the district, and rounding one mean over the whole district was
+    # the largest avoidable error in this figure.
+    exp_newly_people = float((p_exp * newly_poor * hh_size).sum())
 
     # Cost to bring every household that ends up below the line back up to it, in RWF/year.
     # Deficit is zero above the line, so already-poor households contribute only their gap.
     deficit = np.maximum(0.0, POVERTY_LINE - new_cons)
-    hh_size = sub["hh_size"].to_numpy()
     below_after = new_cons < POVERTY_LINE
     cash_need = float((p_exp * deficit * hh_size).sum())
     affected_households = float((p_exp * below_after).sum())
@@ -417,7 +423,7 @@ def _simulate_set(sub: pd.DataFrame, shocks: list[tuple[str, float]], scale: flo
     return {
         "exposed_households": round(exp_exposed * scale),
         "newly_poor_households": round(exp_newly_poor * scale),
-        "newly_poor_people": round(exp_newly_poor * scale * float(hh_size.mean())),
+        "newly_poor_people": round(exp_newly_people * scale),
         "newly_extreme_poor_households": round(exp_newly_extreme * scale),
         "households_below_line_after": round(affected_households * scale),
         "poverty_rate_before": round(float(100 * was_poor.sum() / n_sample), 1),
@@ -433,6 +439,29 @@ def _simulate_set(sub: pd.DataFrame, shocks: list[tuple[str, float]], scale: flo
         ),
         "resilience_index": round(float(sub["resilience_index"].mean()), 1),
     }
+
+
+def _count_band(
+    sub: pd.DataFrame, shocks: list[tuple[str, float]], scale: float, by_people: bool = False
+) -> list[int]:
+    """95% band for a shock's expected count, resampling the households in the district.
+
+    Same convention as `_bootstrap_interval`: 200 resamples from a fixed stream, paired across
+    requests so the POST cache stays valid. It measures how much the headline depends on which
+    households landed in the synthetic layer; it says nothing about the shock assumption itself.
+    """
+    p_exp, _, new_cons = _shock_arrays(sub, shocks)
+    fell = (~sub["poor"].to_numpy().astype(bool)) & (new_cons < POVERTY_LINE)
+    weights = p_exp * fell
+    if by_people:
+        weights = weights * sub["hh_size"].to_numpy()
+
+    n = len(weights)
+    rng = np.random.default_rng(42)
+    idx = rng.integers(0, n, size=(200, n))
+    draws = weights[idx].sum(axis=1) * scale
+    lo, hi = np.percentile(draws, [2.5, 97.5])
+    return [round(float(lo)), round(float(hi))]
 
 
 def _simulate_one(sub: pd.DataFrame, shock_type: str, severity: float, scale: float) -> dict:
@@ -465,17 +494,24 @@ def simulate(
     ]
     main = _simulate_set(sub, shocks, scale)
 
+    # Ranges on the two headline cards. Computed for the combined scenario only: the per-shock
+    # breakdown is a comparison, and a band on every bar would make the chart unreadable.
+    main["newly_poor_households_range"] = _count_band(sub, shocks, scale)
+    main["newly_poor_people_range"] = _count_band(sub, shocks, scale, by_people=True)
+
     # Each shock on its own, so a reader can see which one moves the figure and by how much.
-    components = [
-        {
-            "id": sid,
-            "label": SHOCK_ASSUMPTIONS[sid]["label"],
-            "severity": sev,
-            "newly_poor_households": _simulate_one(sub, sid, sev, scale)["newly_poor_households"],
-            "cash_need_rwf": _simulate_one(sub, sid, sev, scale)["cash_need_rwf"],
-        }
-        for sid, sev in shocks
-    ]
+    components = []
+    for sid, sev in shocks:
+        one = _simulate_one(sub, sid, sev, scale)
+        components.append(
+            {
+                "id": sid,
+                "label": SHOCK_ASSUMPTIONS[sid]["label"],
+                "severity": sev,
+                "newly_poor_households": one["newly_poor_households"],
+                "cash_need_rwf": one["cash_need_rwf"],
+            }
+        )
 
     # Same shock across every type, so the district profile can be compared at a glance.
     compare = []

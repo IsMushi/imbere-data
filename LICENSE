@@ -1,0 +1,21 @@
+Copyright (c) 2026 ISHIMWE KEZA Grace and Isaac MUSHIMIYIMANA. All rights reserved.
+
+IMBERE DATA was built for the NISR 2026 Big Data Hackathon, Track 2 (Financial
+Inclusion & Poverty Reduction). No licence is granted for reuse, modification or
+redistribution of this repository or its contents. Third-party data, fonts,
+boundaries and libraries remain under their own terms:
+
+- NISR published statistics (EICV7, Census 2022): CC BY 4.0, National Institute
+  of Statistics of Rwanda.
+- FinScope 2024 indicators: Access to Finance Rwanda (AFR).
+- District boundaries: geoBoundaries / NISR Open Data, CC BY 4.0.
+- Manrope (SIL Open Font License 1.1) and Comfortaa (SIL Open Font License 1.1)
+  are served by Google Fonts and are not redistributed here.
+- JavaScript and Python dependencies keep the licences recorded in
+  `web/package-lock.json` and `api/requirements.txt`.
+
+Household-level rows in `data/processed/households.csv` are synthetic, produced
+by `scripts/build_data.py`. They are not NISR microdata and must not be
+presented as survey records.
+
+Contact: see `SECURITY.md` for how to report a problem.

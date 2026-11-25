@@ -126,6 +126,8 @@ export default function ProtectionPage() {
   const incidence = measured?.shock_incidence;
   const coping = measured?.coping_responses ?? [];
   const help = coping.find((c) => c.id === "received_help");
+  const lessFood = coping.find((c) => c.id === "less_food");
+  const savings = coping.find((c) => c.id === "savings_borrowing");
   const vup = measured?.vup;
   const ctx = result?.district_context;
 
@@ -172,7 +174,7 @@ export default function ProtectionPage() {
           </div>
 
           <fieldset className="mt-5" aria-busy={pending || undefined}>
-            <legend className="text-[15px] font-medium text-ink">Shock type</legend>
+            <legend className="text-[15px] font-medium text-ink">What kind of shock</legend>
             <div className="mt-1.5 grid grid-cols-1 gap-1.5">
               {pending
                 ? SHOCK_ORDER.map((id) => <Skeleton key={id} className="h-9 w-full rounded-sm" />)
@@ -192,7 +194,7 @@ export default function ProtectionPage() {
           </fieldset>
 
           <div className="mt-5 flex items-baseline justify-between">
-            <Label>Severity</Label>
+            <Label>How hard it hits</Label>
             <span className="tnum text-[16px] font-semibold">{severity}</span>
           </div>
           <Slider
@@ -202,7 +204,7 @@ export default function ProtectionPage() {
             min={0}
             max={100}
             step={5}
-            thumbLabel="Severity"
+            thumbLabel="How hard the shock hits"
             valueText={`${severity} of 100`}
           />
           <div className="mt-1 flex justify-between text-[12.5px] text-ink-soft">
@@ -260,39 +262,39 @@ export default function ProtectionPage() {
               aria-busy={loading}
             >
               <section aria-label="Who VUP reaches">
-                <SectionHeading module="01" title="Who VUP reaches">
-                  Vision 2020 Umurenge Programme, 2023/24. Coverage and adequacy are published
-                  national figures, not estimates.
+                <SectionHeading module="01" title="Who the programme reaches">
+                  Vision 2020 Umurenge Programme (VUP), 2023/24. Its reach, and how poor the people
+                  it helps are, come from published national figures — not estimates.
                 </SectionHeading>
 
                 <Ledger>
                   <Kpi
-                    label="VUP beneficiaries"
+                    label="People helped by VUP"
                     value={vup ? num(vup.beneficiaries.total) : "—"}
                     note="2023/24, all five programmes"
                     tone="primary"
                   />
                   <Kpi
-                    label="Beneficiaries below the line"
+                    label="Of them, poor people"
                     value={vup ? pct(vup.poverty.beneficiaries_pct) : "—"}
                     note={vup ? `against ${pct(vup.poverty.national_pct)} nationally` : undefined}
                     tone="accent"
                   />
                   <Kpi
-                    label="Beneficiaries who are women"
+                    label="Women among them"
                     value={vup ? pct(vup.beneficiaries.female_share_pct) : "—"}
                     note="52.1% of the population"
                   />
                   <Kpi
-                    label="Direct Support paid on time"
+                    label="Cash payments on time"
                     value={vup ? pct(vup.timeliness.ds_on_time_pct) : "—"}
-                    note="last payment, 56.2% a week or more late"
+                    note="last payment; another 56.2% arrived 1–10 days late"
                   />
                 </Ledger>
 
                 <div className="mt-6 grid grid-cols-1 gap-6 lg:grid-cols-2">
                   <div>
-                    <h3 className="label">Beneficiaries by programme</h3>
+                    <h3 className="label">People helped, by programme</h3>
                     <div className="mt-3">
                       <BarList
                         items={(vup?.components ?? []).map((c) => ({
@@ -306,7 +308,7 @@ export default function ProtectionPage() {
                     </div>
                   </div>
                   <div>
-                    <h3 className="label">Poverty rate by programme</h3>
+                    <h3 className="label">Poverty rate, by programme</h3>
                     <div className="mt-3">
                       <BarList
                         items={(vup?.poverty_by_component ?? []).map((c) => ({
@@ -344,28 +346,20 @@ export default function ProtectionPage() {
                     tone="accent"
                   />
                   <Kpi
-                    label="Coped by receiving help"
+                    label="Said help got them through"
                     value={help ? pct(help.all) : "—"}
                     note={help ? `${pct(help.poor)} of poor households` : undefined}
                     tone="primary"
                   />
                   <Kpi
                     label="Bought less food"
-                    value={
-                      coping.find((c) => c.id === "less_food")
-                        ? pct(coping.find((c) => c.id === "less_food")!.all)
-                        : "—"
-                    }
-                    note="the most common response among the poor"
+                    value={lessFood ? pct(lessFood.all) : "—"}
+                    note={lessFood ? `${pct(lessFood.poor)} of poor households` : undefined}
                   />
                   <Kpi
                     label="Used savings or borrowed"
-                    value={
-                      coping.find((c) => c.id === "savings_borrowing")
-                        ? pct(coping.find((c) => c.id === "savings_borrowing")!.all)
-                        : "—"
-                    }
-                    note="more common among non-poor households"
+                    value={savings ? pct(savings.all) : "—"}
+                    note={savings ? `${pct(savings.non_poor)} of non-poor households` : undefined}
                   />
                 </Ledger>
 
@@ -400,35 +394,35 @@ export default function ProtectionPage() {
                   shows="What households said they did when a severe shock hit, and whether the poor and the non-poor cope differently."
                   trust="Shares of households reporting a severe shock, as published. Coping is a single main response, so the rows overlap with shock types rather than summing to a story."
                 >
-                  EICV7 Tables 6.10 and 6.11, via the API. VUP has seven instruments and none of them
-                  is separately observed in this table.
+                  EICV7 Tables 6.10 and 6.11, via the API. VUP has five instruments and none of them is
+                  separately observed in this table.
                 </SourceNote>
               </section>
 
               <section className="mt-10" aria-label="What the shock does in this district">
-                <SectionHeading module="03" title="What this shock does here">
+                <SectionHeading module="03" title="What this shock does to this district">
                   {result.shock_label} at severity {result.severity} in {result.district}.
                 </SectionHeading>
 
                 <Ledger>
                   <Kpi
-                    label="Households exposed"
+                    label="Families hit"
                     value={ctx ? compact(ctx.exposed_households) : "—"}
                     note={ctx ? `of ${compact(ctx.households)} in ${result.district}` : undefined}
                   />
                   <Kpi
-                    label="Pushed below the line"
+                    label="Newly poor"
                     value={ctx ? compact(ctx.newly_poor_households) : "—"}
                     note={ctx ? `poverty ${pct(ctx.poverty_rate)} before the shock` : undefined}
                     tone="accent"
                   />
                   <Kpi
-                    label="Cash to restore the line"
+                    label="Money to lift them out"
                     value={ctx ? rwfValue(ctx.cash_need_rwf) : "—"}
-                    note={ctx ? `${rwf(ctx.mean_deficit_rwf)} mean deficit` : undefined}
+                    note={ctx ? `${rwf(ctx.mean_deficit_rwf)} short on average` : undefined}
                   />
                   <Kpi
-                    label="Households in the district"
+                    label="Families in the district"
                     value={ctx ? compact(ctx.households) : "—"}
                     note={result.province}
                   />
@@ -444,22 +438,22 @@ export default function ProtectionPage() {
               </section>
 
               <section className="mt-10" aria-label="What a transfer protects">
-                <SectionHeading module="04" title="What a transfer of this size protects">
-                  Every household pushed below the line is assumed to receive the transfer. The
-                  question is adequacy, not selection; targeting is priced on its own page.
+                <SectionHeading module="04" title="How much cash keeps a family out of poverty">
+                  Every family pushed into poverty is assumed to receive the cash. The question is
+                  how much is enough, not who gets it. Choosing who gets help is priced on its own
+                  page.
                 </SectionHeading>
 
                 <div className="overflow-hidden rounded-xl border border-line">
                   <Table>
                     <TableCaption className="sr-only">
-                      Share of shock-pushed households kept above the poverty line at each
-                      transfer level
+                      Share of shock-pushed families kept out of poverty at each cash level
                     </TableCaption>
                     <TableHeader>
                       <TableRow>
-                        <TableHead className="px-5 py-3">Transfer per household</TableHead>
-                        <TableHead className="px-5 py-3 text-right">Protected</TableHead>
-                        <TableHead className="px-5 py-3 text-right">Households</TableHead>
+                        <TableHead className="px-5 py-3">Cash per family</TableHead>
+                        <TableHead className="px-5 py-3 text-right">Kept out of poverty</TableHead>
+                        <TableHead className="px-5 py-3 text-right">Families</TableHead>
                         <TableHead className="px-5 py-3 text-right">Cost per year</TableHead>
                       </TableRow>
                     </TableHeader>

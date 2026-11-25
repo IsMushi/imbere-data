@@ -1,0 +1,218 @@
+{
+  "rows": [
+    {
+      "id": "poverty_headcount",
+      "label": "Poverty rate",
+      "published": 27.4,
+      "synthetic": 27.4,
+      "difference": 0.0,
+      "unit": "%",
+      "source": "eicv7_poverty_profile",
+      "role": "target"
+    },
+    {
+      "id": "extreme_poverty_headcount",
+      "label": "Extreme poverty rate",
+      "published": 5.4,
+      "synthetic": 5.5,
+      "difference": 0.1,
+      "unit": "%",
+      "source": "eicv7_poverty_profile",
+      "role": "emergent"
+    },
+    {
+      "id": "hh_shock_incidence",
+      "label": "Households reporting at least one severe shock",
+      "published": 37.1,
+      "synthetic": 37.0,
+      "difference": -0.1,
+      "unit": "%",
+      "source": "eicv7_tables",
+      "role": "target"
+    },
+    {
+      "id": "hh_shock_incidence_poor",
+      "label": "Households reporting a severe shock - poor",
+      "published": 41.0,
+      "synthetic": 40.5,
+      "difference": -0.5,
+      "unit": "%",
+      "source": "eicv7_tables",
+      "role": "target"
+    },
+    {
+      "id": "hh_momo_account",
+      "label": "Households with a mobile money account",
+      "published": 86.6,
+      "synthetic": 86.8,
+      "difference": 0.2,
+      "unit": "%",
+      "source": "eicv7_tables",
+      "role": "target"
+    },
+    {
+      "id": "hh_momo_account_poor",
+      "label": "Households with a mobile money account - poor",
+      "published": 77.8,
+      "synthetic": 78.1,
+      "difference": 0.3,
+      "unit": "%",
+      "source": "eicv7_tables",
+      "role": "target"
+    },
+    {
+      "id": "hh_savings_account",
+      "label": "Households with at least one savings account",
+      "published": 68.0,
+      "synthetic": 68.4,
+      "difference": 0.4,
+      "unit": "%",
+      "source": "eicv7_tables",
+      "role": "target"
+    },
+    {
+      "id": "health_insurance",
+      "label": "Population covered by medical insurance",
+      "published": 85.3,
+      "synthetic": 85.4,
+      "difference": 0.1,
+      "unit": "%",
+      "source": "eicv7_tables",
+      "role": "target"
+    },
+    {
+      "id": "modern_floor",
+      "label": "Households with a modern floor",
+      "published": 39.2,
+      "synthetic": 37.7,
+      "difference": -1.5,
+      "unit": "%",
+      "source": "eicv7_tables",
+      "role": "target"
+    },
+    {
+      "id": "financially_healthy",
+      "label": "Financially healthy",
+      "published": 10.0,
+      "synthetic": 9.9,
+      "difference": -0.1,
+      "unit": "%",
+      "source": "finscope2024",
+      "role": "target"
+    },
+    {
+      "id": "financially_coping",
+      "label": "Financially coping",
+      "published": 57.0,
+      "synthetic": 56.4,
+      "difference": -0.6,
+      "unit": "%",
+      "source": "finscope2024",
+      "role": "target"
+    },
+    {
+      "id": "financially_vulnerable",
+      "label": "Financially vulnerable",
+      "published": 31.0,
+      "synthetic": 30.7,
+      "difference": -0.3,
+      "unit": "%",
+      "source": "finscope2024",
+      "role": "target"
+    },
+    {
+      "id": "financially_extremely_vulnerable",
+      "label": "Extremely financially vulnerable",
+      "published": 3.0,
+      "synthetic": 3.0,
+      "difference": 0.0,
+      "unit": "%",
+      "source": "finscope2024",
+      "role": "target"
+    },
+    {
+      "id": "household_size",
+      "label": "Average household size",
+      "published": 4.3,
+      "synthetic": 4.3,
+      "difference": 0.0,
+      "unit": "people",
+      "source": "census2022",
+      "role": "emergent",
+      "note": "Household sizes are drawn as Poisson(average \u2212 1) + 1 from the published average in data/reference/round.json, so the mean lands on 4.3. This matters because every count of people in the simulator is a household count multiplied by the size of the affected households."
+    }
+  ],
+  "provinces": [
+    {
+      "province": "Kigali City",
+      "published": 9.1,
+      "synthetic": 9.0,
+      "difference": -0.1
+    },
+    {
+      "province": "South",
+      "published": 34.7,
+      "synthetic": 34.4,
+      "difference": -0.3
+    },
+    {
+      "province": "West",
+      "published": 37.4,
+      "synthetic": 37.2,
+      "difference": -0.2
+    },
+    {
+      "province": "North",
+      "published": 20.2,
+      "synthetic": 20.2,
+      "difference": 0.0
+    },
+    {
+      "province": "East",
+      "published": 26.8,
+      "synthetic": 26.5,
+      "difference": -0.3
+    }
+  ],
+  "generated": {
+    "round": "EICV7",
+    "fieldwork": "2023/24",
+    "kind": "calibrated_synthetic",
+    "rows": 15066,
+    "seed": 20261030
+  },
+  "sources": [
+    {
+      "id": "eicv7_poverty_profile",
+      "title": "EICV7 - Poverty Profile Report 2023/24",
+      "publisher": "National Institute of Statistics of Rwanda (NISR)",
+      "year": 2025,
+      "url": "https://statistics.gov.rw/data-sources/surveys/EICV/integrated-household-living-conditions-survey-7-eicv-7/eicv7-poverty-profile-report-202324",
+      "license": "CC BY 4.0"
+    },
+    {
+      "id": "eicv7_tables",
+      "title": "EICV7 Tables - Poverty Analysis (Excel)",
+      "publisher": "National Institute of Statistics of Rwanda (NISR)",
+      "year": 2025,
+      "url": "https://statistics.gov.rw/sites/default/files/documents/2025-05/EICV7_Tables_Rwanda_Poverty_Profile.xlsx",
+      "license": "CC BY 4.0"
+    },
+    {
+      "id": "finscope2024",
+      "title": "FinScope 2024 - Financial Inclusion in Rwanda",
+      "publisher": "Access to Finance Rwanda / NISR",
+      "year": 2024,
+      "url": "https://microdata.statistics.gov.rw/index.php/catalog/120",
+      "license": "NISR microdata release policy"
+    },
+    {
+      "id": "census2022",
+      "title": "Rwanda Population and Housing Census 2022",
+      "publisher": "National Institute of Statistics of Rwanda (NISR)",
+      "year": 2022,
+      "url": "https://www.statistics.gov.rw/statistical-publications/subjects",
+      "license": "CC BY 4.0"
+    }
+  ]
+}

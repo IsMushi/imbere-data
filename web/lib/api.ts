@@ -204,6 +204,7 @@ export type Meta = {
   };
   microdata: { kind: string; rows: number; seed: number; note: string };
   model_card: ModelCard;
+  model_metrics: ModelMetrics;
   calibration: Record<string, number | Record<string, number>>;
   targeting_rules: { id: string; label: string; description: string }[];
   shock_assumptions: Record<string, { label: string; exposure: number; loss: number }>;
@@ -222,6 +223,55 @@ export type ModelCard = {
   importance: { feature: string; key: string; importance: number }[];
   caveat: string;
 };
+
+export type ModelMetrics = {
+  scope: string;
+  threshold: number;
+  rows_train: number;
+  rows_test: number;
+  positive_rate_test_pct: number;
+  model: ClassifierScores;
+  baseline: ClassifierScores & { name: string; rule: string };
+  simple_rule: ClassifierScores & { name: string; rule: string; cut_pct: number };
+  caveat: string;
+};
+
+export type ClassifierScores = {
+  accuracy: number;
+  precision: number;
+  recall: number;
+  f1: number;
+  roc_auc: number;
+};
+
+/** One published statistic beside the same statistic in the synthetic household layer. */
+export type ProofRow = {
+  id: string;
+  label: string;
+  published: number;
+  synthetic: number;
+  difference: number;
+  unit: string;
+  source: string;
+  /** "target" was fitted by the generator; "emergent" falls out of it and can disagree. */
+  role: "target" | "emergent";
+  note?: string;
+};
+
+export type ProofResponse = {
+  rows: ProofRow[];
+  provinces: { province: string; published: number; synthetic: number; difference: number }[];
+  generated: { round: string; fieldwork: string; kind: string; rows: number; seed: number };
+  sources: {
+    id: string;
+    title: string;
+    publisher: string;
+    year: number;
+    url: string;
+    license: string;
+  }[];
+};
+
 
 export type TargetingResult = {
   id: string;
@@ -316,7 +366,10 @@ export type SimulationResponse = {
   result: {
     exposed_households: number;
     newly_poor_households: number;
+    /** 95% band across resampled synthetic households, not shock-assumption bounds. */
+    newly_poor_households_range: [number, number];
     newly_poor_people: number;
+    newly_poor_people_range: [number, number];
     newly_extreme_poor_households: number;
     households_below_line_after: number;
     poverty_rate_before: number;

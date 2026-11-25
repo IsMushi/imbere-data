@@ -13,20 +13,20 @@ not on EICV7 microdata. Re-run after loading real rows; the script is the report
 
 | Model | ROC-AUC | PR-AUC | Brier | ECE | Accuracy @ caseload | Leakage | Poor reached |
 |---|---:|---:|---:|---:|---:|---:|---:|
-| logistic | 0.860 | 0.680 | 0.1319 | 0.0070 | 75.8% | 24.1% | 36.7% |
-| random forest | 0.852 | 0.669 | 0.1372 | 0.0438 | 74.2% | 25.8% | 35.9% |
-| gradient boosting | 0.857 | 0.673 | 0.1335 | 0.0061 | 74.2% | 25.9% | 35.9% |
+| logistic | 0.856 | 0.675 | 0.1334 | 0.0033 | 75.2% | 24.8% | 36.4% |
+| random forest | 0.848 | 0.671 | 0.1383 | 0.0408 | 74.9% | 25.1% | 36.3% |
+| gradient boosting | 0.853 | 0.672 | 0.1346 | 0.0075 | 75.2% | 24.8% | 36.4% |
 
-Best out-of-fold ROC-AUC: **logistic** (0.860); the production model is **gradient boosting** (0.857). The gap is inside noise, and switching would move every pinned targeting figure, so the shipped model stays as it is and the comparison is reported rather than acted on.
+Best out-of-fold ROC-AUC: **logistic** (0.856); the production model is **gradient boosting** (0.853). The gap is inside noise, and switching would move every pinned targeting figure, so the shipped model stays as it is and the comparison is reported rather than acted on.
 
 ### Confusion matrix at the programme caseload (gradient boosting)
 
 | | Predicted non-poor | Predicted poor |
 |---|---:|---:|
-| **Actually non-poor** | 10,419 | 517 |
-| **Actually poor** | 2,647 | 1,483 |
+| **Actually non-poor** | 10,440 | 496 |
+| **Actually poor** | 2,626 | 1,504 |
 
-Precision 0.742 · recall 0.359 · F1 0.484.
+Precision 0.752 · recall 0.364 · F1 0.491.
 
 ## Fairness at the caseload
 
@@ -36,18 +36,18 @@ high poverty rate but low coverage is being passed over.
 
 | Province | Households | Poor share | Selected share | Coverage of its poor |
 |---|---:|---:|---:|---:|
-| East | 4,079 | 26.5% | 10.4% | 29.4% |
-| Kigali City | 1,922 | 9.0% | 0.9% | 6.4% |
-| North | 2,340 | 20.2% | 4.9% | 17.6% |
-| South | 3,447 | 34.4% | 21.3% | 46.6% |
-| West | 3,278 | 37.2% | 21.7% | 42.6% |
+| East | 4,079 | 26.5% | 11.6% | 32.3% |
+| Kigali City | 1,922 | 9.0% | 0.5% | 3.5% |
+| North | 2,340 | 20.2% | 5.6% | 19.7% |
+| South | 3,447 | 34.4% | 19.5% | 44.0% |
+| West | 3,278 | 37.2% | 21.8% | 43.8% |
 
 | Residence | Households | Poor share | Selected share | Coverage of its poor |
 |---|---:|---:|---:|---:|
-| rural | 11,590 | 30.8% | 15.8% | 38.2% |
-| urban | 3,476 | 16.2% | 4.8% | 21.5% |
+| rural | 11,590 | 30.3% | 15.2% | 37.7% |
+| urban | 3,476 | 17.8% | 6.7% | 29.0% |
 
-Worst-to-best province coverage ratio: **7.28×** (6.4% to 46.6%). A ratio near 1 means the rule reaches poor households at a similar rate everywhere.
+Worst-to-best province coverage ratio: **12.57×** (3.5% to 44.0%). A ratio near 1 means the rule reaches poor households at a similar rate everywhere.
 
 ## Calibration
 
@@ -56,18 +56,18 @@ read as a *probability of being poor*, not just an ordering.
 
 | Decile | n | Mean predicted | Observed | Gap (pp) |
 |---:|---:|---:|---:|---:|
-| 1 | 1,507 | 0.005 | 0.002 | -0.26 |
-| 2 | 1,507 | 0.021 | 0.017 | -0.39 |
-| 3 | 1,507 | 0.047 | 0.049 | +0.23 |
-| 4 | 1,507 | 0.088 | 0.092 | +0.46 |
-| 5 | 1,507 | 0.147 | 0.150 | +0.29 |
-| 6 | 1,507 | 0.229 | 0.241 | +1.21 |
-| 7 | 1,506 | 0.340 | 0.331 | -0.82 |
-| 8 | 1,506 | 0.469 | 0.475 | +0.62 |
-| 9 | 1,506 | 0.613 | 0.616 | +0.33 |
-| 10 | 1,506 | 0.784 | 0.769 | -1.49 |
+| 1 | 1,507 | 0.008 | 0.004 | -0.45 |
+| 2 | 1,507 | 0.024 | 0.022 | -0.25 |
+| 3 | 1,507 | 0.055 | 0.058 | +0.25 |
+| 4 | 1,507 | 0.101 | 0.092 | -0.85 |
+| 5 | 1,507 | 0.158 | 0.150 | -0.84 |
+| 6 | 1,507 | 0.235 | 0.236 | +0.07 |
+| 7 | 1,506 | 0.338 | 0.348 | +1.00 |
+| 8 | 1,506 | 0.463 | 0.448 | -1.43 |
+| 9 | 1,506 | 0.596 | 0.600 | +0.40 |
+| 10 | 1,506 | 0.764 | 0.783 | +1.99 |
 
-Expected calibration error: **0.0061**. Brier score: **0.1335**.
+Expected calibration error: **0.0075**. Brier score: **0.1346**.
 
 ## Does the conclusion depend on the model being sharp?
 
@@ -78,16 +78,16 @@ each level. The question is where proxy-means stops beating geographic targeting
 
 | Degraded AUC | Targeting accuracy | Poor reached | Leakage | Beats geographic? |
 |---:|---:|---:|---:|---|
-| 0.857 | 74.2% | 35.9% | 25.9% | yes |
-| 0.850 | 74.2% | 35.9% | 25.9% | yes |
-| 0.800 | 68.1% | 33.0% | 31.9% | yes |
-| 0.750 | 65.0% | 31.5% | 35.0% | yes |
-| 0.700 | 59.6% | 28.9% | 40.4% | yes |
+| 0.853 | 75.2% | 36.4% | 24.8% | yes |
+| 0.850 | 74.9% | 36.3% | 25.1% | yes |
+| 0.800 | 69.8% | 33.8% | 30.2% | yes |
+| 0.750 | 63.0% | 30.5% | 37.0% | yes |
+| 0.700 | 60.0% | 29.1% | 40.0% | yes |
 | 0.650 | 53.5% | 25.9% | 46.5% | yes |
-| 0.600 | 44.9% | 21.7% | 55.1% | **no** |
+| 0.600 | 44.6% | 21.6% | 55.4% | **no** |
 
-Reference on the same sample: geographic targeting reaches 21.9% of
-the poor with 54.7% leakage; universal allocation reaches 13.9%.
+Reference on the same sample: geographic targeting reaches 22.3% of
+the poor with 53.9% leakage; universal allocation reaches 13.3%.
 
 Read the table as a sensitivity statement, not a result about Rwanda: it bounds how much
 of the proxy-means advantage is genuinely a *targeting* advantage that survives noisy

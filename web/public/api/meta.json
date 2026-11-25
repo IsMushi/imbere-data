@@ -614,73 +614,73 @@
     ],
     "n_train": 10546,
     "n_test": 4520,
-    "auc_gradient_boosting": 0.857,
-    "auc_logistic_baseline": 0.861,
+    "auc_gradient_boosting": 0.853,
+    "auc_logistic_baseline": 0.857,
     "importance": [
       {
         "feature": "Head's education",
         "key": "head_education",
-        "importance": 0.0979
-      },
-      {
-        "feature": "District poverty rate",
-        "key": "district_poverty_rate",
-        "importance": 0.0534
+        "importance": 0.0715
       },
       {
         "feature": "Owns a TV",
         "key": "owns_tv",
-        "importance": 0.0448
+        "importance": 0.0594
+      },
+      {
+        "feature": "District poverty rate",
+        "key": "district_poverty_rate",
+        "importance": 0.0553
       },
       {
         "feature": "Main income source",
         "key": "main_income_source",
-        "importance": 0.0323
+        "importance": 0.0364
       },
       {
         "feature": "Modern floor",
         "key": "modern_floor",
-        "importance": 0.032
+        "importance": 0.035
       },
       {
         "feature": "Owns a phone",
         "key": "owns_phone",
-        "importance": 0.0067
-      },
-      {
-        "feature": "Owns a radio",
-        "key": "owns_radio",
-        "importance": 0.005
+        "importance": 0.0097
       },
       {
         "feature": "Electricity access",
         "key": "electricity",
-        "importance": 0.0046
+        "importance": 0.0044
       },
       {
-        "feature": "Urban residence",
-        "key": "urban",
-        "importance": 0.0036
+        "feature": "Owns a radio",
+        "key": "owns_radio",
+        "importance": 0.0038
+      },
+      {
+        "feature": "Household size",
+        "key": "hh_size",
+        "importance": 0.0016
       },
       {
         "feature": "Savings account",
         "key": "has_savings",
-        "importance": 0.002
+        "importance": 0.0012
       },
       {
-        "feature": "District",
-        "key": "district",
+        "feature": "Urban residence",
+        "key": "urban",
         "importance": 0.0009
-      },
-      {
-        "feature": "Improved sanitation",
-        "key": "improved_sanitation",
-        "importance": 0.0007
       },
       {
         "feature": "Health insurance",
         "key": "health_insurance",
-        "importance": 0.0007
+        "importance": 0.0004
+      },
+      {
+        "feature": "Mobile money account",
+        "key": "has_momo",
+        "importance": 0.0004
       },
       {
         "feature": "Corrugated iron roof",
@@ -688,14 +688,14 @@
         "importance": 0.0003
       },
       {
-        "feature": "Household size",
-        "key": "hh_size",
+        "feature": "Improved sanitation",
+        "key": "improved_sanitation",
         "importance": 0.0001
       },
       {
-        "feature": "Mobile money account",
-        "key": "has_momo",
-        "importance": 0.0001
+        "feature": "District",
+        "key": "district",
+        "importance": 0.0
       },
       {
         "feature": "Province",
@@ -710,16 +710,50 @@
     ],
     "caveat": "Trained on calibrated synthetic households, so these metrics describe the prototype, not Rwanda. Re-run against EICV7 microdata for publishable accuracy figures."
   },
+  "model_metrics": {
+    "scope": "30% hold-out, never seen during training",
+    "threshold": 0.5,
+    "rows_train": 10546,
+    "rows_test": 4520,
+    "positive_rate_test_pct": 27.4,
+    "model": {
+      "accuracy": 0.809,
+      "precision": 0.689,
+      "recall": 0.551,
+      "f1": 0.613,
+      "roc_auc": 0.853
+    },
+    "baseline": {
+      "name": "Logistic regression, same features",
+      "rule": "predicted risk at or above 0.50",
+      "accuracy": 0.81,
+      "precision": 0.688,
+      "recall": 0.56,
+      "f1": 0.617,
+      "roc_auc": 0.857
+    },
+    "simple_rule": {
+      "name": "District average only",
+      "rule": "district poverty rate at or above 27.4%",
+      "cut_pct": 27.4,
+      "accuracy": 0.615,
+      "precision": 0.379,
+      "recall": 0.634,
+      "f1": 0.475,
+      "roc_auc": 0.664
+    },
+    "caveat": "Measured on calibrated synthetic households, so these numbers describe the prototype, not Rwanda. Precision and recall use a 0.5 probability cut, which is not the cut a targeting programme would choose: the ranking (ROC-AUC) is what the allocation uses. The district rule is scored at the sample's own poor share, so the comparison is not stacked against it."
+  },
   "calibration": {
     "poverty_rate": 27.4,
-    "extreme_poverty_rate": 5.7,
-    "shock_incidence": 37.1,
-    "shock_incidence_poor": 41.1,
-    "momo_ownership": 86.9,
-    "momo_poor": 77.8,
-    "savings_ownership": 68.2,
-    "health_insurance": 85.6,
-    "modern_floor": 37.9,
+    "extreme_poverty_rate": 5.5,
+    "shock_incidence": 37.0,
+    "shock_incidence_poor": 40.5,
+    "momo_ownership": 86.8,
+    "momo_poor": 78.1,
+    "savings_ownership": 68.4,
+    "health_insurance": 85.4,
+    "modern_floor": 37.7,
     "financial_health": {
       "healthy": 9.9,
       "coping": 56.4,

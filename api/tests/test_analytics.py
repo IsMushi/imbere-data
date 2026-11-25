@@ -15,11 +15,11 @@ TRANSFER = 150_000
 
 # id -> (accuracy, coverage, leakage, cost per poor household reached)
 EXPECTED = {
-    "universal": (28.8, 13.9, 71.2, 520833),
-    "geographic": (45.3, 21.9, 54.7, 331126),
-    "pmt": (78.2, 37.8, 21.9, 191939),
-    "community": (57.6, 27.9, 42.4, 260417),
-    "financial_exclusion": (61.0, 29.5, 39.0, 246103),
+    "universal": (27.6, 13.3, 72.5, 544465),
+    "geographic": (46.1, 22.3, 53.9, 325380),
+    "pmt": (78.3, 37.9, 21.7, 191571),
+    "community": (56.8, 27.5, 43.2, 264085),
+    "financial_exclusion": (61.4, 29.7, 38.6, 244499),
 }
 
 

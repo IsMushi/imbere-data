@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
   Bar,
   BarChart,
@@ -66,12 +66,17 @@ export default function TargetingPage() {
   const [error, setError] = useState<Error | null>(null);
   const [loading, setLoading] = useState(true);
   const [attempt, setAttempt] = useState(0);
+  // A cold POST can take a minute; a drag produces a newer request long before the old one
+  // answers. Only the newest reply may write state, or the table ends up describing a budget
+  // the slider no longer shows.
+  const reqId = useRef(0);
 
   useEffect(() => {
     apiGet<Meta>("/api/meta", "/api/meta.json").then(setMeta).catch((e: Error) => setError(e));
   }, [attempt]);
 
   useEffect(() => {
+    const id = ++reqId.current;
     setLoading(true);
     const t = setTimeout(() => {
       apiPost<TargetingResponse>("/api/targeting", {
@@ -79,11 +84,17 @@ export default function TargetingPage() {
         transfer_per_beneficiary: transfer,
       })
         .then((d) => {
+          if (id !== reqId.current) return;
           setData(d);
           setError(null);
         })
-        .catch((e: Error) => setError(e))
-        .finally(() => setLoading(false));
+        .catch((e: Error) => {
+          if (id !== reqId.current) return;
+          setError(e);
+        })
+        .finally(() => {
+          if (id === reqId.current) setLoading(false);
+        });
     }, 140);
     return () => clearTimeout(t);
   }, [budget, transfer, attempt]);
@@ -104,6 +115,10 @@ export default function TargetingPage() {
 
   // First answer has not arrived yet: the rail's computed figures are placeholders, not zeroes.
   const firstLoad = !data && !error;
+
+  // Hold-out scores for the model and its two baselines. `undefined` on a stale API payload, so
+  // the table is guarded rather than assuming the newer field exists.
+  const mm = meta?.model_metrics;
 
   // The free-tier engine sleeps when idle, and the first POST of a session is the one that
   // wakes it. Explain the wait rather than leaving a shimmering panel on screen for a minute.
@@ -685,12 +700,13 @@ export default function TargetingPage() {
               </p>
               <div className="mt-5 grid gap-5 sm:grid-cols-3">
                 <div className="border-l-2 border-primary pl-4">
-                  <div className="label">Out-of-fold ROC-AUC</div>
+                  <div className="label">Hold-out ROC-AUC</div>
                   <div className="tnum mt-1 text-[26px] font-semibold text-ink">
                     {meta?.model_card?.auc_gradient_boosting?.toFixed(3) ?? "—"}
                   </div>
                   <p className="mt-1 text-[13px] leading-snug text-ink-soft">
-                    Five-fold, scored on rows the model did not train on
+                    Scored on the {meta ? num(meta.model_card.n_test) : "30%"} households held
+                    back from training
                   </p>
                 </div>
                 <div className="border-l-2 border-line pl-4">
@@ -712,6 +728,93 @@ export default function TargetingPage() {
                   </p>
                 </div>
               </div>
+
+              {/* The plan asks whether the model earns its keep, and the honest answer is
+                  "household data does, the algorithm does not". All three rankers are scored on
+                  the same rows by the API, so this table cannot drift from the model card. */}
+              {mm ? (
+                <div className="mt-6">
+                  <h4 className="label">Does the model earn its keep?</h4>
+                  <p className="mt-1 max-w-[84ch] text-[13.5px] leading-snug text-ink-soft">
+                    Three rankers, one hold-out: {num(mm.rows_test)} households the model never
+                    trained on, {pct(mm.positive_rate_test_pct, 1)} of them poor. Precision, recall
+                    and F1 use each row&apos;s own decision rule; ROC-AUC compares the rankings.
+                  </p>
+                  <div
+                    role="region"
+                    aria-label="Model against two baselines on the same hold-out rows"
+                    tabIndex={0}
+                    className="mt-3 overflow-x-auto"
+                  >
+                    <table className="w-full min-w-[560px] border-collapse text-[14.5px]">
+                      <caption className="sr-only">
+                        ROC-AUC, precision, recall and F1 for the gradient-boosted model, a
+                        logistic regression on the same characteristics, and a rule that uses only
+                        the district poverty rate. All are scored on the same hold-out rows.
+                      </caption>
+                      <thead>
+                        <tr className="border-b border-line">
+                          <th scope="col" className="pb-2 pr-4 text-left font-medium text-ink-soft">
+                            Ranker
+                          </th>
+                          <th scope="col" className="pb-2 pr-4 text-left font-medium text-ink-soft">
+                            Decision rule
+                          </th>
+                          <th scope="col" className="pb-2 pr-4 text-right font-medium text-ink-soft">
+                            ROC-AUC
+                          </th>
+                          <th scope="col" className="pb-2 pr-4 text-right font-medium text-ink-soft">
+                            Precision
+                          </th>
+                          <th scope="col" className="pb-2 pr-4 text-right font-medium text-ink-soft">
+                            Recall
+                          </th>
+                          <th scope="col" className="pb-2 text-right font-medium text-ink-soft">
+                            F1
+                          </th>
+                        </tr>
+                      </thead>
+                      <tbody className="divide-y divide-line">
+                        {[
+                          {
+                            name: "Gradient boosting (used here)",
+                            ...mm.model,
+                            rule: `risk ≥ ${mm.threshold.toFixed(2)}`,
+                          },
+                          { ...mm.baseline },
+                          { ...mm.simple_rule },
+                        ].map((r) => (
+                          <tr key={r.name}>
+                            <th scope="row" className="py-2 pr-4 text-left font-normal">
+                              {r.name}
+                            </th>
+                            <td className="py-2 pr-4 text-ink-soft">{r.rule}</td>
+                            <td className="tnum py-2 pr-4 text-right font-medium">
+                              {r.roc_auc.toFixed(3)}
+                            </td>
+                            <td className="tnum py-2 pr-4 text-right">
+                              {r.precision.toFixed(3)}
+                            </td>
+                            <td className="tnum py-2 pr-4 text-right">{r.recall.toFixed(3)}</td>
+                            <td className="tnum py-2 text-right">{r.f1.toFixed(3)}</td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                  <p className="mt-3 max-w-[84ch] text-[13.5px] leading-relaxed text-ink-soft">
+                    Household characteristics are what do the work:{" "}
+                    {mm.model.roc_auc.toFixed(3)} against{" "}
+                    {mm.simple_rule.roc_auc.toFixed(3)} for ranking on district averages alone. The
+                    algorithm is not the source of the gain — a plain logistic regression on the
+                    same characteristics scores {mm.baseline.roc_auc.toFixed(3)},{" "}
+                    {mm.baseline.roc_auc >= mm.model.roc_auc ? "slightly higher" : "slightly lower"}{" "}
+                    than the boosted model, and on this synthetic layer the two are
+                    indistinguishable. Settling that needs a real EICV7 hold-out.
+                  </p>
+                </div>
+              ) : null}
+
               <p className="mt-4 text-[13.5px] leading-snug text-ink-soft">
                 Top signals:{" "}
                 <span className="text-ink">

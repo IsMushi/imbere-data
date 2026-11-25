@@ -97,13 +97,13 @@ At **RWF 300m** with **RWF 150,000** per beneficiary (2,000 households, a 13.3% 
 
 | Rule | Accuracy | Poor reached | Leakage | Cost per poor reached |
 |---|---:|---:|---:|---:|
-| Universal | 28.8% | 13.9% | 71.2% | RWF 520,833 |
-| Geographic | 45.3% | 21.9% | 54.7% | RWF 331,126 |
-| Community-based | 57.6% | 27.9% | 42.4% | RWF 260,417 |
-| Financial-exclusion first | 61.0% | 29.5% | 39.0% | RWF 246,103 |
-| **Proxy-means test** | **78.2%** | **37.8%** | **21.9%** | **RWF 191,939** |
+| Universal | 27.6% | 13.3% | 72.5% | RWF 544,465 |
+| Geographic | 46.1% | 22.3% | 53.9% | RWF 325,380 |
+| Community-based | 56.8% | 27.5% | 43.2% | RWF 264,085 |
+| Financial-exclusion first | 61.4% | 29.7% | 38.6% | RWF 244,499 |
+| **Proxy-means test** | **78.3%** | **37.9%** | **21.7%** | **RWF 191,571** |
 
-**On the calibrated layer, 37.8% of poor households reached against 13.9% for universal selection at the same budget — a 2.7× ratio that characterises the method, not Rwanda, because the joint distribution it runs on is calibrated rather than observed.** Leakage falls from 71.2% to 21.9%. Geographic targeting captures most of the gain at a fraction of the data cost — the practical fallback where a full household survey is unavailable.
+**On the calibrated layer, 37.9% of poor households reached against 13.3% for universal selection at the same budget — a 2.9× ratio that characterises the method, not Rwanda, because the joint distribution it runs on is calibrated rather than observed.** Leakage falls from 72.5% to 21.7%. Geographic targeting captures most of the gain at a fraction of the data cost — the practical fallback where a full household survey is unavailable.
 
 > These figures come from calibrated synthetic household rows. The engines do not change when the real EICV7 file is loaded — only the rows they read. See §6.
 
@@ -140,7 +140,7 @@ that can fail.
 
 **What would make this pilot a failure.** If coverage of poor households at the district's real
 envelope comes in below what the site reports at the same parameters, the calibration is wrong and
-should be corrected before the tool is used again. If leakage exceeds the 21.9% the prototype
+should be corrected before the tool is used again. If leakage exceeds the 21.7% the prototype
 reports for the proxy-means rule by a wide margin, the model is not transferring. Both outcomes are
 informative, which is the point of running it.
 
@@ -167,7 +167,7 @@ district or LODA can adopt, not a pilot in progress. The team has not represente
 - **Rigorous preprocessing:** district table reconciles to the published 27.4% national headcount when population-weighted — an internal consistency check.
 - **Calibrated household layer** reproducing nine published marginals (poverty, extreme poverty, shock incidence, mobile money, savings, insurance, financial-health bands) — and the calibration report is regenerated on every build, so drift is visible rather than silent.
 - **FGT poverty measures** (incidence, depth, severity) computed nationally, by urban/rural and by district, with the formula, weights and scope on the method page; a household-size-weighted consumption Gini alongside.
-- **Proxy-means model** with consumption deliberately excluded, evaluated five-fold out-of-fold: ROC-AUC 0.857, PR-AUC 0.673, Brier 0.134, ECE 0.006, with logistic (0.860) and random forest (0.852) compared. A degradation sweep shows how far the score can fall before geographic targeting wins.
+- **Proxy-means model** with consumption deliberately excluded, evaluated five-fold out-of-fold: ROC-AUC 0.853, PR-AUC 0.672, Brier 0.135, ECE 0.008, with logistic (0.856) and random forest (0.848) compared. A degradation sweep shows how far the score can fall before geographic targeting wins.
 - **A fairness audit we did not have to run, and did.** At the programme caseload the national cut is efficient and unequal at the same time: coverage of each province's *own* poor households runs from **6.4% in Kigali City to 46.6% in the South**, a 7.3× spread, with urban poor covered at 21.5% against 38.2% for rural. That is reported rather than smoothed, because it is the trade-off a district officer is actually choosing between when they pick a rule.
 - **Full method documented** with formulas, assumptions and a one-file contract for swapping in the real EICV7 microdata.
 - **Evidence:** `docs/METHODOLOGY.md`; `scripts/build_data.py`; `api/app/datastore.py`; `data/processed/calibration.json`.
@@ -196,7 +196,7 @@ district or LODA can adopt, not a pilot in progress. The team has not represente
 
 - **Directly usable by MINALOC / LODA / NISR** to compare targeting rules before a budget cycle, and by districts to size a shock-responsive reserve. §2 maps the three points in the documented cycle where the tool answers a live question.
 - **A named pilot, not a hypothetical one.** §4 names Nyanza — the poorest stalled district, 43.3% headcount, −3.6 pts since 2017 — the envelope, the allocation rule, the reach metric that can be checked in one season, and the two outcomes that would count as failure. No agreement is claimed.
-- **Quantified efficiency gain:** 2.7× more poor people reached per franc on the calibrated layer; leakage cut by 49.3 percentage points. The direction is what proxy-means testing predicts generally; the magnitude is a property of this calibration and is restated against real rows once EICV7 lands.
+- **Quantified efficiency gain:** 2.9× more poor people reached per franc on the calibrated layer; leakage cut by 50.8 percentage points. The direction is what proxy-means testing predicts generally; the magnitude is a property of this calibration and is restated against real rows once EICV7 lands.
 - **Deployable at low cost:** a district officer needs only a browser; the backend is a single container.
 - **Extensible to programme impact:** Module 04 already prices a VUP-style transfer against the households a shock pushes below the line, using the published EICV7 coping tables; the EICV7 VUP module (catalog 121) is identified as the next dataset, enabling matched recipient/non-recipient comparison rather than adequacy and selection performance alone.
 - **Honest about the frontier:** the tool states what it cannot yet claim (no causal impact), which is what makes it safe to put in front of a policymaker.
@@ -300,4 +300,4 @@ Set `NEXT_PUBLIC_API_BASE` to the deployed API URL for a hosted build.
 5. **No causal claim.** Targeting results are selection performance, not programme impact. The VUP module is the natural next step for impact evaluation.
 6. **Cash-need figures are a costing exercise** at the poverty line, not a budget recommendation.
 7. **No design-based inference.** The synthetic layer carries no survey weights, strata or PSUs, so reported intervals are resampling intervals, not EICV7 standard errors.
-8. **The shipped model is not the cross-validation winner.** Logistic regression scores 0.860 out-of-fold against 0.857 for the gradient-boosted model; the gap is inside noise and switching would move every pinned figure, so the comparison is reported rather than acted on (`docs/MODEL_EVALUATION.md`).
+8. **The shipped model is not the cross-validation winner.** Logistic regression scores 0.856 out-of-fold against 0.853 for the gradient-boosted model; the gap is inside noise and switching would move every pinned figure, so the comparison is reported rather than acted on (`docs/MODEL_EVALUATION.md`).

@@ -8,26 +8,26 @@
     "price_base": "January 2024"
   },
   "national": {
-    "headcount_pct": 27.58,
-    "poverty_gap_pct": 6.03,
-    "severity_pct": 2.18,
-    "headcount_extreme_pct": 5.72,
-    "mean_consumption_ae_rwf": 729808,
-    "median_consumption_ae_rwf": 660169,
-    "gini_consumption": 0.218
+    "headcount_pct": 27.86,
+    "poverty_gap_pct": 6.12,
+    "severity_pct": 2.24,
+    "headcount_extreme_pct": 5.57,
+    "mean_consumption_ae_rwf": 726269,
+    "median_consumption_ae_rwf": 663312,
+    "gini_consumption": 0.216
   },
   "by_area": [
     {
       "area": "Urban",
-      "headcount_pct": 16.33,
-      "poverty_gap_pct": 3.79,
-      "severity_pct": 1.46
+      "headcount_pct": 18.41,
+      "poverty_gap_pct": 3.91,
+      "severity_pct": 1.37
     },
     {
       "area": "Rural",
-      "headcount_pct": 30.94,
-      "poverty_gap_pct": 6.7,
-      "severity_pct": 2.39
+      "headcount_pct": 30.7,
+      "poverty_gap_pct": 6.79,
+      "severity_pct": 2.5
     }
   ],
   "districts": [
@@ -36,143 +36,134 @@
       "province": "South",
       "sample_households": 402,
       "published_headcount": 51.4,
-      "headcount_pct": 50.64,
-      "poverty_gap_pct": 11.17,
-      "severity_pct": 4.3
-    },
-    {
-      "district": "Nyamasheke",
-      "province": "West",
-      "sample_households": 494,
-      "published_headcount": 42.8,
-      "headcount_pct": 43.67,
-      "poverty_gap_pct": 8.55,
-      "severity_pct": 3.03
-    },
-    {
-      "district": "Rusizi",
-      "province": "West",
-      "sample_households": 512,
-      "published_headcount": 44.2,
-      "headcount_pct": 43.64,
-      "poverty_gap_pct": 10.44,
-      "severity_pct": 3.99
-    },
-    {
-      "district": "Nyanza",
-      "province": "South",
-      "sample_households": 415,
-      "published_headcount": 43.3,
-      "headcount_pct": 43.63,
-      "poverty_gap_pct": 10.0,
-      "severity_pct": 3.62
+      "headcount_pct": 50.56,
+      "poverty_gap_pct": 10.79,
+      "severity_pct": 3.93
     },
     {
       "district": "Gisagara",
       "province": "South",
       "sample_households": 474,
       "published_headcount": 45.6,
-      "headcount_pct": 43.54,
-      "poverty_gap_pct": 9.13,
-      "severity_pct": 3.1
+      "headcount_pct": 44.94,
+      "poverty_gap_pct": 8.65,
+      "severity_pct": 2.74
+    },
+    {
+      "district": "Rusizi",
+      "province": "West",
+      "sample_households": 512,
+      "published_headcount": 44.2,
+      "headcount_pct": 43.79,
+      "poverty_gap_pct": 9.79,
+      "severity_pct": 3.75
+    },
+    {
+      "district": "Nyanza",
+      "province": "South",
+      "sample_households": 415,
+      "published_headcount": 43.3,
+      "headcount_pct": 43.71,
+      "poverty_gap_pct": 9.63,
+      "severity_pct": 3.57
+    },
+    {
+      "district": "Nyamasheke",
+      "province": "West",
+      "sample_households": 494,
+      "published_headcount": 42.8,
+      "headcount_pct": 42.83,
+      "poverty_gap_pct": 9.05,
+      "severity_pct": 3.02
     },
     {
       "district": "Rutsiro",
       "province": "West",
       "sample_households": 423,
       "published_headcount": 40.8,
-      "headcount_pct": 42.97,
-      "poverty_gap_pct": 10.18,
-      "severity_pct": 3.91
-    },
-    {
-      "district": "Kamonyi",
-      "province": "South",
-      "sample_households": 524,
-      "published_headcount": 39.7,
-      "headcount_pct": 41.44,
-      "poverty_gap_pct": 9.24,
-      "severity_pct": 3.4
-    },
-    {
-      "district": "Rubavu",
-      "province": "West",
-      "sample_households": 613,
-      "published_headcount": 38.8,
-      "headcount_pct": 39.67,
-      "poverty_gap_pct": 8.44,
-      "severity_pct": 2.92
-    },
-    {
-      "district": "Karongi",
-      "province": "West",
-      "sample_households": 441,
-      "published_headcount": 38.2,
-      "headcount_pct": 39.61,
-      "poverty_gap_pct": 8.05,
-      "severity_pct": 2.78
+      "headcount_pct": 41.85,
+      "poverty_gap_pct": 9.19,
+      "severity_pct": 3.44
     },
     {
       "district": "Nyaruguru",
       "province": "South",
       "sample_households": 377,
       "published_headcount": 39.7,
-      "headcount_pct": 38.92,
-      "poverty_gap_pct": 8.0,
-      "severity_pct": 2.81
+      "headcount_pct": 41.4,
+      "poverty_gap_pct": 10.55,
+      "severity_pct": 4.04
+    },
+    {
+      "district": "Rubavu",
+      "province": "West",
+      "sample_households": 613,
+      "published_headcount": 38.8,
+      "headcount_pct": 41.17,
+      "poverty_gap_pct": 8.81,
+      "severity_pct": 3.31
+    },
+    {
+      "district": "Kamonyi",
+      "province": "South",
+      "sample_households": 524,
+      "published_headcount": 39.7,
+      "headcount_pct": 40.96,
+      "poverty_gap_pct": 9.59,
+      "severity_pct": 3.86
+    },
+    {
+      "district": "Karongi",
+      "province": "West",
+      "sample_households": 441,
+      "published_headcount": 38.2,
+      "headcount_pct": 39.17,
+      "poverty_gap_pct": 8.98,
+      "severity_pct": 3.13
     },
     {
       "district": "Kayonza",
       "province": "East",
       "sample_households": 506,
       "published_headcount": 36.6,
-      "headcount_pct": 37.31,
-      "poverty_gap_pct": 7.42,
-      "severity_pct": 2.59
+      "headcount_pct": 36.69,
+      "poverty_gap_pct": 7.73,
+      "severity_pct": 2.52
     },
     {
       "district": "Nyagatare",
       "province": "East",
       "sample_households": 781,
       "published_headcount": 36.4,
-      "headcount_pct": 36.83,
-      "poverty_gap_pct": 8.53,
-      "severity_pct": 3.13
+      "headcount_pct": 36.27,
+      "poverty_gap_pct": 8.14,
+      "severity_pct": 3.11
     },
     {
       "district": "Ngoma",
       "province": "East",
       "sample_households": 444,
       "published_headcount": 30.9,
-      "headcount_pct": 31.41,
-      "poverty_gap_pct": 6.09,
-      "severity_pct": 1.98
+      "headcount_pct": 32.86,
+      "poverty_gap_pct": 7.79,
+      "severity_pct": 2.95
     },
     {
       "district": "Ngororero",
       "province": "West",
       "sample_households": 406,
       "published_headcount": 30.2,
-      "headcount_pct": 30.02,
-      "poverty_gap_pct": 5.51,
-      "severity_pct": 1.76
+      "headcount_pct": 30.8,
+      "poverty_gap_pct": 6.08,
+      "severity_pct": 2.17
     },
     {
       "district": "Gakenke",
       "province": "North",
       "sample_households": 392,
       "published_headcount": 24.5,
-      "headcount_pct": 25.22,
-      "poverty_gap_pct": 6.97,
-      "severity_pct": 3.02
-    },
-    {
-      "district": "Huye",
-      "province": "South",
-      "sample_households": 414,
-      "published_headcount": 24.2,
-      "headcount_pct": 25.21,
-      "poverty_gap_pct": 5.31,
+      "headcount_pct": 25.24,
+      "poverty_gap_pct": 5.09,
       "severity_pct": 1.77
     },
     {
@@ -180,126 +171,135 @@
       "province": "East",
       "sample_households": 644,
       "published_headcount": 23.7,
-      "headcount_pct": 23.03,
+      "headcount_pct": 24.58,
       "poverty_gap_pct": 5.06,
-      "severity_pct": 1.86
-    },
-    {
-      "district": "Burera",
-      "province": "North",
-      "sample_households": 472,
-      "published_headcount": 22.0,
-      "headcount_pct": 22.95,
-      "poverty_gap_pct": 4.45,
-      "severity_pct": 1.32
+      "severity_pct": 1.72
     },
     {
       "district": "Rwamagana",
       "province": "East",
       "sample_households": 560,
       "published_headcount": 23.8,
-      "headcount_pct": 22.94,
-      "poverty_gap_pct": 5.55,
-      "severity_pct": 2.05
+      "headcount_pct": 24.57,
+      "poverty_gap_pct": 5.58,
+      "severity_pct": 1.91
+    },
+    {
+      "district": "Huye",
+      "province": "South",
+      "sample_households": 414,
+      "published_headcount": 24.2,
+      "headcount_pct": 23.67,
+      "poverty_gap_pct": 5.48,
+      "severity_pct": 2.01
+    },
+    {
+      "district": "Burera",
+      "province": "North",
+      "sample_households": 472,
+      "published_headcount": 22.0,
+      "headcount_pct": 22.66,
+      "poverty_gap_pct": 4.82,
+      "severity_pct": 1.69
     },
     {
       "district": "Rulindo",
       "province": "North",
       "sample_households": 399,
       "published_headcount": 21.6,
-      "headcount_pct": 22.11,
-      "poverty_gap_pct": 5.04,
-      "severity_pct": 1.71
+      "headcount_pct": 21.1,
+      "poverty_gap_pct": 4.4,
+      "severity_pct": 1.66
     },
     {
       "district": "Musanze",
       "province": "North",
       "sample_households": 563,
       "published_headcount": 21.0,
-      "headcount_pct": 20.41,
-      "poverty_gap_pct": 5.11,
-      "severity_pct": 1.99
-    },
-    {
-      "district": "Nyabihu",
-      "province": "West",
-      "sample_households": 389,
-      "published_headcount": 20.2,
-      "headcount_pct": 20.12,
-      "poverty_gap_pct": 4.26,
-      "severity_pct": 1.53
+      "headcount_pct": 20.94,
+      "poverty_gap_pct": 4.83,
+      "severity_pct": 1.66
     },
     {
       "district": "Gatsibo",
       "province": "East",
       "sample_households": 627,
       "published_headcount": 18.4,
-      "headcount_pct": 19.6,
-      "poverty_gap_pct": 3.79,
-      "severity_pct": 1.34
+      "headcount_pct": 19.1,
+      "poverty_gap_pct": 3.18,
+      "severity_pct": 0.88
     },
     {
-      "district": "Muhanga",
-      "province": "South",
-      "sample_households": 430,
-      "published_headcount": 15.0,
-      "headcount_pct": 14.59,
-      "poverty_gap_pct": 3.47,
-      "severity_pct": 1.37
+      "district": "Nyabihu",
+      "province": "West",
+      "sample_households": 389,
+      "published_headcount": 20.2,
+      "headcount_pct": 19.08,
+      "poverty_gap_pct": 4.41,
+      "severity_pct": 1.76
     },
     {
       "district": "Ruhango",
       "province": "South",
       "sample_households": 411,
       "published_headcount": 15.0,
-      "headcount_pct": 14.53,
-      "poverty_gap_pct": 2.67,
-      "severity_pct": 0.84
+      "headcount_pct": 15.98,
+      "poverty_gap_pct": 4.35,
+      "severity_pct": 1.79
+    },
+    {
+      "district": "Muhanga",
+      "province": "South",
+      "sample_households": 430,
+      "published_headcount": 15.0,
+      "headcount_pct": 15.08,
+      "poverty_gap_pct": 2.94,
+      "severity_pct": 1.01
     },
     {
       "district": "Kirehe",
       "province": "East",
       "sample_households": 517,
       "published_headcount": 14.2,
-      "headcount_pct": 13.57,
-      "poverty_gap_pct": 3.33,
-      "severity_pct": 1.23
+      "headcount_pct": 14.46,
+      "poverty_gap_pct": 3.44,
+      "severity_pct": 1.27
     },
     {
       "district": "Gicumbi",
       "province": "North",
       "sample_households": 514,
       "published_headcount": 13.3,
-      "headcount_pct": 13.24,
-      "poverty_gap_pct": 2.77,
-      "severity_pct": 0.98
+      "headcount_pct": 13.2,
+      "poverty_gap_pct": 3.27,
+      "severity_pct": 1.45
     },
     {
       "district": "Gasabo",
       "province": "Kigali City",
       "sample_households": 966,
       "published_headcount": 11.1,
-      "headcount_pct": 11.35,
-      "poverty_gap_pct": 2.76,
-      "severity_pct": 1.12
-    },
-    {
-      "district": "Kicukiro",
-      "province": "Kigali City",
-      "sample_households": 546,
-      "published_headcount": 6.9,
-      "headcount_pct": 7.98,
-      "poverty_gap_pct": 1.6,
-      "severity_pct": 0.5
+      "headcount_pct": 11.65,
+      "poverty_gap_pct": 2.69,
+      "severity_pct": 1.07
     },
     {
       "district": "Nyarugenge",
       "province": "Kigali City",
       "sample_households": 410,
       "published_headcount": 6.8,
-      "headcount_pct": 6.11,
-      "poverty_gap_pct": 1.49,
-      "severity_pct": 0.5
+      "headcount_pct": 6.95,
+      "poverty_gap_pct": 1.07,
+      "severity_pct": 0.3
+    },
+    {
+      "district": "Kicukiro",
+      "province": "Kigali City",
+      "sample_households": 546,
+      "published_headcount": 6.9,
+      "headcount_pct": 6.76,
+      "poverty_gap_pct": 2.11,
+      "severity_pct": 0.98
     }
   ],
   "microdata_kind": "calibrated_synthetic",

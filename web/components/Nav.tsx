@@ -6,11 +6,12 @@ import { usePathname } from "next/navigation";
 import { Logo } from "@/components/Logo";
 
 const LINKS = [
-  { href: "/", label: "Dashboard", short: "Dashboard" },
-  { href: "/simulator", label: "Simulator", short: "Simulator" },
-  { href: "/targeting", label: "Targeting", short: "Targeting" },
-  { href: "/protection", label: "Protection", short: "Protect" },
-  { href: "/methodology", label: "Methodology", short: "Method" },
+  { href: "/", label: "Overview", short: "Overview" },
+  { href: "/simulator", label: "What if", short: "What if" },
+  { href: "/targeting", label: "Who gets help", short: "Who" },
+  { href: "/protection", label: "Help after a shock", short: "Help" },
+  { href: "/proof", label: "Proof", short: "Proof" },
+  { href: "/methodology", label: "How it works", short: "How" },
 ];
 
 /**
@@ -22,9 +23,9 @@ export function Nav() {
 
   return (
     <header className="sticky top-0 z-40 bg-primary-deep">
-      {/* Two rows below `sm`: four section labels plus the mark do not fit at 390px, and a
+      {/* Two rows below `sm`: six section labels plus the mark do not fit at 390px, and a
           clipped tab strip hides a page. Above `sm` it collapses back to one row, pinned to a
-          fixed 76px. */}
+          fixed 76px. The link name stays the full label even where the short form is visible. */}
       <div className="shell flex flex-col sm:h-[76px] sm:flex-row sm:items-stretch sm:gap-6">
         <Link
           href="/"
@@ -43,6 +44,7 @@ export function Nav() {
               <Link
                 key={l.href}
                 href={l.href}
+                aria-label={l.label}
                 aria-current={active ? "page" : undefined}
                 className={`flex items-center whitespace-nowrap py-3.5 transition-colors focus-visible:outline-white sm:py-0 ${
                   active
