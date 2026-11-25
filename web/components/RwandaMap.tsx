@@ -183,7 +183,7 @@ export function RwandaMap({
                 aria-pressed={active}
                 aria-label={`Highlight districts in the ${b.label}% poverty band`}
                 onClick={() => onFocusBin?.(active ? null : i)}
-                className={`flex items-center gap-1.5 rounded-md px-1.5 py-1 text-[14px] transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring sm:justify-start ${
+                className={`flex items-center gap-1.5 rounded-full px-2 py-1 text-[14px] transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring sm:justify-start ${
                   active
                     ? "bg-surface font-semibold text-ink ring-1 ring-primary"
                     : "text-ink-soft hover:bg-hover hover:text-ink"
