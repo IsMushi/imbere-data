@@ -4,18 +4,11 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 
 import { Logo } from "@/components/Logo";
-
-const LINKS = [
-  { href: "/", label: "Overview", short: "Overview" },
-  { href: "/simulator", label: "What if", short: "What if" },
-  { href: "/targeting", label: "Who gets help", short: "Who" },
-  { href: "/protection", label: "Help after a shock", short: "Help" },
-  { href: "/proof", label: "Proof", short: "Proof" },
-  { href: "/methodology", label: "How it works", short: "How" },
-];
+import { Button } from "@/components/ui/button";
+import { MENU } from "@/content/home";
 
 /**
- * Brand-blue bar, the same surface as the overview hero, so the two read as one band
+ * Deep-blue bar, the same surface as the overview hero, so the two read as one band
  * rather than a paper strip sitting above a colour panel.
  */
 export function Nav() {
@@ -23,9 +16,10 @@ export function Nav() {
 
   return (
     <header className="sticky top-0 z-40 bg-primary-deep">
-      {/* Two rows below `sm`: six section labels plus the mark do not fit at 390px, and a
-          clipped tab strip hides a page. Above `sm` it collapses back to one row, pinned to a
-          fixed 76px. The link name stays the full label even where the short form is visible. */}
+      {/* Two rows below `sm`: the mark, then the section strip. The action sits at the end of
+          the row from `sm` up; on a phone the hero's own button is the primary action and a
+          second one in the bar would crowd the wordmark. The link name stays the full label
+          even where the short form is visible. */}
       <div className="shell flex flex-col sm:h-[76px] sm:flex-row sm:items-stretch sm:gap-6">
         <Link
           href="/"
@@ -38,8 +32,14 @@ export function Nav() {
           aria-label="Sections"
           className="flex items-stretch gap-4 overflow-x-auto border-t border-white/10 text-[14.5px] [scrollbar-width:none] sm:ml-auto sm:gap-6 sm:border-t-0"
         >
-          {LINKS.map((l) => {
-            const active = l.href === "/" ? pathname === "/" : pathname.startsWith(l.href);
+          {MENU.items.map((l) => {
+            // An in-page anchor ("/#risk-map") is not a page, so it never claims the current
+            // state; Overview owns the landing page.
+            const active = l.href.includes("#")
+              ? false
+              : l.href === "/"
+                ? pathname === "/"
+                : pathname.startsWith(l.href);
             return (
               <Link
                 key={l.href}
@@ -47,9 +47,7 @@ export function Nav() {
                 aria-label={l.label}
                 aria-current={active ? "page" : undefined}
                 className={`flex items-center whitespace-nowrap py-3.5 transition-colors focus-visible:outline-white sm:py-0 ${
-                  active
-                    ? "font-medium text-white"
-                    : "text-primary-soft hover:text-white"
+                  active ? "font-medium text-white" : "text-primary-soft hover:text-white"
                 }`}
               >
                 <span className="sm:hidden">{l.short}</span>
@@ -58,6 +56,12 @@ export function Nav() {
             );
           })}
         </nav>
+
+        <div className="hidden items-center sm:flex">
+          <Button asChild className="bg-white text-primary-deep hover:bg-primary-soft">
+            <Link href="/simulator">{MENU.cta}</Link>
+          </Button>
+        </div>
       </div>
     </header>
   );

@@ -142,6 +142,7 @@ const TAG_VARIANT = {
   real: "real",
   modelled: "modelled",
   warn: "warn",
+  estimate: "outline",
 } as const;
 
 export function Tag({

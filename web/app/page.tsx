@@ -6,10 +6,10 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import { BarList } from "@/components/BarList";
 import { DistrictRail, DistrictRailSkeleton } from "@/components/DistrictRail";
 import { DonutChart } from "@/components/DonutChart";
-import { EASE, inView, MotionBar, Stagger, StaggerItem } from "@/components/Motion";
+import { EASE, inView, MotionBar } from "@/components/Motion";
 import { Findings } from "@/components/Findings";
 import { binColor, RwandaMap } from "@/components/RwandaMap";
-import { RwandaWatermark } from "@/components/RwandaWatermark";
+import { Hero } from "@/components/Hero";
 import {
   Kpi,
   Ledger,
@@ -132,41 +132,9 @@ export default function OverviewPage() {
   return (
     <div>
       {/* Lead. Full-bleed brand blue with layered waves, flush under the blue header so the
-          two read as one band: the hero is water the way the argument is — inclusion is a
-          surface, resilience is depth. Waves are decorative, so the block is aria-hidden. */}
-      <section className="relative isolate overflow-hidden bg-primary-deep text-white">
-        <HeroWaves />
-        {/* The country itself, centred behind the band. Decorative line work only — no fill
-            scale, no values — so it cannot be mistaken for the choropleth further down. It
-            sits at a fraction of text contrast so the copy stays readable over it. */}
-        <RwandaWatermark className="pointer-events-none absolute left-1/2 top-1/2 h-[78%] w-auto -translate-x-1/2 -translate-y-1/2 text-white/[0.10] md:h-[112%] 2xl:h-[120%]" />
-        <div className="shell relative pb-44 pt-11 sm:pb-40 sm:pt-14">
-          <Stagger className="max-w-[70ch]" step={0.08} delay={0.05}>
-            <StaggerItem className="flex flex-wrap items-center gap-2">
-              <Tag tone="real" className="bg-white/10 text-white">
-                Financial inclusion &amp; poverty
-              </Tag>
-            </StaggerItem>
-            <StaggerItem>
-              <h1 className="display mt-5 text-[36px] leading-[1.04] sm:text-[56px]">
-                Inclusion is not resilience.
-              </h1>
-            </StaggerItem>
-            <StaggerItem>
-              <p className="mt-5 text-[19.5px] leading-[1.65] text-primary-soft">
-                Rwanda has done something remarkable:{" "}
-                <strong className="font-semibold text-white">96%</strong> of adults are financially
-                included. But <strong className="font-semibold text-white">34%</strong> remain
-                financially vulnerable, and{" "}
-                <strong className="font-semibold text-white">27.4%</strong> live below the poverty
-                line. IMBERE turns that gap into three decisions a planner can actually make — where
-                fragility sits, what shock tips households under, and which targeting rule reaches
-                the poor most cheaply.
-              </p>
-            </StaggerItem>
-          </Stagger>
-        </div>
-      </section>
+          two read as one band. The hero itself lives in components/Hero.tsx so the page file
+          stays about the page, not the banner. */}
+      <Hero meta={meta} districts={districts} />
 
       <div className="shell">
           {/* Summary band */}
@@ -289,7 +257,7 @@ export default function OverviewPage() {
 
         {/* Geography: the map owns the wide left column, the ranked rail sits beside it.
             No card around the map — it sits on the paper, so the country is the panel. */}
-        <section className="mt-10 grid grid-cols-1 gap-8 lg:grid-cols-[minmax(0,1fr)_286px]" aria-label="Geography">
+        <section id="risk-map" className="mt-10 grid scroll-mt-24 grid-cols-1 gap-8 lg:grid-cols-[minmax(0,1fr)_286px]" aria-label="Geography">
           <div>
             <div className="mb-3">
               <div className="label">Where poverty is concentrated</div>
@@ -731,42 +699,6 @@ function Row({ label, value }: { label: string; value: string }) {
     <div className="flex items-baseline justify-between gap-3 border-b border-line/70 pb-1.5">
       <dt className="text-ink-soft">{label}</dt>
       <dd className="tnum font-medium">{value}</dd>
-    </div>
-  );
-}
-
-/** Layered crests behind the hero copy. Decorative, so it stays out of the a11y tree. */
-function HeroWaves() {
-  return (
-    <div aria-hidden className="pointer-events-none absolute inset-0 -z-10">
-      {/* One flat brand blue, exactly the header's, so the two bands read as a single
-          container; depth comes from the crests, not a gradient that would show a seam. */}
-      <svg
-        className="absolute inset-x-0 bottom-0 h-[104px] w-full sm:h-[148px]"
-        viewBox="0 0 1440 200"
-        preserveAspectRatio="none"
-        focusable="false"
-      >
-        <path
-          d="M0,96 C150,50 310,126 490,102 C670,78 810,20 990,44 C1170,68 1310,120 1440,96 L1440,200 L0,200 Z"
-          className="fill-white/10"
-        />
-        <path
-          d="M0,130 C170,104 330,158 510,146 C690,134 830,86 1010,102 C1190,118 1310,160 1440,142 L1440,200 L0,200 Z"
-          className="fill-white/20"
-        />
-        <path
-          d="M0,108 C180,80 340,136 520,122 C700,108 840,60 1020,78 C1200,96 1320,140 1440,120"
-          className="fill-none stroke-white/40"
-          strokeWidth="1.5"
-          vectorEffect="non-scaling-stroke"
-        />
-        {/* Front swell in the page colour, so the panel melts into the paper below. */}
-        <path
-          d="M0,160 C170,138 330,178 510,170 C690,162 850,132 1030,146 C1210,160 1330,188 1440,168 L1440,200 L0,200 Z"
-          className="fill-paper"
-        />
-      </svg>
     </div>
   );
 }

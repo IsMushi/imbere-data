@@ -13,6 +13,12 @@ export function pct(n: number | null | undefined, digits = 1): string {
   return `${n.toFixed(digits)}%`;
 }
 
+/** Whole numbers lose the ".0": 96 becomes "96%", 27.4 stays "27.4%". */
+export function pctAuto(n: number | null | undefined): string {
+  if (n === null || n === undefined || Number.isNaN(n)) return "—";
+  return Number.isInteger(n) ? `${n}%` : `${n.toFixed(1)}%`;
+}
+
 export function signed(n: number, digits = 1): string {
   const s = n > 0 ? "+" : "";
   return `${s}${n.toFixed(digits)}`;
