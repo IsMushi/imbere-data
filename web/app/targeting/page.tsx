@@ -43,11 +43,11 @@ import { num, pct, rwf, rwfValue } from "@/lib/format";
 import { useSlowNotice } from "@/lib/useSlowNotice";
 
 const COLORS: Record<string, string> = {
-  universal: "#acaeb0",
-  geographic: "#5b93c4",
-  community: "#008482",
-  financial_exclusion: "#c95100",
-  pmt: "#005cab",
+  universal: "#9ca3af",
+  geographic: "#5eead4",
+  community: "#0e7490",
+  financial_exclusion: "#b45309",
+  pmt: "#0f766e",
 };
 
 const DEFAULT_BUDGET = 300_000_000;
@@ -878,28 +878,28 @@ export default function TargetingPage() {
                       barGap={2}
                       barCategoryGap="18%"
                     >
-                      <CartesianGrid stroke="#dfe4ea" strokeDasharray="3 3" vertical={false} />
+                      <CartesianGrid stroke="#e5e7eb" strokeDasharray="3 3" vertical={false} />
                       <XAxis
                         dataKey="caseload_pct"
                         tickFormatter={(v) => `${v}%`}
-                        tick={{ fontSize: 12.5, fill: "#37404d" }}
+                        tick={{ fontSize: 12.5, fill: "#4b5563" }}
                         tickLine={false}
-                        axisLine={{ stroke: "#dfe4ea" }}
+                        axisLine={{ stroke: "#e5e7eb" }}
                         label={{
                           value: "Households enrolled (% of sample)",
                           position: "insideBottom",
                           offset: -16,
                           fontSize: 12.5,
-                          fill: "#37404d",
+                          fill: "#4b5563",
                         }}
                       />
                       <YAxis
                         domain={[0, 100]}
                         ticks={[0, 25, 50, 75, 100]}
                         tickFormatter={(v) => `${v}%`}
-                        tick={{ fontSize: 12.5, fill: "#37404d" }}
+                        tick={{ fontSize: 12.5, fill: "#4b5563" }}
                         tickLine={false}
-                        axisLine={{ stroke: "#dfe4ea" }}
+                        axisLine={{ stroke: "#e5e7eb" }}
                         width={40}
                       />
                       <Tooltip
@@ -907,7 +907,7 @@ export default function TargetingPage() {
                         labelFormatter={(v) => `${v}% of households enrolled`}
                         contentStyle={{
                           background: "#ffffff",
-                          border: "1px solid #dfe4ea",
+                          border: "1px solid #e5e7eb",
                           borderRadius: 6,
                           fontSize: 13,
                         }}

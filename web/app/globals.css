@@ -1,28 +1,35 @@
 @import "tailwindcss";
 @import "tw-animate-css";
 
-/* Palette sourced from NISR (statistics.gov.rw) brand CSS variables:
-   brand blue #005cab, deep #004077, mid #196cb3, pale #a5c5e1, ink #0d2343,
-   body #37404d, light background #e6e9eb, warning/orange #c95100, success teal #008482. */
+/* Palette: a calm teal primary on near-white surfaces, with one warm accent kept for
+   "modelled" provenance and second series. Green/red are reserved for outcomes, never for
+   decoration. The token names are unchanged from the previous brand set so every component
+   keeps working; only the values moved. */
 @theme {
-  --color-paper: #eef1f5;
+  --color-paper: #fafafb;
   --color-surface: #ffffff;
-  --color-ink: #0d2343;
-  --color-ink-soft: #37404d;
-  --color-line: #dfe4ea;
-  --color-primary: #005cab;
-  --color-primary-deep: #004077;
-  --color-primary-soft: #e6f0f9;
-  --color-accent: #c95100;
-  /* accent-deep is the AA-safe partner of accent on the peach provenance tints below: #c95100 on
-     #f9e6dc measures 3.7:1 at 12px badge size, #b04800 measures 4.6:1. Keep them paired. */
-  --color-accent-deep: #b04800;
-  --color-accent-soft: #f9e6dc;
-  --color-teal: #008482;
+  --color-ink: #111827;
+  --color-ink-soft: #4b5563;
+  --color-line: #e5e7eb;
+  --color-primary: #0f766e;
+  --color-primary-deep: #115e59;
+  --color-primary-soft: #ccfbf1;
+  --color-accent: #b45309;
+  /* accent-deep is the AA-safe partner of accent on the sand provenance tints below: #b45309 on
+     #fef3c7 measures 4.0:1 at 12px badge size, #92400e measures 5.5:1. Keep them paired. */
+  --color-accent-deep: #92400e;
+  --color-accent-soft: #fef3c7;
+  /* Third series: cool cyan, far enough from the primary teal to read as a separate rule on a
+     chart while staying in the same family. Used for "assumed" provenance and community rules. */
+  --color-teal: #0e7490;
+
+  /* Outcome colours. Nothing else may use them. */
+  --color-good: #16a34a;
+  --color-bad: #dc2626;
 
   /* Semantic aliases read by the primitives in components/ui. The brand tokens above stay the
      source of truth; these exist so copy-in shadcn components read naturally. shadcn's "accent"
-     means a neutral hover surface, which collides with our orange accent, so hover is "hover"
+     means a neutral hover surface, which collides with our warm accent, so hover is "hover"
      here instead. */
   --color-background: var(--color-paper);
   --color-foreground: var(--color-ink);
@@ -33,11 +40,11 @@
   --color-primary-foreground: #ffffff;
   --color-secondary: var(--color-primary-soft);
   --color-secondary-foreground: var(--color-primary-deep);
-  --color-muted: #e6e9eb;
+  --color-muted: #f3f4f6;
   --color-muted-foreground: var(--color-ink-soft);
   --color-hover: var(--color-primary-soft);
   --color-hover-foreground: var(--color-primary-deep);
-  --color-destructive: #ce3936;
+  --color-destructive: var(--color-bad);
   --color-border: var(--color-line);
   --color-input: var(--color-line);
   --color-ring: var(--color-primary);
@@ -157,7 +164,7 @@
 
 /* Soft paper grain so large flat areas do not look like a generic dashboard. */
 .paper-grain {
-  background-image: radial-gradient(rgba(13, 35, 67, 0.04) 1px, transparent 1px);
+  background-image: radial-gradient(rgba(17, 24, 39, 0.035) 1px, transparent 1px);
   background-size: 22px 22px;
 }
 

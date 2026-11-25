@@ -3,7 +3,7 @@
 import { useReducedMotion } from "framer-motion";
 import { Cell, Pie, PieChart, ResponsiveContainer, Tooltip } from "recharts";
 
-const PALETTE = ["#005cab", "#c95100", "#008482", "#196cb3", "#5b93c4", "#0d2343", "#a5c5e1"];
+const PALETTE = ["#0f766e", "#b45309", "#0e7490", "#115e59", "#5eead4", "#111827", "#ccfbf1"];
 
 export function DonutChart({
   items,
@@ -49,7 +49,7 @@ export function DonutChart({
               formatter={(value) => format(Number(value))}
               contentStyle={{
                 background: "#ffffff",
-                border: "1px solid #dfe4ea",
+                border: "1px solid #e5e7eb",
                 borderRadius: 6,
                 fontSize: 13,
               }}

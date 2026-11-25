@@ -240,16 +240,16 @@ export function PanelState({
   return (
     <Card
       className={`items-start gap-4 p-6 sm:p-8 ${
-        kind === "error" ? "border-accent/60 bg-accent/5" : kind === "empty" ? "border-line" : ""
+        kind === "error" ? "border-bad/40 bg-bad/5" : kind === "empty" ? "border-line" : ""
       }`}
       role={kind === "error" ? "alert" : "status"}
       aria-live={kind === "error" ? "assertive" : "polite"}
     >
       <div className="flex items-start gap-3">
         {kind === "error" ? (
-          <div className="mt-0.5 flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-full bg-accent/10">
+          <div className="mt-0.5 flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-full bg-bad/10">
             <svg
-              className="h-5 w-5 text-accent"
+              className="h-5 w-5 text-bad"
               fill="none"
               viewBox="0 0 24 24"
               stroke="currentColor"
@@ -267,7 +267,7 @@ export function PanelState({
         <div className="flex-1 space-y-1">
           <p
             className={`text-[17px] font-medium leading-relaxed ${
-              kind === "error" ? "text-accent" : kind === "empty" ? "text-ink" : "text-ink-soft"
+              kind === "error" ? "text-bad" : kind === "empty" ? "text-ink" : "text-ink-soft"
             }`}
           >
             {children}

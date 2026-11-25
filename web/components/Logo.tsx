@@ -2,12 +2,12 @@
  * Three ascending columns on a shared baseline — access, savings, resilience, and a nod to
  * "imbere" (forward). Vertical, because horizontal bars at this size read as a hamburger menu.
  * Flat feet on one baseline make it a chart rather than three floating pills; brightness
- * steps 70 → 85 → 100 carry the hierarchy that the brand orange cannot (#c95100 on the navy
- * header is barely 2:1 and would look like a smudge). The 70 floor matches the favicon: at
- * 55 the shortest column washed out against navy at tab size.
+ * steps 70 → 85 → 100 carry the hierarchy that the warm accent cannot (#b45309 on the deep
+ * teal is barely 2:1 and would look like a smudge). The 70 floor matches the favicon: at
+ * 55 the shortest column washed out at tab size.
  *
- * The lockup inherits `currentColor`, so the surface decides the tone: the navy header passes
- * `text-white`, the paper footer passes `text-primary-deep`. No chip or plate is needed, and
+ * The lockup inherits `currentColor`, so the surface decides the tone: the white top bar
+ * passes `text-primary-deep`, the paper footer does the same. No chip or plate is needed, and
  * the mark never carries a background of its own.
  */
 export function Logo({ className = "" }: { className?: string }) {
