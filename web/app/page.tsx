@@ -134,7 +134,7 @@ export default function OverviewPage() {
       {/* Lead. Full-bleed brand blue with layered waves, flush under the blue header so the
           two read as one band. The hero itself lives in components/Hero.tsx so the page file
           stays about the page, not the banner. */}
-      <Hero meta={meta} districts={districts} />
+      <Hero meta={meta} />
 
       <div className="shell">
           {/* Summary band */}

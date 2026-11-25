@@ -9,21 +9,14 @@ import { StatCard } from "@/components/StatCard";
 import { Tag } from "@/components/Ui";
 import { Button } from "@/components/ui/button";
 import { HERO } from "@/content/home";
-import type { District, Meta } from "@/lib/api";
-import { pct, pctAuto } from "@/lib/format";
+import type { Meta } from "@/lib/api";
+import { pctAuto } from "@/lib/format";
 
 /**
- * The first screen. One claim, three published numbers, two ways in, and a live district
- * ranking on the right. Every figure is read from /api/meta or /api/districts; nothing is
- * typed by hand. The ranking is the model's, so it carries an Estimate badge.
+ * The first screen: one claim, three published numbers on the right, two ways in. Every
+ * figure is read from /api/meta; nothing is typed by hand.
  */
-export function Hero({
-  meta,
-  districts,
-}: {
-  meta: Meta | null;
-  districts: District[];
-}) {
+export function Hero({ meta }: { meta: Meta | null }) {
   // Published indicators, keyed by id so the labels and values cannot drift apart.
   const indicators = useMemo(
     () => new Map((meta?.indicators ?? []).map((item) => [item.id, item.value])),
@@ -39,20 +32,16 @@ export function Hero({
       : undefined;
   const poverty = indicators.get("poverty_headcount");
 
-  const topRisk = useMemo(
-    () => [...districts].sort((a, b) => b.mean_risk - a.mean_risk).slice(0, 3),
-    [districts],
-  );
-
   return (
     <section className="relative isolate overflow-hidden bg-primary-deep text-white">
       <HeroWaves />
       <RwandaWatermark className="pointer-events-none absolute left-1/2 top-1/2 h-[78%] w-auto -translate-x-1/2 -translate-y-1/2 text-white/[0.10] md:h-[112%] 2xl:h-[120%]" />
 
       <div className="shell relative pb-28 pt-11 sm:pt-14 lg:pb-32">
-        <div className="grid items-center gap-10 lg:grid-cols-[minmax(0,1fr)_360px]">
-          {/* The argument */}
-          <Stagger step={0.08} delay={0.05}>
+        {/* One column on a phone: claim, numbers, action. On wide screens the numbers move
+            to the right and the claim keeps the left. */}
+        <div className="flex flex-col gap-7 lg:grid lg:grid-cols-[minmax(0,1fr)_360px] lg:grid-rows-[auto_auto] lg:items-center lg:gap-x-12 lg:gap-y-7">
+          <Stagger className="lg:col-start-1 lg:row-start-1" step={0.08} delay={0.05}>
             <StaggerItem className="flex flex-wrap items-center gap-2">
               <Tag tone="real" className="bg-white/10 text-white">
                 {HERO.eyebrow}
@@ -70,29 +59,29 @@ export function Hero({
                 {HERO.body}
               </p>
             </StaggerItem>
+          </Stagger>
 
-            <StaggerItem>
-              <div className="mt-7 grid max-w-[540px] grid-cols-3 gap-2.5 sm:gap-3">
-                <StatCard
-                  inverted
-                  value={included != null ? pctAuto(included) : "—"}
-                  label={HERO.stats.included}
-                />
-                <StatCard
-                  inverted
-                  value={vulnerable != null ? pctAuto(vulnerable) : "—"}
-                  label={HERO.stats.vulnerable}
-                />
-                <StatCard
-                  inverted
-                  value={poverty != null ? pctAuto(poverty) : "—"}
-                  label={HERO.stats.poverty}
-                />
-              </div>
-            </StaggerItem>
+          <div className="grid grid-cols-3 gap-2.5 sm:gap-3 lg:col-start-2 lg:row-start-1 lg:row-span-2 lg:grid-cols-1">
+            <StatCard
+              inverted
+              value={included != null ? pctAuto(included) : "—"}
+              label={HERO.stats.included}
+            />
+            <StatCard
+              inverted
+              value={vulnerable != null ? pctAuto(vulnerable) : "—"}
+              label={HERO.stats.vulnerable}
+            />
+            <StatCard
+              inverted
+              value={poverty != null ? pctAuto(poverty) : "—"}
+              label={HERO.stats.poverty}
+            />
+          </div>
 
+          <Stagger className="lg:col-start-1 lg:row-start-2" step={0.08} delay={0.2}>
             <StaggerItem>
-              <div className="mt-7 flex flex-col gap-3 sm:flex-row">
+              <div className="flex flex-col gap-3 sm:flex-row">
                 <Button
                   asChild
                   size="lg"
@@ -120,44 +109,6 @@ export function Hero({
               </p>
             </StaggerItem>
           </Stagger>
-
-          {/* Where fragility sits: the model's own ranking, with the published rate beside it. */}
-          <div className="rounded-xl border border-line bg-surface p-5 text-ink shadow-[0_18px_40px_-24px_rgba(13,35,67,0.45)]">
-            <div className="flex items-center justify-between gap-2">
-              <h2 className="label">{HERO.risk.title}</h2>
-              <Tag tone="estimate">{HERO.risk.badge}</Tag>
-            </div>
-
-            {topRisk.length > 0 ? (
-              <ul className="mt-4 space-y-3.5">
-                {topRisk.map((district) => (
-                  <li key={district.district}>
-                    <div className="flex items-baseline justify-between gap-3 text-[14px]">
-                      <span className="font-medium text-ink">{district.district}</span>
-                      <span className="tnum text-ink-soft">
-                        {pct(district.mean_risk * 100, 1)}
-                      </span>
-                    </div>
-                    <div className="mt-1.5 h-1.5 overflow-hidden rounded-full bg-line">
-                      <div
-                        className="h-full rounded-full bg-primary"
-                        style={{ width: `${Math.max(4, district.mean_risk * 100)}%` }}
-                      />
-                    </div>
-                    <p className="mt-1 text-[12px] text-ink-soft">
-                      {pct(district.poverty_2024)} {HERO.risk.published}
-                    </p>
-                  </li>
-                ))}
-              </ul>
-            ) : (
-              <p className="mt-4 text-[13px] text-ink-soft">{HERO.risk.loading}</p>
-            )}
-
-            <p className="mt-4 border-t border-line pt-3 text-[12px] leading-snug text-ink-soft">
-              {HERO.risk.note}
-            </p>
-          </div>
         </div>
       </div>
     </section>

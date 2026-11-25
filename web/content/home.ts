@@ -14,13 +14,6 @@ export const HERO = {
   primaryCta: "Try the simulator",
   secondaryCta: "See the proof",
   trust: "Real NISR data: EICV7 and FinScope 2024",
-  risk: {
-    title: "Highest modelled risk",
-    badge: "Estimate",
-    loading: "Loading district risk…",
-    published: "published poverty",
-    note: "Mean predicted poverty risk from the proxy-means model. The published rate beside each district is EICV7 2023/24.",
-  },
 };
 
 export const MENU = {
