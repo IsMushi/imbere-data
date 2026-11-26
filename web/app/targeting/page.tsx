@@ -236,9 +236,11 @@ export default function TargetingPage() {
           Same budget. Different poor people.
         </h1>
         <p className="mt-4 text-[19.5px] leading-[1.65] text-ink-soft">
-          Targeting is where social-protection money is won or lost. IMBERE runs five allocation
-          rules over the same household distribution and reports who actually gets reached —
-          accuracy, coverage, leakage and cost per poor person.
+          {ratio
+            ? `One budget, five ways to spend it: the proxy-means rule reaches a poor household for ${ratio.toFixed(1)}× less than universal coverage. `
+            : "One budget, five ways to spend it. "}
+          IMBERE runs five allocation rules over the same household distribution and reports who
+          actually gets reached — accuracy, coverage, leakage and cost per poor person.
         </p>
       </div>
 
@@ -460,6 +462,16 @@ export default function TargetingPage() {
               <ol className="space-y-3 md:hidden">
                 {ranked.map((r, i) => {
                   const best = r.id === "pmt";
+                  // Deviation against universal allocation, which is the policy baseline every
+                  // reader already understands: coverage in percentage points, cost as a multiple.
+                  const deltaPp = universal ? r.coverage_of_poor - universal.coverage_of_poor : null;
+                  const cheaper =
+                    universal &&
+                    typeof universal.cost_per_poor_reached === "number" &&
+                    typeof r.cost_per_poor_reached === "number" &&
+                    r.cost_per_poor_reached > 0
+                      ? universal.cost_per_poor_reached / r.cost_per_poor_reached
+                      : null;
                   return (
                     <li
                       key={r.id}
@@ -493,6 +505,13 @@ export default function TargetingPage() {
                           <dd className="tnum font-medium">{rwf(r.cost_per_poor_reached)}</dd>
                         </div>
                       </dl>
+                      <p className="mt-2 text-[12.5px] leading-snug text-ink-soft">
+                        {r.id === "universal"
+                          ? "Baseline for every comparison on this page."
+                          : deltaPp != null && cheaper != null
+                            ? `vs universal: coverage ${deltaPp >= 0 ? "+" : ""}${deltaPp.toFixed(1)} pp, ${cheaper.toFixed(1)}× cheaper per poor household`
+                            : null}
+                      </p>
                       {r.ci95?.coverage_of_poor ? (
                         <p className="mt-2 text-[12.5px] leading-snug text-ink-soft">
                           95% interval — coverage {pct(r.ci95.coverage_of_poor[0], 1)}–
@@ -510,7 +529,8 @@ export default function TargetingPage() {
                 <Table className="min-w-[600px]">
                   <TableCaption>
                     Five allocation rules ranked by cost per poor person reached, with targeting
-                    accuracy, coverage of poor households and leakage.
+                    accuracy, coverage of poor households, leakage, and each rule&apos;s deviation
+                    from universal allocation.
                   </TableCaption>
                   <TableHeader>
                     <TableRow>
@@ -530,11 +550,22 @@ export default function TargetingPage() {
                       <TableHead scope="col" className="text-right">
                         Cost / poor
                       </TableHead>
+                      <TableHead scope="col" className="text-right">
+                        vs universal
+                      </TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
                     {ranked.map((r, i) => {
                       const best = r.id === "pmt";
+                      const deltaPp = universal ? r.coverage_of_poor - universal.coverage_of_poor : null;
+                      const cheaper =
+                        universal &&
+                        typeof universal.cost_per_poor_reached === "number" &&
+                        typeof r.cost_per_poor_reached === "number" &&
+                        r.cost_per_poor_reached > 0
+                          ? universal.cost_per_poor_reached / r.cost_per_poor_reached
+                          : null;
                       return (
                         <TableRow key={r.id} className={best ? "bg-primary-soft/40" : undefined}>
                           <TableCell className="tnum py-3 align-top text-[13px] text-ink-soft">
@@ -578,6 +609,21 @@ export default function TargetingPage() {
                           </TableCell>
                           <TableCell className="tnum py-3 text-right align-top font-medium">
                             {rwf(r.cost_per_poor_reached)}
+                          </TableCell>
+                          <TableCell className="py-3 text-right align-top text-[13.5px]">
+                            {r.id === "universal" ? (
+                              <span className="text-ink-soft">baseline</span>
+                            ) : deltaPp != null && cheaper != null ? (
+                              <>
+                                <span className="tnum block">
+                                  {deltaPp >= 0 ? "+" : ""}
+                                  {deltaPp.toFixed(1)} pp
+                                </span>
+                                <span className="tnum block text-[12.5px] text-ink-soft">
+                                  {cheaper.toFixed(1)}× cheaper
+                                </span>
+                              </>
+                            ) : null}
                           </TableCell>
                         </TableRow>
                       );

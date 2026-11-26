@@ -1,7 +1,7 @@
 "use client";
 
-import { MotionConfig, motion, useReducedMotion, type Variants } from "framer-motion";
-import type { CSSProperties, ReactNode } from "react";
+import { MotionConfig, animate, motion, useReducedMotion, type Variants } from "framer-motion";
+import { useEffect, useState, type CSSProperties, type ReactNode } from "react";
 
 /**
  * House motion. IMBERE reads like a statistical annex, so movement is short and small:
@@ -10,6 +10,10 @@ import type { CSSProperties, ReactNode } from "react";
  * `useReducedMotion` themselves, since widths are not transforms.
  */
 export const EASE: [number, number, number, number] = [0.22, 1, 0.36, 1];
+
+/** Crossfades and carousel moves. EASE is tuned for one-shot entrances and reaches 80% of the
+ *  distance in the first frame, which reads as a jump when two panels swap places. */
+export const SLIDE_EASE: [number, number, number, number] = [0.4, 0, 0.2, 1];
 
 /** Shared viewport for scroll reveals: fire once, a little before the element centres. */
 export const inView = { once: true, margin: "0px 0px -64px 0px" } as const;
@@ -86,6 +90,56 @@ export function StaggerItem({ children, className }: { children: ReactNode; clas
     <motion.div className={className} variants={fadeUp}>
       {children}
     </motion.div>
+  );
+}
+
+/**
+ * A figure that counts up from zero to `value` when it mounts. Reduced-motion users get the
+ * final number with no intermediate frames. Mount below the fold and the count may finish
+ * before it is seen; the hero's diagram mounts in view, which is where this is used.
+ */
+const digits = (n: number) => `${Math.round(n)}`;
+
+export function CountUp({
+  value,
+  format = digits,
+  suffix,
+  duration = 1,
+  delay = 0,
+}: {
+  value: number;
+  format?: (n: number) => string;
+  /** Rendered after the digits, e.g. the percent sign in the text face. */
+  suffix?: ReactNode;
+  duration?: number;
+  delay?: number;
+}) {
+  const reduced = useReducedMotion();
+  const [shown, setShown] = useState(() => (reduced ? format(value) : format(0)));
+
+  useEffect(() => {
+    if (reduced) {
+      setShown(format(value));
+      return;
+    }
+
+    const controls = animate(0, value, {
+      duration,
+      delay,
+      // A gentler curve than EASE: an entrance snap makes the figure hit 90% in the first
+      // frame, which reads as a jump rather than a count.
+      ease: "easeOut",
+      onUpdate: (v) => setShown(format(v)),
+    });
+
+    return () => controls.stop();
+  }, [value, duration, delay, reduced, format]);
+
+  return (
+    <span className="tnum">
+      {shown}
+      {suffix}
+    </span>
   );
 }
 

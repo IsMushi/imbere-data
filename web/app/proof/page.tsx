@@ -67,6 +67,13 @@ export default function ProofPage() {
     [proof],
   );
 
+  // The two rows the generator was never pointed at. They are the only evidence about the
+  // population rather than proof that the calibration step ran, so the headline card names them.
+  const worstEmergent = useMemo(() => {
+    const rows = proof?.rows.filter((r) => r.role === "emergent") ?? [];
+    return rows.reduce((m, r) => Math.max(m, Math.abs(r.difference)), 0);
+  }, [proof]);
+
   const sizeRow = proof?.rows.find((r) => r.id === "household_size");
 
   // A point or more is worth a card; anything smaller is inside the rounding step of a published
@@ -124,7 +131,7 @@ export default function ProofPage() {
             <Kpi
               label="Largest calibration gap"
               value={`${worstTarget.toFixed(1)} pp`}
-              note="Worst row that was fitted by the generator"
+              note={`Worst fitted row; unfitted rows within ${worstEmergent.toFixed(1)} pp`}
             />
             <Kpi
               label="Province rates within"

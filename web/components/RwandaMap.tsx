@@ -20,7 +20,7 @@ const BINS = [
   { max: 30, color: "#a5c5e1", ink: "#0d2343", label: "20 – 30" },
   { max: 40, color: "#5b93c4", ink: "#0d2343", label: "31 – 40" },
   { max: 50, color: "#196cb3", ink: "#ffffff", label: "41 – 50" },
-  { max: Infinity, color: "#004077", ink: "#ffffff", label: "51 and above" },
+  { max: Infinity, color: "#011f4e", ink: "#ffffff", label: "51 and above" },
 ];
 
 /** Index of the bin a poverty rate falls in. Shared by the legend filter and the colours. */

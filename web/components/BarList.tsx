@@ -31,7 +31,8 @@ export function BarList({
    */
   valueLabels?: boolean;
 }) {
-  const fill = color === "accent" ? "#c95100" : color === "ink" ? "#0d2343" : "#005cab";
+  // Default bars use the brandkit bright blue (--color-brand): fills only, never text.
+  const fill = color === "accent" ? "#c95100" : color === "ink" ? "#0d2343" : "#018ee7";
   const hiFill = highlightColor === "teal" ? "#008482" : "#c95100";
   const data = items.map((item) => ({
     name: item.label,

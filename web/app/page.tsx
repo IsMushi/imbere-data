@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { motion } from "framer-motion";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { BarList } from "@/components/BarList";
@@ -10,6 +11,7 @@ import { EASE, inView, MotionBar } from "@/components/Motion";
 import { Findings } from "@/components/Findings";
 import { binColor, RwandaMap } from "@/components/RwandaMap";
 import { Hero } from "@/components/Hero";
+import { Button } from "@/components/ui/button";
 import {
   Kpi,
   Ledger,
@@ -26,7 +28,7 @@ import { compact, num, pct, signed } from "@/lib/format";
 
 // Chart colours cannot use Tailwind classes; kept in step with the tokens in globals.css.
 const HEALTH = [
-  { key: "healthy", label: "Healthy", color: "#004077" },
+  { key: "healthy", label: "Healthy", color: "#011f4e" },
   { key: "coping", label: "Coping", color: "#196cb3" },
   { key: "vulnerable", label: "Vulnerable", color: "#008482" },
   { key: "extremely_vulnerable", label: "Extremely vulnerable", color: "#c95100" },
@@ -54,6 +56,54 @@ const USERS = [
     does: "Cost what a drought or a flood does to the poverty rate in their own district.",
   },
 ] as const;
+
+/** The four tools behind the overview. One question each, in the order a decision is made. */
+const EXPLORE = [
+  {
+    href: "/simulator",
+    title: "What a shock would cost",
+    body: "Pick a district and a shock. See how many households fall below the line, and what a cash response would cost.",
+  },
+  {
+    href: "/targeting",
+    title: "Who the budget reaches",
+    body: "Four targeting rules on one budget. Proxy-means scores households with a gradient-boosted model over 18 features.",
+  },
+  {
+    href: "/protection",
+    title: "Who protection covers",
+    body: "Who social protection reaches, and how much cash keeps a family out of poverty after a shock has pushed it under.",
+  },
+  {
+    href: "/proof",
+    title: "Whether the data holds",
+    body: "Published NISR and FinScope figures beside the same statistics in the synthetic layer, including where they disagree.",
+  },
+] as const;
+
+type TeamMember = {
+  name: string;
+  role: string;
+  /** Fallback glyph when no photograph is supplied. */
+  gender: "female" | "male";
+  /** Drop a file in `web/public/images/team/` and set the path here to replace the glyph. */
+  photo?: string;
+};
+
+const TEAM: {
+  members: TeamMember[];
+  event: string;
+  track: string;
+  repo: string;
+} = {
+  members: [
+    { name: "ISHIMWE KEZA Grace", role: "Research & analysis", gender: "female" },
+    { name: "Isaac MUSHIMIYIMANA", role: "Design & build", gender: "male" },
+  ],
+  event: "NISR 2026 Big Data Hackathon",
+  track: "Track 2 — Financial Inclusion & Poverty Reduction",
+  repo: "https://github.com/IsMushi/imbere-data",
+};
 
 export default function OverviewPage() {
   const [meta, setMeta] = useState<Meta | null>(null);
@@ -106,6 +156,18 @@ export default function OverviewPage() {
     [meta],
   );
 
+  // A separate partition from the provinces — every adult is in exactly one of these two —
+  // so it gets its own small chart rather than being appended to the province ranking.
+  const areaItems = useMemo(
+    () =>
+      (meta?.area_poverty ?? []).map((a) => ({
+        label: a.area,
+        value: a.poverty_2024,
+        note: `${signed(a.poverty_2024 - a.poverty_2017)} pts since 2017`,
+      })),
+    [meta],
+  );
+
   const health = meta?.calibration?.financial_health as Record<string, number> | undefined;
 
   // The three findings restate figures the ledger already carries, so they are pulled once
@@ -137,11 +199,11 @@ export default function OverviewPage() {
       <Hero meta={meta} />
 
       <div className="shell">
-          {/* Summary band */}
-          <section className="mt-10" aria-label="National summary">
-            <div className="mb-3">
-              <div className="label text-primary">National summary</div>
-            </div>
+        {/* Summary band */}
+        <section className="mt-10" aria-label="National summary">
+          <div className="mb-3">
+            <div className="label text-primary">National summary</div>
+          </div>
           <Ledger>
             {pending ? (
               <>
@@ -186,75 +248,88 @@ export default function OverviewPage() {
             )}
           </Ledger>
         </section>
+        <section className="mt-12 grid grid-cols-1 gap-x-10 gap-y-10 lg:grid-cols-2">
+          <div className="border-t border-line pt-6">
+            <SectionHeading title="Poverty by province">
+              The Western and Southern provinces carry poverty rates roughly four times
+              Kigali&apos;s.
+            </SectionHeading>
+            {meta ? (
+              <div className="w-full">
+                <BarList
+                  items={provinceItems}
+                  format={(v) => pct(v)}
+                  max={45}
+                  colorFor={(item) => binColor(item.value)}
+                />
 
-        {/* Roles, not features. The ledger states what is true nationally; this strip states
-            who changes a decision because of it. Kept to one band so it never competes with
-            the figures above it. */}
-        <section className="mt-10 border-t border-line pt-6" aria-label="Built for">
-          <div className="label text-primary">Built for</div>
-          <div className="mt-4 grid gap-6 sm:grid-cols-3 sm:gap-8">
-            {USERS.map((u) => (
-              <div key={u.who}>
-                <div className="text-[17.5px] font-semibold leading-tight text-ink">{u.who}</div>
-                <div className="mt-0.5 text-[14.5px] leading-snug text-ink-soft">{u.role}</div>
-                <p className="mt-2 text-[15.5px] leading-relaxed text-ink">{u.does}</p>
+                <p className="mt-1 text-[14px] text-ink-soft">
+                  Shaded on the same bins as the district map above.
+                </p>
+
+                <div className="mt-5 border-t border-line pt-4">
+                  <div className="label mb-2">By residence</div>
+                  <div className="grid grid-cols-2 gap-3">
+                    {areaItems.map((area) => (
+                      <div
+                        key={area.label}
+                        className="rounded-lg border border-line bg-surface px-4 py-3"
+                      >
+                        <div className="text-[12.5px] text-ink-soft">{area.label}</div>
+                        <div className="tnum mt-1 text-[26px] font-semibold leading-none tracking-[-0.02em] text-ink">
+                          {pct(area.value)}
+                        </div>
+                        <div className="mt-1 text-[12.5px] text-ink-soft">{area.note}</div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
               </div>
-            ))}
+            ) : (
+              <SkeletonBars rows={6} />
+            )}
+            <SourceNote
+              kind="measured"
+              shows="Poverty split by province and by urban or rural residence."
+              trust="Published EICV7 Table 5.1. These are aggregates of the district estimates, so they move with them and inherit the same sampling error."
+            >
+              EICV7 Table 5.1.
+            </SourceNote>
           </div>
-          <p className="mt-5 max-w-[74ch] text-[15.5px] leading-relaxed text-ink-soft">
-            Aligned with <strong className="font-semibold text-ink">NST2</strong> (Social
-            Transformation) and <strong className="font-semibold text-ink">Vision 2050</strong>.
-            The question is not who holds an account, but which rule moves the most poor
-            households per franc — and what a shock does to the ones a rule misses.
-          </p>
+
+          <div className="border-t border-line pt-6">
+            <SectionHeading title="Financial health, not just access">
+              Only 10% of adults are financially healthy. Access has raced ahead of the ability to
+              absorb a shock.
+            </SectionHeading>
+            {health ? (
+              <DonutChart
+                items={HEALTH.map((h) => ({
+                  label: h.label,
+                  value: health[h.key],
+                  color: h.color,
+                }))}
+                format={(v) => `${v.toFixed(0)}%`}
+              />
+            ) : (
+              <div className="flex flex-col items-center gap-3">
+                <Skeleton className="h-[200px] w-[200px] rounded-full" />
+                <div className="w-full space-y-2">
+                  {HEALTH.map((h) => (
+                    <Skeleton key={h.key} className="h-[12px] w-full" />
+                  ))}
+                </div>
+              </div>
+            )}
+            <SourceNote
+              kind="measured"
+              shows="Whether access converts into resilience: how adults split across financially healthy, coping, vulnerable and extremely vulnerable."
+              trust="FinScope 2024 national sample, using FinScope's own band definitions rather than definitions of our own. The bands describe households, not individuals."
+            >
+              FinScope 2024, national sample.
+            </SourceNote>
+          </div>
         </section>
-
-        {/* What the figures say. Prose, not more numbers: the ledger holds the totals, so this
-            row adds the reading between them and the map that proves it. */}
-        {!pending ? (
-          <section className="mt-8" aria-label="What the figures say">
-            <Findings
-              items={[
-                {
-                  kicker: "Where it sits",
-                  children: (
-                    <>
-                      <strong className="tnum font-semibold">{pct(west)}</strong> of Western
-                      Province lives below the line, roughly four times Kigali&apos;s{" "}
-                      <strong className="tnum font-semibold">{pct(kigali)}</strong>. The national
-                      average hides a four-fold gap.
-                    </>
-                  ),
-                },
-                {
-                  kicker: "Where it stopped",
-                  children: (
-                    <>
-                      <strong className="tnum font-semibold">
-                        {stalled} of {districts.length}
-                      </strong>{" "}
-                      districts cut poverty by less than five points since 2017. Progress reached
-                      most of the country and then stopped at these.
-                    </>
-                  ),
-                },
-                {
-                  kicker: "Why inclusion is not resilience",
-                  children: (
-                    <>
-                      <strong className="tnum font-semibold">{pct(health?.healthy, 0)}</strong> of
-                      adults are financially healthy while{" "}
-                      <strong className="tnum font-semibold">{pct(vulnerable, 0)}</strong> are
-                      vulnerable or extremely vulnerable. Access arrived without the buffer to
-                      absorb a shock.
-                    </>
-                  ),
-                },
-              ]}
-            />
-          </section>
-        ) : null}
-
         {/* Geography: the map owns the wide left column, the ranked rail sits beside it.
             No card around the map — it sits on the paper, so the country is the panel. */}
         <section id="risk-map" className="mt-10 grid scroll-mt-24 grid-cols-1 gap-8 lg:grid-cols-[minmax(0,1fr)_286px]" aria-label="Geography">
@@ -315,9 +390,8 @@ export default function OverviewPage() {
                       <div>
                         <div className="label">Since 2017</div>
                         <div
-                          className={`tnum mt-1 text-[24px] font-semibold leading-none ${
-                            sel.poverty_change_pp > -5 ? "text-accent" : "text-teal"
-                          }`}
+                          className={`tnum mt-1 text-[24px] font-semibold leading-none ${sel.poverty_change_pp > -5 ? "text-accent" : "text-teal"
+                            }`}
                         >
                           {signed(sel.poverty_change_pp)} pp
                         </div>
@@ -484,69 +558,7 @@ export default function OverviewPage() {
         {/* Province + financial health, side by side: the province ranking on the left,
             the FinScope split on the right, so both halves of the inclusion story sit on
             one line instead of stacking into two full-width blocks. */}
-        <section className="mt-12 grid grid-cols-1 gap-x-10 gap-y-10 lg:grid-cols-2">
-          <div className="border-t border-line pt-6">
-            <SectionHeading title="Poverty by province">
-              The Western and Southern provinces carry poverty rates roughly four times
-              Kigali&apos;s.
-            </SectionHeading>
-            {meta ? (
-              <div className="w-full">
-                <BarList
-                  items={provinceItems}
-                  format={(v) => pct(v)}
-                  max={45}
-                  colorFor={(item) => binColor(item.value)}
-                />
-                <p className="mt-1 text-[14px] text-ink-soft">
-                  Shaded on the same bins as the district map above.
-                </p>
-              </div>
-            ) : (
-              <SkeletonBars rows={4} />
-            )}
-            <SourceNote
-              kind="measured"
-              shows="Poverty split by province and by urban or rural residence."
-              trust="Published EICV7 Table 5.1. These are aggregates of the district estimates, so they move with them and inherit the same sampling error."
-            >
-              EICV7 Table 5.1.
-            </SourceNote>
-          </div>
 
-          <div className="border-t border-line pt-6">
-            <SectionHeading title="Financial health, not just access">
-              Only 10% of adults are financially healthy. Access has raced ahead of the ability to
-              absorb a shock.
-            </SectionHeading>
-            {health ? (
-              <DonutChart
-                items={HEALTH.map((h) => ({
-                  label: h.label,
-                  value: health[h.key],
-                  color: h.color,
-                }))}
-                format={(v) => `${v.toFixed(0)}%`}
-              />
-            ) : (
-              <div className="flex flex-col items-center gap-3">
-                <Skeleton className="h-[200px] w-[200px] rounded-full" />
-                <div className="w-full space-y-2">
-                  {HEALTH.map((h) => (
-                    <Skeleton key={h.key} className="h-[12px] w-full" />
-                  ))}
-                </div>
-              </div>
-            )}
-            <SourceNote
-              kind="measured"
-              shows="Whether access converts into resilience: how adults split across financially healthy, coping, vulnerable and extremely vulnerable."
-              trust="FinScope 2024 national sample, using FinScope's own band definitions rather than definitions of our own. The bands describe households, not individuals."
-            >
-              FinScope 2024, national sample.
-            </SourceNote>
-          </div>
-        </section>
 
         {/* Shocks */}
         <section className="mt-12">
@@ -590,107 +602,235 @@ export default function OverviewPage() {
           </div>
         </section>
 
-        {/* Next */}
-        <div className="mb-3">
-          <div className="label text-primary">Continue exploring</div>
-        </div>
-        <section className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4" aria-label="Explore the tools">
-          <Link
-            href="/simulator"
-            className="group flex flex-col gap-3 rounded-md border border-line bg-surface p-6 transition-colors hover:border-primary"
-          >
-            <h3 className="display-sm text-[22px] text-ink">What if a shock hits</h3>
-            <p className="text-[15.5px] leading-relaxed text-ink-soft">
-              Pick a district and a shock. See how many households fall below the line and what it
-              costs to catch them.
+        {/* Next: one question per card, numbered in the order the decision is taken. */}
+        <section className="mt-12 border-t border-line pt-6" aria-label="Explore the tools">
+          <div className="flex flex-wrap items-end justify-between gap-x-10 gap-y-3">
+            <div>
+              <div className="label text-primary">Continue exploring</div>
+              <h2 className="display-sm mt-2 text-[26px] leading-tight text-ink">
+                Four questions, four tools
+              </h2>
+            </div>
+            <p className="max-w-[48ch] text-[15.5px] leading-relaxed text-ink-soft">
+              Each one answers a single decision from the same evidence.
             </p>
-            <span className="mt-auto inline-flex items-center gap-1.5 text-[15px] font-medium text-primary-deep">
-              Open
-              <svg
-                aria-hidden
-                className="h-4 w-4 transition-transform group-hover:translate-x-0.5"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth={2}
+          </div>
+
+          <div className="mt-6 grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+            {EXPLORE.map((item, i) => (
+              <Link
+                key={item.href}
+                href={item.href}
+                className="group flex flex-col rounded-lg border border-line bg-surface p-5 transition-colors hover:border-primary"
               >
-                <path strokeLinecap="round" strokeLinejoin="round" d="M5 12h14m-6-6 6 6-6 6" />
-              </svg>
-            </span>
-          </Link>
-          <Link
-            href="/targeting"
-            className="group flex flex-col gap-3 rounded-md border border-line bg-surface p-6 transition-colors hover:border-primary"
-          >
-            <h3 className="display-sm text-[22px] text-ink">Who gets help</h3>
-            <p className="text-[15.5px] leading-relaxed text-ink-soft">
-              Compare universal, geographic, community and proxy-means targeting on the same
-              budget. Proxy-means is driven by an 18-feature gradient-boosted model, not a fixed
-              formula.
-            </p>
-            <span className="mt-auto inline-flex items-center gap-1.5 text-[15px] font-medium text-primary-deep">
-              Open
-              <svg
-                aria-hidden
-                className="h-4 w-4 transition-transform group-hover:translate-x-0.5"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth={2}
+                <span className="tnum text-[12.5px] font-semibold tracking-[0.08em] text-primary">
+                  {String(i + 1).padStart(2, "0")}
+                </span>
+                <h3 className="display-sm mt-2 text-[19px] leading-tight text-ink transition-colors group-hover:text-primary-deep">
+                  {item.title}
+                </h3>
+                <p className="mt-2 text-[14.5px] leading-relaxed text-ink-soft">{item.body}</p>
+                <span className="mt-auto inline-flex items-center gap-1.5 pt-4 text-[14.5px] font-medium text-primary-deep">
+                  Open
+                  <svg
+                    aria-hidden
+                    className="h-4 w-4 transition-transform group-hover:translate-x-0.5"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth={2}
+                  >
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M5 12h14m-6-6 6 6-6 6" />
+                  </svg>
+                </span>
+              </Link>
+            ))}
+          </div>
+        </section>
+
+        {/* Roles, not features. The ledger states what is true nationally; this strip states
+            who changes a decision because of it. Kept to one band so it never competes with
+            the figures above it. */}
+
+        <section className="mt-10 border-t border-line pt-6" aria-label="Built for">
+          <div className="label text-primary">Built for</div>
+          <div className="mt-4 grid gap-6 sm:grid-cols-3 sm:gap-8">
+            {USERS.map((u) => (
+              <div key={u.who}>
+                <div className="text-[17.5px] font-semibold leading-tight text-ink">{u.who}</div>
+                <div className="mt-0.5 text-[14.5px] leading-snug text-ink-soft">{u.role}</div>
+                <p className="mt-2 text-[15.5px] leading-relaxed text-ink">{u.does}</p>
+              </div>
+            ))}
+          </div>
+          <p className="mt-5 max-w-[74ch] text-[15.5px] leading-relaxed text-ink-soft">
+            Aligned with <strong className="font-semibold text-ink">NST2</strong> (Social
+            Transformation) and <strong className="font-semibold text-ink">Vision 2050</strong>.
+            The question is not who holds an account, but which rule moves the most poor
+            households per franc — and what a shock does to the ones a rule misses.
+          </p>
+        </section>
+
+        {/* What the figures say. Prose, not more numbers: the ledger holds the totals, so this
+            row adds the reading between them and the map that proves it. */}
+        {!pending ? (
+          <section className="mt-8" aria-label="What the figures say">
+            <Findings
+              items={[
+                {
+                  kicker: "Where it sits",
+                  children: (
+                    <>
+                      <strong className="tnum font-semibold">{pct(west)}</strong> of Western
+                      Province lives below the line, roughly four times Kigali&apos;s{" "}
+                      <strong className="tnum font-semibold">{pct(kigali)}</strong>. The national
+                      average hides a four-fold gap.
+                    </>
+                  ),
+                },
+                {
+                  kicker: "Where it stopped",
+                  children: (
+                    <>
+                      <strong className="tnum font-semibold">
+                        {stalled} of {districts.length}
+                      </strong>{" "}
+                      districts cut poverty by less than five points since 2017. Progress reached
+                      most of the country and then stopped at these.
+                    </>
+                  ),
+                },
+                {
+                  kicker: "Why inclusion is not resilience",
+                  children: (
+                    <>
+                      <strong className="tnum font-semibold">{pct(health?.healthy, 0)}</strong> of
+                      adults are financially healthy while{" "}
+                      <strong className="tnum font-semibold">{pct(vulnerable, 0)}</strong> are
+                      vulnerable or extremely vulnerable. Access arrived without the buffer to
+                      absorb a shock.
+                    </>
+                  ),
+                },
+              ]}
+            />
+          </section>
+        ) : null}
+
+        {/* Colophon, as a roster rather than a credits list: one card per person, with the
+            role each of them actually took and a photograph where one exists. */}
+        <section className="mt-12 border-t border-line pt-8" aria-label="The team">
+          <div className="flex flex-col gap-5 sm:flex-row sm:items-start sm:justify-between sm:gap-x-10">
+            <div>
+              <div className="label text-primary">The team</div>
+              <h2 className="display-sm mt-2 text-[28px] leading-[1.15] text-ink">
+                Two people, one tool.
+              </h2>
+              <p className="mt-4 max-w-[70ch] text-[15.5px] leading-relaxed text-ink-soft">
+                We built the interface, the household layer and the targeting engine for this
+                track. Every figure shows its source, and the ones we modelled ourselves are
+                marked that way.
+              </p>
+            </div>
+            <Button
+              asChild
+              variant="outline"
+              className="h-11 w-full shrink-0 sm:w-auto"
+            >
+              <a href={TEAM.repo} target="_blank" rel="noreferrer">
+                View the source
+                <span className="sr-only"> (opens in a new tab)</span>
+                <svg
+                  aria-hidden
+                  className="h-4 w-4"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth={1.8}
+                >
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M7 17 17 7M9 7h8v8" />
+                </svg>
+              </a>
+            </Button>
+          </div>
+
+          <ul className="mt-6 grid gap-4 sm:grid-cols-2">
+            {TEAM.members.map((member, i) => (
+              <li
+                key={member.name}
+                className="flex items-center gap-4 rounded-lg border border-line bg-surface p-5"
               >
-                <path strokeLinecap="round" strokeLinejoin="round" d="M5 12h14m-6-6 6 6-6 6" />
-              </svg>
-            </span>
-          </Link>
-          <Link
-            href="/protection"
-            className="group flex flex-col gap-3 rounded-md border border-line bg-surface p-6 transition-colors hover:border-primary"
-          >
-            <h3 className="display-sm text-[22px] text-ink">Help after a shock</h3>
-            <p className="text-[15.5px] leading-relaxed text-ink-soft">
-              See who social protection actually reaches, and how much cash keeps a family out of
-              poverty once a shock has pushed it under.
-            </p>
-            <span className="mt-auto inline-flex items-center gap-1.5 text-[15px] font-medium text-primary-deep">
-              Open
-              <svg
-                aria-hidden
-                className="h-4 w-4 transition-transform group-hover:translate-x-0.5"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth={2}
-              >
-                <path strokeLinecap="round" strokeLinejoin="round" d="M5 12h14m-6-6 6 6-6 6" />
-              </svg>
-            </span>
-          </Link>
-          <Link
-            href="/proof"
-            className="group flex flex-col gap-3 rounded-md border border-line bg-surface p-6 transition-colors hover:border-primary"
-          >
-            <h3 className="display-sm text-[22px] text-ink">Does the data hold up?</h3>
-            <p className="text-[15.5px] leading-relaxed text-ink-soft">
-              Published NISR and FinScope figures beside the same statistics in the synthetic layer,
-              including the rows where the two disagree.
-            </p>
-            <span className="mt-auto inline-flex items-center gap-1.5 text-[15px] font-medium text-primary-deep">
-              Open
-              <svg
-                aria-hidden
-                className="h-4 w-4 transition-transform group-hover:translate-x-0.5"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth={2}
-              >
-                <path strokeLinecap="round" strokeLinejoin="round" d="M5 12h14m-6-6 6 6-6 6" />
-              </svg>
-            </span>
-          </Link>
+                <TeamAvatar member={member} />
+                <div className="min-w-0">
+                  <div className="text-[18px] font-semibold leading-tight tracking-[-0.01em] text-ink">
+                    {member.name}
+                  </div>
+                  <div className="mt-1 text-[14.5px] leading-snug text-ink-soft">
+                    {member.role}
+                  </div>
+                </div>
+                <span className="tnum ml-auto self-start text-[12.5px] font-semibold text-primary">
+                  {String(i + 1).padStart(2, "0")}
+                </span>
+              </li>
+            ))}
+          </ul>
+
+          <dl className="mt-6 flex flex-wrap gap-x-12 gap-y-3 border-t border-line pt-4">
+            <div className="flex gap-3">
+              <dt className="label pt-0.5">Event</dt>
+              <dd className="text-[14.5px] leading-snug text-ink">{TEAM.event}</dd>
+            </div>
+            <div className="flex gap-3">
+              <dt className="label pt-0.5">Track</dt>
+              <dd className="text-[14.5px] leading-snug text-ink">{TEAM.track}</dd>
+            </div>
+          </dl>
         </section>
       </div>
     </div>
+  );
+}
+
+/** Portrait when one is supplied, otherwise a quiet gender glyph; the name beside it carries the meaning. */
+function TeamAvatar({ member }: { member: TeamMember }) {
+  if (member.photo) {
+    return (
+      <Image
+        src={member.photo}
+        alt=""
+        width={112}
+        height={112}
+        className="h-14 w-14 shrink-0 rounded-full border border-line object-cover"
+      />
+    );
+  }
+
+  return (
+    <span
+      aria-hidden
+      className="flex h-14 w-14 shrink-0 items-center justify-center rounded-full border border-line bg-primary-soft text-primary-deep"
+    >
+      <svg
+        className="h-6 w-6"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth={1.6}
+      >
+        {member.gender === "female" ? (
+          <>
+            <circle cx="12" cy="8.5" r="4.5" />
+            <path strokeLinecap="round" d="M12 13v8M9 18h6" />
+          </>
+        ) : (
+          <>
+            <circle cx="10" cy="14" r="4.5" />
+            <path strokeLinecap="round" strokeLinejoin="round" d="M13.2 10.8 20 4m-5 0h5v5" />
+          </>
+        )}
+      </svg>
+    </span>
   );
 }
 
@@ -720,7 +860,7 @@ function MiniBar({
       <span className="h-[5px] overflow-hidden rounded-[1px] bg-line" aria-hidden>
         <MotionBar
           as="span"
-          className={`block h-full ${muted ? "bg-[#acaeb0]" : "bg-[#004077]"}`}
+          className={`block h-full ${muted ? "bg-[#acaeb0]" : "bg-[#011f4e]"}`}
           value={Math.max(2, (value / max) * 100)}
         />
       </span>

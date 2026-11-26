@@ -1,9 +1,12 @@
 @import "tailwindcss";
 @import "tw-animate-css";
 
-/* Palette sourced from NISR (statistics.gov.rw) brand CSS variables:
-   brand blue #005cab, deep #004077, mid #196cb3, pale #a5c5e1, ink #0d2343,
-   body #37404d, light background #e6e9eb, warning/orange #c95100, success teal #008482. */
+/* Palette: brandkit navy #011f4e + bright blue #018ee7 sampled from
+   web/public/images/brand-icon.webp (keyed by scripts/make_icons.py). The deep
+   navy carries the header field and darkest map bin; the bright blue is fills
+   and large graphics only (~3.3:1 on white — never small text). Interactive
+   blue, orange accent, teal, ink and neutrals stay NISR (statistics.gov.rw):
+   mid #196cb3, pale #a5c5e1, ink #0d2343, body #37404d, background #e6e9eb. */
 @theme {
   --color-paper: #eef1f5;
   --color-surface: #ffffff;
@@ -11,7 +14,7 @@
   --color-ink-soft: #37404d;
   --color-line: #dfe4ea;
   --color-primary: #005cab;
-  --color-primary-deep: #004077;
+  --color-primary-deep: #011f4e;
   --color-primary-soft: #e6f0f9;
   --color-accent: #c95100;
   /* accent-deep is the AA-safe partner of accent on the peach provenance tints below: #c95100 on
@@ -19,6 +22,8 @@
   --color-accent-deep: #b04800;
   --color-accent-soft: #f9e6dc;
   --color-teal: #008482;
+  /* Brandkit bright blue: large fills and chart bars only, never text. */
+  --color-brand: #018ee7;
 
   /* Semantic aliases read by the primitives in components/ui. The brand tokens above stay the
      source of truth; these exist so copy-in shadcn components read naturally. shadcn's "accent"
@@ -51,6 +56,10 @@
      drawn against. */
   --font-brand: "Comfortaa", ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont,
     sans-serif;
+  /* Figures only. Google Sans has tighter, more even digits than Manrope at display sizes; the
+     percent sign is kept out of it (see `pct-sign`) because its glyph is too open next to a
+     heavy numeral. Text stays Manrope everywhere. */
+  --font-numeric: "Google Sans", var(--font-sans);
 }
 
 @layer base {
@@ -99,7 +108,21 @@
 }
 
 @utility tnum {
+  font-family: var(--font-numeric);
   font-variant-numeric: tabular-nums;
+}
+
+/* The percent sign, pulled back into the text face at a smaller size. Google Sans draws a wide,
+   open % that reads as a separate letter beside a tight numeral; Manrope at 0.64em sits with the
+   figure instead of after it. */
+@utility pct-sign {
+  font-family: var(--font-sans);
+  font-weight: 500;
+  font-size: 0.62em;
+  letter-spacing: 0;
+  margin-left: 0.02em;
+  position: relative;
+  top: -0.1em;
 }
 
 /* Brand lockup face: the wordmark only. Same weight and tracking the display scale used before the

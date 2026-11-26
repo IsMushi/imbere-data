@@ -3,17 +3,28 @@
  * here and it updates wherever it is used; no numbers live in this file.
  */
 export const HERO = {
-  eyebrow: "Financial inclusion & poverty",
   headline: "Having a bank account is not the same as being safe.",
-  body: "Almost every Rwandan can use financial services. Still, many families fall into poverty after one bad season. IMBERE shows who needs help first.",
-  stats: {
-    included: "can use financial services",
-    vulnerable: "are financially vulnerable",
-    poverty: "live below the poverty line",
+  body: "MINALOC and LODA pick a targeting rule every time social-protection money is spent. IMBERE puts five rules on one budget: who reaches the poorest households, how much leaks to the non-poor, and what each poor household reached actually costs.",
+  // Rendered only when /api/targeting answers; {ratio} is filled from the response, so the figure
+  // cannot go stale and no number is typed into this file.
+  consequence:
+    "On the default budget the proxy-means rule reaches {ratio}× more poor households than universal coverage.",
+  branch: {
+    total: "Financially included adults",
+    formal: "Use at least one formal financial service",
+    informal: "Use only informal mechanisms",
+  },
+  // The second hero slide: the inclusion rate, then what inclusion did not buy.
+  slide: {
+    included: "are financially included. But",
+    vulnerable: "remain financially vulnerable, and",
+    poverty: "live below the poverty line.",
   },
   primaryCta: "Try the simulator",
   secondaryCta: "See the proof",
-  trust: "Real NISR data: EICV7 and FinScope 2024",
+  // The tag says "Measured", so this line may only claim what is actually published. The
+  // household layer is synthetic and says so here, above the fold, before anyone asks.
+  trust: "Published NISR figures: EICV7 and FinScope 2024. Household rows are calibrated synthetic.",
 };
 
 export const MENU = {

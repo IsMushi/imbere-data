@@ -25,7 +25,8 @@ export function Nav() {
           href="/"
           className="flex shrink-0 items-center py-3 focus-visible:outline-white sm:py-0"
         >
-          <Logo className="text-white" />
+          {/* Reversed lockup, set directly on the navy — no plate. */}
+          <Logo tone="light" size="large" />
         </Link>
 
         <nav
@@ -50,8 +51,8 @@ export function Nav() {
                   active ? "font-medium text-white" : "text-primary-soft hover:text-white"
                 }`}
               >
-                <span className="sm:hidden">{l.short}</span>
-                <span className="hidden sm:inline">{l.label}</span>
+                <span className="lg:hidden">{l.short}</span>
+                <span className="hidden lg:inline">{l.label}</span>
               </Link>
             );
           })}

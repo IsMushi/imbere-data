@@ -14,6 +14,17 @@ import { TableCell, TableRow } from "@/components/ui/table";
  * Ledger cell. Deliberately not a card: figures sit in a band separated by hairlines,
  * the way a statistical annex presents a summary table.
  */
+
+/** Keeps the digits in the numeric face but hands the trailing "%" back to the text face. */
+function Figure({ value }: { value: ReactNode }) {
+  if (typeof value !== "string" || !value.endsWith("%")) return <>{value}</>;
+  return (
+    <>
+      {value.slice(0, -1)}
+      <span className="pct-sign">%</span>
+    </>
+  );
+}
 export function Kpi({
   label,
   value,
@@ -35,7 +46,7 @@ export function Kpi({
   return (
     <div className="relative flex flex-col justify-between gap-3 px-5 py-6 sm:px-6">
       <span className={`tnum text-[clamp(32px,4vw,40px)] font-semibold leading-[0.95] tracking-[-0.03em] ${valueTone}`}>
-        {value}
+        <Figure value={value} />
       </span>
       <div className="flex flex-col gap-1">
         <span className="text-[13.5px] font-medium leading-tight text-ink">{label}</span>

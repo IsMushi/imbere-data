@@ -18,7 +18,7 @@ export const metadata: Metadata = {
 };
 
 export const viewport: Viewport = {
-  themeColor: "#005cab",
+  themeColor: "#011f4e",
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
@@ -29,7 +29,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
         <link
           rel="stylesheet"
-          href="https://fonts.googleapis.com/css2?family=Comfortaa:wght@300..700&family=Manrope:wght@200..800&display=swap"
+          href="https://fonts.googleapis.com/css2?family=Comfortaa:wght@300..700&family=Google+Sans:wght@400;500;600;700&family=Manrope:wght@200..800&display=swap"
         />
       </head>
       <body className="paper-grain min-h-screen">
@@ -54,7 +54,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             <div className="shell relative py-10">
               <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-3">
                 <div>
-                  <Logo className="text-primary-deep" />
+                  <Logo />
                   <p className="mt-3 text-[13px] text-ink-soft">
                     NISR 2026 Big Data Hackathon
                   </p>
