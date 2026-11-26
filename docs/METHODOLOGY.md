@@ -101,19 +101,32 @@ bands are 10 / 57 / 31 / 3, which sum to 101, so they are normalised by 101 befo
 
 ### Calibration check
 
-`data/processed/calibration.json`, regenerated on every build:
+`data/processed/calibration.json`, regenerated on every build. Twelve indicators are fitted; the
+last two are deliberately **not** fitted, which is the only out-of-sample test this layer allows:
 
-| Quantity | Target (published) | Achieved |
-|---|---:|---:|
-| Poverty headcount | 27.4% | 27.4% |
-| Extreme poverty | 5.4% | 5.5% |
-| Severe shock incidence | 37.1% | 37.0% |
-| Shock incidence, poor | 41.0% | 40.5% |
-| Mobile money ownership | 86.6% | 86.8% |
-| Mobile money, poor | 77.8% | 78.1% |
-| Savings account | 68.0% | 68.4% |
-| Health insurance | 85.3% | 85.4% |
-| Financial health 10/57/31/3 | 10 / 57 / 31 / 3 | 9.9 / 56.4 / 30.7 / 3.0 |
+| Quantity | Fitted? | Target (published) | Achieved |
+|---|---|--:|--:|
+| Poverty headcount | yes | 27.4% | 27.4% |
+| Severe shock incidence | yes | 37.1% | 37.0% |
+| Shock incidence, poor | yes | 41.0% | 40.5% |
+| Mobile money ownership | yes | 86.6% | 86.8% |
+| Mobile money, poor | yes | 77.8% | 78.1% |
+| Savings account | yes | 68.0% | 68.4% |
+| Health insurance | yes | 85.3% | 85.4% |
+| Modern floor | yes | 39.2% | 37.7% |
+| Financial health 10/57/31/3 | yes | 10 / 57 / 31 / 3 | 9.9 / 56.4 / 30.7 / 3.0 |
+| **Extreme poverty** | **no** | 5.4% | 5.5% |
+| **Household size** | **no** | 4.3 | 4.3 |
+
+The fitted rows land within **1.5 pp**, median **0.25 pp** — the 1.5 is modern floor, and it is
+listed rather than dropped because the worst row is the one worth knowing. The two unfitted rows
+land within **0.1 pp**, which is inside the rounding step of a published one-decimal figure.
+
+What this proves and what it does not: the generator reproduces the published *marginals*, and the
+two held-out rows show it does not only reproduce what it was pointed at. It does **not** establish
+the joint household structure — that is the assumption the targeting ranking rests on, and it is
+the reason §6 exists. A near-zero gap on a fitted row is a check that the calibration ran; only the
+last two rows are evidence about the population.
 
 The population-weighted district table reconciles to **27.4%** nationally, matching the published
 headcount — a useful check that the Annex B transcription is internally consistent.

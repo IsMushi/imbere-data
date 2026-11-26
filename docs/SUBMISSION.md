@@ -163,7 +163,7 @@ district or LODA can adopt, not a pilot in progress. The team has not represente
 ### Criterion 2 — Data Use & Methodology (20)
 
 - **Two NISR datasets plus two external sources:** EICV7 Poverty Profile (Annex B, Tables 5.1, 6.3–6.11), FinScope 2024 (inclusion, financial health, climate module), Census 2022 (district populations), geoBoundaries/NISR Open Data (district geometry, CC BY 4.0).
-- **39 published indicators** transcribed with source IDs; poverty lines at January 2024 prices.
+- **60 published indicators** transcribed with source IDs; poverty lines at January 2024 prices.
 - **Rigorous preprocessing:** district table reconciles to the published 27.4% national headcount when population-weighted — an internal consistency check.
 - **Calibrated household layer** reproducing nine published marginals (poverty, extreme poverty, shock incidence, mobile money, savings, insurance, financial-health bands) — and the calibration report is regenerated on every build, so drift is visible rather than silent.
 - **FGT poverty measures** (incidence, depth, severity) computed nationally, by urban/rural and by district, with the formula, weights and scope on the method page; a household-size-weighted consumption Gini alongside.

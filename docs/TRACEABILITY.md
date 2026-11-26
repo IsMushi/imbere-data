@@ -24,7 +24,7 @@ submission's word for anything.
 | Requirement | Implementation | Evidence |
 |---|---|---|
 | Multiple authoritative datasets | EICV7 Poverty Profile, FinScope 2024, Census 2022, geoBoundaries | `docs/DATA_SOURCES.md`, `/api/meta → sources` |
-| Provenance for every input | Publisher, table, licence per source | `docs/DATA_SOURCES.md`; 39 indicators carry source ids |
+| Provenance for every input | Publisher, table, licence per source | `docs/DATA_SOURCES.md`; 60 indicators carry source ids |
 | Preprocessing that reconciles | District table population-weighted back to the published 27.4% | `/api/meta → national.district_weighted_poverty_rate`; `test_datastore.py` |
 | Standard poverty measures | FGT P₀/P₁/P₂, household-size weighted, by district and area | `analytics.poverty_measures`, `/api/poverty`, `test_poverty.py` |
 | Rigorous model evaluation | 5-fold out-of-fold, 3 learners, ROC-AUC/PR-AUC/Brier/ECE, confusion matrix, precision/recall/F1, calibration table | `scripts/evaluate_model.py`, `docs/MODEL_EVALUATION.md`, `test_datastore.py::test_model_card_*` |

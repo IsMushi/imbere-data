@@ -199,6 +199,15 @@
       "license": "CC BY 4.0"
     },
     {
+      "id": "eicv7_booklet",
+      "title": "EICV7 Dissemination Booklet 2023/24",
+      "publisher": "National Institute of Statistics of Rwanda (NISR)",
+      "year": 2025,
+      "url": "https://statistics.gov.rw/data-sources/surveys/EICV/integrated-household-living-conditions-survey-7-eicv-7",
+      "license": "CC BY 4.0",
+      "note": "Dissemination summary that restates the EICV7 Poverty Profile rather than reporting a separate survey. Its figures are rounded for presentation; where one disagrees with the report or its tables, the report takes precedence."
+    },
+    {
       "id": "finscope2024",
       "title": "FinScope 2024 - Financial Inclusion in Rwanda",
       "publisher": "Access to Finance Rwanda / NISR",

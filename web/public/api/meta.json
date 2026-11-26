@@ -44,6 +44,15 @@
       "license": "CC BY 4.0"
     },
     {
+      "id": "eicv7_booklet",
+      "title": "EICV7 Dissemination Booklet 2023/24",
+      "publisher": "National Institute of Statistics of Rwanda (NISR)",
+      "year": 2025,
+      "url": "https://statistics.gov.rw/data-sources/surveys/EICV/integrated-household-living-conditions-survey-7-eicv-7",
+      "license": "CC BY 4.0",
+      "note": "Dissemination summary that restates the EICV7 Poverty Profile rather than reporting a separate survey. Its figures are rounded for presentation; where one disagrees with the report or its tables, the report takes precedence."
+    },
+    {
       "id": "finscope2024",
       "title": "FinScope 2024 - Financial Inclusion in Rwanda",
       "publisher": "Access to Finance Rwanda / NISR",
@@ -411,6 +420,195 @@
       "year": 2024,
       "source": "eicv7_tables",
       "group": "services"
+    },
+    {
+      "id": "hh_mobile_phone",
+      "label": "Households owning a mobile phone",
+      "value": 85.0,
+      "unit": "%",
+      "year": 2024,
+      "source": "eicv7_booklet",
+      "group": "services"
+    },
+    {
+      "id": "hh_mobile_phone_2017",
+      "label": "Households owning a mobile phone (2017)",
+      "value": 67.0,
+      "unit": "%",
+      "year": 2017,
+      "source": "eicv7_booklet",
+      "group": "services"
+    },
+    {
+      "id": "hh_internet_access",
+      "label": "Households with internet access",
+      "value": 30.0,
+      "unit": "%",
+      "year": 2024,
+      "source": "eicv7_booklet",
+      "group": "services"
+    },
+    {
+      "id": "hh_internet_access_2017",
+      "label": "Households with internet access (2017)",
+      "value": 17.0,
+      "unit": "%",
+      "year": 2017,
+      "source": "eicv7_booklet",
+      "group": "services"
+    },
+    {
+      "id": "improved_water_source",
+      "label": "Households with an improved drinking water source",
+      "value": 90.0,
+      "unit": "%",
+      "year": 2024,
+      "source": "eicv7_booklet",
+      "group": "services"
+    },
+    {
+      "id": "improved_water_source_2017",
+      "label": "Households with an improved drinking water source (2017)",
+      "value": 87.0,
+      "unit": "%",
+      "year": 2017,
+      "source": "eicv7_booklet",
+      "group": "services"
+    },
+    {
+      "id": "basic_water_source",
+      "label": "Households with basic drinking water - improved source, under 30 minutes",
+      "value": 68.0,
+      "unit": "%",
+      "year": 2024,
+      "source": "eicv7_booklet",
+      "group": "services"
+    },
+    {
+      "id": "limited_water_source",
+      "label": "Households with limited drinking water - improved source, over 30 minutes",
+      "value": 21.0,
+      "unit": "%",
+      "year": 2024,
+      "source": "eicv7_booklet",
+      "group": "services"
+    },
+    {
+      "id": "water_source_satisfaction",
+      "label": "Households satisfied with the reliability of their water source",
+      "value": 45.0,
+      "unit": "%",
+      "year": 2024,
+      "source": "eicv7_booklet",
+      "group": "services"
+    },
+    {
+      "id": "water_source_satisfaction_2017",
+      "label": "Households satisfied with the reliability of their water source (2017)",
+      "value": 53.0,
+      "unit": "%",
+      "year": 2017,
+      "source": "eicv7_booklet",
+      "group": "services"
+    },
+    {
+      "id": "clean_cooking_fuel",
+      "label": "Households using clean cooking fuels",
+      "value": 5.0,
+      "unit": "%",
+      "year": 2024,
+      "source": "eicv7_booklet",
+      "group": "services"
+    },
+    {
+      "id": "clean_cooking_fuel_2017",
+      "label": "Households using clean cooking fuels (2017)",
+      "value": 1.0,
+      "unit": "%",
+      "year": 2017,
+      "source": "eicv7_booklet",
+      "group": "services"
+    },
+    {
+      "id": "primary_completion_rate",
+      "label": "Primary completion rate, ages 14-16",
+      "value": 42.0,
+      "unit": "%",
+      "year": 2024,
+      "source": "eicv7_booklet",
+      "group": "education"
+    },
+    {
+      "id": "primary_completion_rate_2017",
+      "label": "Primary completion rate, ages 14-16 (2017)",
+      "value": 31.0,
+      "unit": "%",
+      "year": 2017,
+      "source": "eicv7_booklet",
+      "group": "education"
+    },
+    {
+      "id": "secondary_net_attendance",
+      "label": "Secondary net attendance rate, ages 12-17",
+      "value": 34.0,
+      "unit": "%",
+      "year": 2024,
+      "source": "eicv7_booklet",
+      "group": "education"
+    },
+    {
+      "id": "secondary_net_attendance_2014",
+      "label": "Secondary net attendance rate, ages 12-17 (2014)",
+      "value": 23.0,
+      "unit": "%",
+      "year": 2014,
+      "source": "eicv7_booklet",
+      "group": "education"
+    },
+    {
+      "id": "gini_national",
+      "label": "Gini coefficient, national",
+      "value": 0.37,
+      "unit": "index",
+      "year": 2024,
+      "source": "eicv7_booklet",
+      "group": "inequality"
+    },
+    {
+      "id": "gini_urban",
+      "label": "Gini coefficient, urban",
+      "value": 0.44,
+      "unit": "index",
+      "year": 2024,
+      "source": "eicv7_booklet",
+      "group": "inequality"
+    },
+    {
+      "id": "gini_rural",
+      "label": "Gini coefficient, rural",
+      "value": 0.26,
+      "unit": "index",
+      "year": 2024,
+      "source": "eicv7_booklet",
+      "group": "inequality"
+    },
+    {
+      "id": "hh_cultivated_under_0_9ha",
+      "label": "Households cultivating less than 0.9 ha",
+      "value": 90.0,
+      "unit": "%",
+      "year": 2024,
+      "source": "eicv7_booklet",
+      "group": "agriculture"
+    },
+    {
+      "id": "hh_cultivated_under_0_9ha_2017",
+      "label": "Households cultivating less than 0.9 ha (2017)",
+      "value": 88.0,
+      "unit": "%",
+      "year": 2017,
+      "source": "eicv7_booklet",
+      "group": "agriculture"
     }
   ],
   "province_poverty": [

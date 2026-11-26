@@ -88,8 +88,8 @@ Array of 30 objects.
 | `poverty_lines` | Total and extreme line in RWF per adult equivalent per year, price base |
 | `national` | Population, households, poor people, poor households, headcount 2024/2017, extreme rates |
 | `districts_count` | 30 |
-| `sources` | Registry rows (id, title, publisher, year, url, licence) |
-| `indicators` | 39 transcribed indicators with value, unit, year, source id, group |
+| `sources` | Registry rows (id, title, publisher, year, url, licence, optional note) |
+| `indicators` | 60 transcribed indicators with value, unit, year, source id, group |
 | `province_poverty`, `area_poverty` | Published province and urban/rural series |
 | `shocks` | Shock incidence (all/poor/non-poor), seven shock types, six coping responses, FinScope climate block |
 | `microdata` | `kind`, `rows`, `seed`, `note` — the synthetic contract |

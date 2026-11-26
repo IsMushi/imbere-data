@@ -10,10 +10,18 @@ site.
 |---|---|---|---|---|---|---|---|---|
 | 1 | EICV7 — Poverty Profile Report 2023/24 | NISR | Fieldwork 2023/24, published 2025 | National, province, 30 districts, urban/rural | Poverty headcount 2024 and 2017, extreme poverty, poverty lines, inequality, population and household counts, shock incidence, coping responses | Percent, RWF per adult equivalent per year, counts | Public PDF + Excel, CC BY 4.0 | New EICV round roughly every three years |
 | 2 | EICV7 Tables — Poverty Analysis (Excel) | NISR | 2023/24 | Same | Annex B district table, Tables 5.1, 6.3, 6.6–6.11 | Percent, RWF, counts | Public download, CC BY 4.0 | With each EICV publication |
-| 3 | FinScope 2024 — Financial Inclusion in Rwanda | Access to Finance Rwanda / NISR | 2024 | National | Inclusion rate, mobile money, savings, insurance, financial health segments, climate exposure | Percent | Public report; row-level microdata via NISR catalog | Roughly every three years |
-| 4 | Rwanda Population and Housing Census 2022 | NISR | 2022 | National, district | District population, household counts | Persons, households | Public, CC BY 4.0 | Decennial |
-| 5 | geoBoundaries — Rwanda ADM1 | geoBoundaries (William & Mary) | Current release | 30 district polygons | District boundaries, names | GeoJSON geometry (WGS 84) | Public, CC BY 4.0 | Periodic boundary releases |
-| 6 | EICV7 household microdata | NISR | 2023/24 | Household, cluster | Consumption, assets, weights, strata, PSU | Row-level | **Restricted** — application via the NISR microdata catalog (catalog 119/121) | With each round |
+| 3 | EICV7 — Dissemination Booklet 2023/24 | NISR | 2023/24 | National, province, 30 districts, urban/rural | Restated headcount and poverty lines, Gini, household assets, water, energy, school attendance, cultivated area | Percent, Gini index | Public PDF, CC BY 4.0 | With each EICV publication |
+| 4 | FinScope 2024 — Financial Inclusion in Rwanda | Access to Finance Rwanda / NISR | 2024 | National | Inclusion rate, mobile money, savings, insurance, financial health segments, climate exposure | Percent | Public report; row-level microdata via NISR catalog | Roughly every three years |
+| 5 | Rwanda Population and Housing Census 2022 | NISR | 2022 | National, district | District population, household counts | Persons, households | Public, CC BY 4.0 | Decennial |
+| 6 | geoBoundaries — Rwanda ADM1 | geoBoundaries (William & Mary) | Current release | 30 district polygons | District boundaries, names | GeoJSON geometry (WGS 84) | Public, CC BY 4.0 | Periodic boundary releases |
+| 7 | EICV7 household microdata | NISR | 2023/24 | Household, cluster | Consumption, assets, weights, strata, PSU | Row-level | **Restricted** — application via the NISR microdata catalog (catalog 119/121) | With each round |
+
+The booklet is a dissemination summary, not a separate survey: it restates the Poverty Profile and
+rounds for presentation. It is the cited source only for the indicators the report tables do not
+carry here (internet access, clean cooking fuel, water source and satisfaction, school attendance,
+cultivated area, Gini). Where a booklet figure disagrees with the report or its tables, the report
+wins — the VUP poverty rates are one such case, and `data/reference/vup.json` takes its values from
+the Main Indicators Report rather than the booklet.
 
 Source URLs are carried in `data/processed/meta.json` and rendered on `/methodology`, so the site
 and this document cannot drift apart silently.
@@ -22,7 +30,7 @@ and this document cannot drift apart silently.
 
 | Class | Where it lives | Examples | Count |
 |---|---|---|---|
-| **Observed / published** | `data/raw/*.csv`, `data/reference/national_indicators.json` | District poverty 2024 and 2017, poverty lines, Census population, FinScope inclusion rates | 39 indicators + 30 district rows |
+| **Observed / published** | `data/raw/*.csv`, `data/reference/national_indicators.json` | District poverty 2024 and 2017, poverty lines, Census population, FinScope inclusion rates | 60 indicators + 30 district rows |
 | **Derived** | computed at request time | Population-weighted national headcount, province rates, poverty change in percentage points, FGT measures on the household layer, targeting outcomes | — |
 | **Model-generated** | computed at request time | Poverty-risk probability, resilience index, financial-health segment, targeting rankings | — |
 | **Synthetic** | `data/processed/households.csv` | 15,066 household rows calibrated to nine published marginals (seed 20261030) | 15,066 rows × 26 columns |
@@ -35,8 +43,9 @@ carries `microdata_kind: calibrated_synthetic`, and the UI labels those panels
 
 ## Access conditions, honestly stated
 
-- **EICV7 reports and tables** are public downloads and are redistributed here only as transcribed
-  CSVs, not as copies of the PDFs or XLSX. Those stay local and gitignored.
+- **EICV7 reports, tables and the dissemination booklet** are public downloads and are
+  redistributed here only as transcribed values, not as copies of the PDFs or XLSX. Those stay
+  local and gitignored.
 - **Row-level EICV7 and FinScope microdata** are released for analysis, not redistribution. The
   repository therefore contains no `.dta`, `.sav` or extracted archive, and `.gitignore` blocks
   them explicitly. Access requires an application to NISR; it was not granted during the
