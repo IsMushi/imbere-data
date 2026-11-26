@@ -2,8 +2,8 @@ import Image from "next/image";
 
 /**
  * Brandkit lockup (`public/images/`: `imbere-lockup.png` for light surfaces,
- * `imbere-lockup-light.png` reversed for navy — both written by
- * `scripts/make_icons.py` from the triangle mark + the wordmark donor, so the
+ * `imbere-lockup-light.png` reversed for navy — both written by the local
+ * icon generator (`make_icons.py`) from the triangle mark + the wordmark donor, so the
  * typography is never redrawn). `tone="dark"` is the footer variant;
  * `tone="light"` is the navy-header variant, set directly on the blue with no
  * plate behind it.

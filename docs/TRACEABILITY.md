@@ -61,8 +61,8 @@ transferable; the figures are not Rwanda's. `docs/METHODOLOGY.md` §7 and §10.
 | Cold-start honesty | 60 s POST budget, one retry, "waking the engine" notice after 2.5 s | `web/lib/api.ts`, `web/lib/useSlowNotice.ts` |
 | Provenance visible | `Measured · published` / `Modelled · illustrative` / `Stated assumption` on every panel | `web/components/Ui.tsx` `Tag`, `SourceNote` |
 | Exports | Targeting table to CSV at the on-screen parameters, with the synthetic caveat in the file | `targeting/page.tsx::exportCsv` |
-| Responsive | Checked at 390px; tables scroll inside a focusable region | `README.md`, `docs/TESTING_REPORT.md` |
-| Accessibility | Semantic tables, `aria-live` status, keyboard-reachable controls, AA contrast | `components/ui/*`, `docs/TESTING_REPORT.md` |
+| Responsive | Checked at 390px; tables scroll inside a focusable region | `README.md`, local browser checks |
+| Accessibility | Semantic tables, `aria-live` status, keyboard-reachable controls, AA contrast | `components/ui/*`, local browser checks |
 
 Not claimed: a formal WCAG audit by an external party, and no cross-browser matrix beyond Chrome
 and Edge.

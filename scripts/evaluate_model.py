@@ -15,11 +15,10 @@ Run from the repo root:
 
     python scripts/evaluate_model.py
 
-Writes docs/MODEL_EVALUATION.md and data/processed/model_evaluation.json.
+Writes docs/MODEL_EVALUATION.md.
 """
 from __future__ import annotations
 
-import json
 import sys
 from pathlib import Path
 
@@ -46,7 +45,6 @@ sys.path.insert(0, str(ROOT / "api"))
 
 from app import datastore  # noqa: E402  (path set above)
 
-OUT_JSON = ROOT / "data" / "processed" / "model_evaluation.json"
 OUT_MD = ROOT / "docs" / "MODEL_EVALUATION.md"
 
 SEED = 42
@@ -327,9 +325,8 @@ def main() -> int:
             "conclusion needs, not how much the model has."
         ),
     }
-    OUT_JSON.write_text(json.dumps(payload, indent=2) + "\n", encoding="utf-8")
     OUT_MD.write_text(render_markdown(payload), encoding="utf-8")
-    print(f"\nwrote {OUT_JSON.relative_to(ROOT)} and {OUT_MD.relative_to(ROOT)}")
+    print(f"\nwrote {OUT_MD.relative_to(ROOT)}")
     return 0
 
 

@@ -1,0 +1,54 @@
+{
+  "_purpose": "Verified code-to-label lookups for the EICV7 cross-section extract (catalog 119). Every entry below was read from the value labels inside CS_EICV7_poverty_file.dta, not guessed from a codebook or from another round. scripts/import_eicv7.py consumes the same shape through eicv7_map.json; this file keeps the lookups readable on their own.",
+  "_verified_on": "2026-11-25 against RWA-NISR-EICV7-2023-2024-v01 (15,054 households, 30 districts)",
+  "_note": "The district label set matches all 30 names in data/processed/districts.json exactly, so no manual name normalisation is needed. Province labels in the extract carry the word 'Province'; the contract uses the short form.",
+  "district": {
+    "11": "Nyarugenge",
+    "12": "Gasabo",
+    "13": "Kicukiro",
+    "21": "Nyanza",
+    "22": "Gisagara",
+    "23": "Nyaruguru",
+    "24": "Huye",
+    "25": "Nyamagabe",
+    "26": "Ruhango",
+    "27": "Muhanga",
+    "28": "Kamonyi",
+    "31": "Karongi",
+    "32": "Rutsiro",
+    "33": "Rubavu",
+    "34": "Nyabihu",
+    "35": "Ngororero",
+    "36": "Rusizi",
+    "37": "Nyamasheke",
+    "41": "Rulindo",
+    "42": "Gakenke",
+    "43": "Musanze",
+    "44": "Burera",
+    "45": "Gicumbi",
+    "51": "Rwamagana",
+    "52": "Nyagatare",
+    "53": "Gatsibo",
+    "54": "Kayonza",
+    "55": "Kirehe",
+    "56": "Ngoma",
+    "57": "Bugesera"
+  },
+  "province": {
+    "1": "Kigali City",
+    "2": "South",
+    "3": "West",
+    "4": "North",
+    "5": "East"
+  },
+  "urban": {
+    "1": 1,
+    "2": 0
+  },
+  "poverty_flags": {
+    "_why": "The extract's own published classification. Recomputing from cons1ae against the lines gives 41.5%, because the two are not on the same price base.",
+    "pov_jan": { "0": 0, "100": 1 },
+    "epov_jan": { "0": 0, "100": 1 },
+    "poverty": { "1": 1, "2": 1, "3": 0 }
+  }
+}

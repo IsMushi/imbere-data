@@ -171,16 +171,25 @@ and each needs re-checking against the real microdata before it informs a budget
 
 ## Videos
 
-The demo lives on Google Drive rather than in this repository. It is 60 MB, above GitHub's 50 MB
-recommended file size, and keeping it out means a clone stays small.
+The demo lives on Google Drive rather than in this repository. It is large enough to exceed GitHub's
+50 MB recommended file size, and keeping it out means a clone stays small.
 
-| Video | What it covers | Length | Where it lives |
-|---|---|---|---|
-| Screen-recorded demo | The prototype captured in Chrome: overview, district detail, shock simulator, targeting lab, methodology | 2:27 | **[Watch on Google Drive](https://drive.google.com/file/d/1l716w8K3kTamda-PM7YmNHaNRuOq7_RE/view?usp=sharing)** |
+| Video | What it covers | Where it lives |
+|---|---|---|
+| Screen-recorded demo, 26 November 2026 | The prototype captured in Chrome: overview, district detail, shock simulator, targeting lab, methodology | **[Watch on Google Drive](https://drive.google.com/file/d/1MNmThQxvL6r7V6Xt8zSZRBae4SorQX-A/view?usp=sharing)** |
 
 The demo shows results computed on the calibrated synthetic household rows, the same numbers as
 the table above. They are prototype figures, not Rwanda's, and carry the same
 `Modelled · illustrative` marking as the app.
+
+## Pitch deck
+
+The five-slide pitch deck is committed with the submission:
+
+| Format | File |
+|---|---|
+| PDF | [IMBERE_DATA_PITCH.pdf](https://github.com/IsMushi/imbere-data/blob/main/docs/IMBERE_DATA_PITCH.pdf) |
+| PowerPoint | [IMBERE_DATA_PITCH.pptx](https://github.com/IsMushi/imbere-data/blob/main/docs/IMBERE_DATA_PITCH.pptx) |
 
 ---
 
@@ -453,6 +462,13 @@ Problem framing, dataset selection, transcription from the NISR and FinScope sou
 calibration design, the targeting rules, the shock model and verification of every quoted figure
 are the team's own work. AI assistance is disclosed in the submission document that accompanies
 the entry.
+
+### Student verification
+
+The competition requires proof of student status. The cards for both team members are published
+with the submission:
+
+[Student cards - ISHIMWE KEZA Grace and Isaac MUSHIMIYIMANA (PDF, 2 pages)](https://github.com/IsMushi/imbere-data/blob/main/docs/student-cards.pdf)
 
 ## Licence and attribution
 

@@ -75,6 +75,9 @@ docs/*
 !docs/DATA_DICTIONARY.md
 !docs/DATA_SOURCES.md
 !docs/TRACEABILITY.md
+!docs/student-cards.pdf
+!docs/IMBERE_DATA_PITCH.pdf
+!docs/IMBERE_DATA_PITCH.pptx
 
 # Demo recordings are hosted on Google Drive, not in Git.
 media/

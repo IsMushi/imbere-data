@@ -98,21 +98,10 @@ Array of 30 objects.
 
 ## 6. `data/processed/calibration.json` — targets
 
-The nine published marginals the synthetic layer is calibrated to, kept separate so a reviewer can
-compare them to the generated shares without reading the generator.
+The twelve fitted marginals plus the two held-out checks the synthetic layer is calibrated against,
+kept separate so a reviewer can compare them to the generated shares without reading the generator.
 
-## 7. `data/processed/model_evaluation.json` — generated
-
-| Key | Content |
-|---|---|
-| `evaluated_on`, `rows`, `folds`, `seed`, `caseload` | Protocol |
-| `models.<name>` | `roc_auc`, `pr_auc`, `brier`, `ece`, `at_programme_caseload` (precision, recall, F1, confusion counts), `calibration` deciles |
-| `best_model`, `production_model` | CV winner vs. what the app ships |
-| `robustness` | AUC target, achieved AUC, accuracy, coverage, leakage, `still_beats_geographic` |
-| `reference` | Geographic and universal outcomes on the same sample |
-| `caveat` | Synthetic-data statement |
-
-## 8. API response fields
+## 7. API response fields
 
 ### `GET /api/poverty`
 

@@ -427,8 +427,7 @@ cd web && npm run build               # TypeScript + static prerender
 ```
 
 `api/tests/` asserts the documented figures rather than printing them, so drift fails instead of
-scrolling past. The browser checks are described in `docs/TESTING_REPORT.md`; they are local-only
-harnesses, not part of the committed suite.
+scrolling past. The browser checks are local-only harnesses, not part of the committed suite.
 
 ---
 

@@ -51,8 +51,8 @@ carries `microdata_kind: calibrated_synthetic`, and the UI labels those panels
   them explicitly. Access requires an application to NISR; it was not granted during the
   hackathon window, which is why the household layer is synthetic.
 - **Census 2022** figures used here are the published district totals, not record-level data.
-- **geoBoundaries** geometry is CC BY 4.0 but must be re-wound for d3-geo (see
-  `scripts/fix_geojson.py`); the wrong winding renders every district as the whole sphere.
+- **geoBoundaries** geometry is CC BY 4.0 but must be re-wound for d3-geo; the wrong winding
+  renders every district as the whole sphere.
 
 ## Sources reviewed but not integrated
 

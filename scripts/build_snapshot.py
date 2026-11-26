@@ -29,7 +29,6 @@ FILES = {
     "meta": "/api/meta.json",
     "districts": "/api/districts.json",
     "poverty": "/api/poverty.json",
-    "targeting": "/api/targeting-default.json",
     "proof": "/api/proof.json",
 }
 
@@ -48,7 +47,6 @@ def payloads() -> dict[str, dict]:
         },
         "districts": {"districts": datastore.district_aggregates()},
         "poverty": analytics.poverty_measures(),
-        "targeting": analytics.evaluate_targeting(300_000_000, 150_000),
         "proof": datastore.proof(),
     }
 

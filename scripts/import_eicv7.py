@@ -12,8 +12,10 @@ What it does, in order:
 
   1. reads the extract (CSV, Stata `.dta`, SPSS `.sav`, Parquet), optionally renaming columns
      through a mapping file and recoding category values through the same file;
-  2. recomputes `poor` and `extreme_poor` from `consumption_ae` against the published lines, so the
-     targets cannot disagree with the consumption column - pass --keep-targets to trust the file;
+  2. keeps the extract's own `poor` / `extreme_poor` flags when it carries them, because those are
+     the published classification; recomputes them from `consumption_ae` only when they are absent
+     (or when --recompute-targets is passed), and refuses a recompute that lands far from the
+     published headcount - that gap means a price-base mismatch, not a new poverty rate;
   3. validates columns, geography, binary columns and ranges with `app.contract`;
   4. compares the result against the published marginals and prints the gap;
   5. writes `data/processed/households.csv` only when every check passes.
@@ -54,11 +56,16 @@ REFERENCE = ROOT / "data" / "reference"
 # real rows are allowed to differ - but the difference is the first thing a reviewer should see.
 BENCHMARKS = {
     "poor": 27.4,
-    "extreme_poor": 5.7,
+    "extreme_poor": 5.4,
     "has_momo": 86.9,
     "has_savings": 68.2,
     "health_insurance": 85.6,
 }
+
+# A recomputed headcount this far from the published figure is a price-base problem, not news about
+# Rwanda. EICV7's `cons1ae` compared directly with the published line yields 41.5%, not 27.4%,
+# because the two are not on the same base; the file's own `pov_jan` / `epov_jan` flags are.
+HEADCOUNT_TOLERANCE_PP = 5.0
 
 
 def read_any(path: Path) -> pd.DataFrame:
@@ -114,6 +121,26 @@ def retarget(df: pd.DataFrame, lines: dict) -> pd.DataFrame:
     return df
 
 
+def target_problem(df: pd.DataFrame) -> str | None:
+    """Refuse a recomputed headcount that is far from the published one.
+
+    The gap is evidence that the consumption column and the poverty line are on different price
+    bases. Writing the file anyway would publish a poverty rate the survey does not support.
+    """
+    if "poor" not in df.columns:
+        return None
+    got = 100.0 * float(df["poor"].mean())
+    gap = abs(got - BENCHMARKS["poor"])
+    if gap <= HEADCOUNT_TOLERANCE_PP:
+        return None
+    return (
+        f"recomputed headcount is {got:.2f}% against the published {BENCHMARKS['poor']}% "
+        f"({gap:.1f} pp apart): consumption_ae is probably not on the same price base as the "
+        f"poverty line. Keep the extract's own pov/epov flags (the default) or map a consumption "
+        f"column that is already deflated"
+    )
+
+
 def marginals(df: pd.DataFrame) -> dict[str, float]:
     return {k: round(float(df[k].mean()) * 100, 1) for k in BENCHMARKS if k in df.columns}
 
@@ -154,7 +181,12 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument(
         "--keep-targets",
         action="store_true",
-        help="trust the file's poor / extreme_poor columns instead of recomputing them",
+        help=argparse.SUPPRESS,  # now the default; kept so older instructions still run
+    )
+    parser.add_argument(
+        "--recompute-targets",
+        action="store_true",
+        help="recompute poor / extreme_poor from consumption_ae instead of using the extract's flags",
     )
     parser.add_argument("--dry-run", action="store_true", help="validate and report, write nothing")
     args = parser.parse_args(argv)
@@ -174,12 +206,18 @@ def main(argv: list[str] | None = None) -> int:
 
     lines = json.loads((REFERENCE / "national_indicators.json").read_text(encoding="utf-8"))["poverty_lines"]
 
-    if not args.keep_targets:
+    has_targets = {"poor", "extreme_poor"}.issubset(df.columns)
+    if args.recompute_targets or not has_targets:
         if "consumption_ae" not in df.columns:
             problems.append("cannot recompute poor/extreme_poor: consumption_ae is missing")
         else:
             df = retarget(df, lines)
             print("recomputed poor and extreme_poor from consumption_ae and the published lines")
+            guard = target_problem(df)
+            if guard:
+                problems.append(guard)
+    else:
+        print("using the extract's own poor / extreme_poor flags (the published classification)")
 
     districts = [d["district"] for d in json.loads((PROCESSED / "districts.json").read_text(encoding="utf-8"))]
     sample = {

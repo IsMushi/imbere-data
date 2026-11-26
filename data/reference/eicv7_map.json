@@ -3,7 +3,7 @@
   "_how_to_fill": {
     "columns": "Map each source variable name to a contract column name. Keys are the names as they appear in your extract; values are from _contract_columns. A key that is not in the extract is an error.",
     "value_maps": "For every categorical contract column, map each source code or label to a value from _vocabularies. A source value with no mapping is an error rather than a default.",
-    "targets": "poor and extreme_poor do not need mapping unless you pass --keep-targets: by default they are recomputed from consumption_ae against the published poverty lines."
+    "targets": "poor and extreme_poor are taken from the extract when present, so map the survey's own flags (EICV7: pov_jan and epov_jan, with value_maps 0 -> 0 and 100 -> 1). They are recomputed from consumption_ae only when absent, or with --recompute-targets, and a recompute more than 5 pp away from the published headcount is refused as a price-base mismatch."
   },
   "columns": {},
   "value_maps": {},
